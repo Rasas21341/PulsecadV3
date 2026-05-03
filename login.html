@@ -324,110 +324,140 @@
         </div>
     </div>
 
-     <script>
-         import { supabase } from './supabase.js';
+      <script type="module">
+          import { supabase } from './supabase.js';
 
-         supabase.auth.getSession().then(function(result) {
-             var session = result.data.session;
-             if (session) {
-                 console.log('User already logged in:', session.user.email);
-             }
-         });
+          supabase.auth.getSession().then(function(result) {
+              var session = result.data.session;
+              if (session) {
+                  console.log('User already logged in:', session.user.email);
+              }
+          });
 
-         document.getElementById('loginForm').addEventListener('submit', function(e) {
-             e.preventDefault();
-             var email = document.getElementById('loginEmail').value;
-             var password = document.getElementById('loginPassword').value;
-             var messageEl = document.getElementById('loginMessage');
-             var btn = document.querySelector('.login-btn');
-             
-             btn.textContent = 'Signing in...';
-             btn.disabled = true;
-             messageEl.textContent = '';
-             messageEl.className = '';
-             messageEl.style.display = 'block';
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+              e.preventDefault();
+              var email = document.getElementById('loginEmail').value;
+              var password = document.getElementById('loginPassword').value;
+              var messageEl = document.getElementById('loginMessage');
+              var btn = document.querySelector('.login-btn');
+              
+              btn.textContent = 'Signing in...';
+              btn.disabled = true;
+              messageEl.textContent = '';
+              messageEl.className = '';
+              messageEl.style.display = 'block';
 
-             supabase.auth.signInWithPassword({
-                 email: email,
-                 password: password
-             }).then(function(result) {
-                 var data = result.data;
-                 var error = result.error;
-                 
-                 if (error) {
-                     console.error('Login error:', error);
-                     console.error('Error message:', error.message);
-                     console.error('Error name:', error.name);
-                     
-                     messageEl.textContent = 'Incorrect email or password';
-                     messageEl.className = 'error-message';
-                     messageEl.style.display = 'block';
-                     btn.textContent = 'Sign In';
-                     btn.disabled = false;
-                 } else {
-                     console.log('Login successful:', data.user.email);
-                     messageEl.textContent = 'Login successful! Redirecting...';
-                     messageEl.className = 'success-message';
-                     window.location.href = 'blank.html';
-                 }
-             }).catch(function(err) {
-                 console.error('Unexpected error:', err);
-                 messageEl.textContent = 'Unable to connect. Please check your connection.';
-                 messageEl.className = 'error-message';
-                 messageEl.style.display = 'block';
-                 btn.textContent = 'Sign In';
-                 btn.disabled = false;
-             });
-         });
+              supabase.auth.signInWithPassword({
+                  email: email,
+                  password: password
+              }).then(function(result) {
+                  var data = result.data;
+                  var error = result.error;
+                  
+                  if (error) {
+                      console.error('Login error:', error);
+                      console.error('Error message:', error.message);
+                      console.error('Error name:', error.name);
+                      
+                      messageEl.textContent = 'Incorrect email or password';
+                      messageEl.className = 'error-message';
+                      messageEl.style.display = 'block';
+                      btn.textContent = 'Sign In';
+                      btn.disabled = false;
+                  } else {
+                      console.log('Login successful:', data.user.email);
+                      
+                      // Check if profile exists, create if not
+                      supabase.from('profiles').select('id').eq('id', data.user.id).single().then(function(profileResult) {
+                          if (profileResult.error && profileResult.error.code === 'PGRST116') {
+                              // Profile doesn't exist, create it
+                              supabase.from('profiles').insert({
+                                  id: data.user.id,
+                                  email: data.user.email,
+                                  username: data.user.email.split('@')[0], // Use part before @ as username
+                                  created_at: new Date().toISOString()
+                              }).then(function(insertResult) {
+                                  if (insertResult.error) {
+                                      console.error('Profile creation error:', insertResult.error);
+                                  } else {
+                                      console.log('Profile created for existing user');
+                                  }
+                              }).catch(function(insertErr) {
+                                  console.error('Unexpected error creating profile:', insertErr);
+                              });
+                          } else if (profileResult.error) {
+                              console.error('Error checking profile:', profileResult.error);
+                          }
+                          // Profile exists or created, continue with redirect
+                      }).catch(function(selectErr) {
+                          console.error('Unexpected error checking profile:', selectErr);
+                          // Continue with redirect even if check fails
+                      });
+                      
+                      messageEl.textContent = 'Login successful! Redirecting...';
+                      messageEl.className = 'success-message';
+                      window.location.href = 'blank.html';
+                  }
+              }).catch(function(err) {
+                  console.error('Unexpected error:', err);
+                  messageEl.textContent = 'Unable to connect. Please check your connection.';
+                  messageEl.className = 'error-message';
+                  messageEl.style.display = 'block';
+                  btn.textContent = 'Sign In';
+                  btn.disabled = false;
+              });
+          });
 
-         document.getElementById('discordLoginBtn').addEventListener('click', function() {
-             var messageEl = document.getElementById('loginMessage');
-             var btn = document.getElementById('discordLoginBtn');
-             
-             messageEl.textContent = '';
-             messageEl.className = '';
-             btn.style.opacity = '0.7';
-             btn.style.pointerEvents = 'none';
+          document.getElementById('discordLoginBtn').addEventListener('click', function() {
+              var messageEl = document.getElementById('loginMessage');
+              var btn = document.getElementById('discordLoginBtn');
+              
+              messageEl.textContent = '';
+              messageEl.className = '';
+              btn.style.opacity = '0.7';
+              btn.style.pointerEvents = 'none';
 
-             var redirectUrl = window.location.origin + '/blank.html';
+              var redirectUrl = window.location.origin + '/blank.html';
 
-             supabase.auth.signInWithOAuth({
-                 provider: 'discord',
-                 options: { redirectTo: redirectUrl }
-             }).then(function(result) {
-                 var error = result.error;
-                 if (error) {
-                     console.error('Discord OAuth error:', error);
-                     messageEl.textContent = error.message;
-                     messageEl.className = 'error-message';
-                     btn.style.opacity = '1';
-                     btn.style.pointerEvents = 'auto';
-                 }
-             }).catch(function(err) {
-                 console.error('Unexpected error:', err);
-                 messageEl.textContent = 'Unable to connect to Discord.';
-                 messageEl.className = 'error-message';
-                 btn.style.opacity = '1';
-                 btn.style.pointerEvents = 'auto';
-             });
-         });
+              supabase.auth.signInWithOAuth({
+                  provider: 'discord',
+                  options: { redirectTo: redirectUrl }
+              }).then(function(result) {
+                  var error = result.error;
+                  if (error) {
+                      console.error('Discord OAuth error:', error);
+                      messageEl.textContent = error.message;
+                      messageEl.className = 'error-message';
+                      btn.style.opacity = '1';
+                      btn.style.pointerEvents = 'auto';
+                  }
+                  // Note: Profile creation for Discord users will happen on redirect callback
+                  // since we don't get the user data immediately in this flow
+              }).catch(function(err) {
+                  console.error('Unexpected error:', err);
+                  messageEl.textContent = 'Unable to connect to Discord.';
+                  messageEl.className = 'error-message';
+                  btn.style.opacity = '1';
+                  btn.style.pointerEvents = 'auto';
+              });
+          });
 
-         function showForgotPassword() {
-             var email = prompt('Enter your email address to receive a password reset link:');
-             if (email && email.trim()) {
-                 supabase.auth.resetPasswordForEmail(email, {
-                     redirectTo: window.location.origin + '/login.html'
-                 }).then(function(result) {
-                     var error = result.error;
-                     if (error) {
-                         alert('Error: ' + error.message);
-                     } else {
-                         alert('Password reset email sent! Please check your inbox.');
-                     }
-                 });
-             }
-             return false;
-         }
-     </script>
+          function showForgotPassword() {
+              var email = prompt('Enter your email address to receive a password reset link:');
+              if (email && email.trim()) {
+                  supabase.auth.resetPasswordForEmail(email, {
+                      redirectTo: window.location.origin + '/login.html'
+                  }).then(function(result) {
+                      var error = result.error;
+                      if (error) {
+                          alert('Error: ' + error.message);
+                      } else {
+                          alert('Password reset email sent! Please check your inbox.');
+                      }
+                  });
+              }
+              return false;
+          }
+      </script>
 </body>
 </html>

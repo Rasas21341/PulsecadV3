@@ -287,85 +287,105 @@
         </div>
     </div>
 
-     <script>
-         import { supabase } from './supabase.js';
+      <script type="module">
+          import { supabase } from './supabase.js';
 
-         document.getElementById('signupForm').addEventListener('submit', function(e) {
-             e.preventDefault();
-             var email = document.getElementById('signupEmail').value;
-             var password = document.getElementById('signupPassword').value;
-             var username = document.getElementById('signupUsername').value;
-             var messageEl = document.getElementById('signupMessage');
-             var btn = document.querySelector('.signup-btn');
-             
-             btn.textContent = 'Creating Account...';
-             btn.disabled = true;
-             messageEl.textContent = '';
-             messageEl.className = '';
+          document.getElementById('signupForm').addEventListener('submit', function(e) {
+              e.preventDefault();
+              var email = document.getElementById('signupEmail').value;
+              var password = document.getElementById('signupPassword').value;
+              var username = document.getElementById('signupUsername').value;
+              var messageEl = document.getElementById('signupMessage');
+              var btn = document.querySelector('.signup-btn');
+              
+              btn.textContent = 'Creating Account...';
+              btn.disabled = true;
+              messageEl.textContent = '';
+              messageEl.className = '';
 
-             supabase.auth.signUp({
-                 email: email,
-                 password: password
-             }, {
-                 data: {
-                     username: username
-                 }
-             }).then(function(result) {
-                 var data = result.data;
-                 var error = result.error;
-                 
-                 if (error) {
-                     console.error('Signup error:', error);
-                     messageEl.textContent = error.message;
-                     messageEl.className = 'error-message';
-                     btn.textContent = 'Create Account';
-                     btn.disabled = false;
-                 } else {
-                     console.log('Signup successful:', data.user.email);
-                     messageEl.textContent = 'Account created! Please check your email to confirm.';
-                     messageEl.className = 'success-message';
-                     document.getElementById('signupForm').reset();
-                 }
-             }).catch(function(err) {
-                 console.error('Unexpected error:', err);
-                 messageEl.textContent = 'Unable to connect. Please check your connection.';
-                 messageEl.className = 'error-message';
-                 btn.textContent = 'Create Account';
-                 btn.disabled = false;
-             });
-         });
+               supabase.auth.signUp({
+                   email: email,
+                   password: password
+               }, {
+                   data: {
+                       username: username
+                   }
+               }).then(function(result) {
+                   var data = result.data;
+                   var error = result.error;
+                   
+                   if (error) {
+                       console.error('Signup error:', error);
+                       messageEl.textContent = error.message;
+                       messageEl.className = 'error-message';
+                       btn.textContent = 'Create Account';
+                       btn.disabled = false;
+                   } else {
+                       console.log('Signup successful:', data.user.email);
+                       
+                       // Create profile in database
+                       supabase.from('profiles').insert({
+                           id: data.user.id,
+                           username: username,
+                           email: email,
+                           created_at: new Date().toISOString()
+                       }).then(function(profileResult) {
+                           if (profileResult.error) {
+                               console.error('Profile creation error:', profileResult.error);
+                               // Don't fail the signup if profile creation fails
+                               console.log('User created but profile creation failed');
+                           } else {
+                               console.log('Profile created successfully');
+                           }
+                       }).catch(function(profileErr) {
+                           console.error('Unexpected error creating profile:', profileErr);
+                           // Don't fail the signup if profile creation fails
+                       });
+                       
+                       messageEl.textContent = 'Account created! Please check your email to confirm.';
+                       messageEl.className = 'success-message';
+                       document.getElementById('signupForm').reset();
+                   }
+               }).catch(function(err) {
+                   console.error('Unexpected error:', err);
+                   messageEl.textContent = 'Unable to connect. Please check your connection.';
+                   messageEl.className = 'error-message';
+                   btn.textContent = 'Create Account';
+                   btn.disabled = false;
+               });
+          });
 
-         document.getElementById('discordSignupBtn').addEventListener('click', function() {
-             var messageEl = document.getElementById('signupMessage');
-             var btn = document.getElementById('discordSignupBtn');
-             
-             messageEl.textContent = '';
-             messageEl.className = '';
-             btn.style.opacity = '0.7';
-             btn.style.pointerEvents = 'none';
+          document.getElementById('discordSignupBtn').addEventListener('click', function() {
+              var messageEl = document.getElementById('signupMessage');
+              var btn = document.getElementById('discordSignupBtn');
+              
+              messageEl.textContent = '';
+              messageEl.className = '';
+              btn.style.opacity = '0.7';
+              btn.style.pointerEvents = 'none';
 
-             var redirectUrl = window.location.origin + '/blank.html';
+              var redirectUrl = window.location.origin + '/blank.html';
 
-             supabase.auth.signInWithOAuth({
-                 provider: 'discord',
-                 options: { redirectTo: redirectUrl }
-             }).then(function(result) {
-                 var error = result.error;
-                 if (error) {
-                     console.error('Discord OAuth error:', error);
-                     messageEl.textContent = error.message;
-                     messageEl.className = 'error-message';
-                     btn.style.opacity = '1';
-                     btn.style.pointerEvents = 'auto';
-                 }
-             }).catch(function(err) {
-                 console.error('Unexpected error:', err);
-                 messageEl.textContent = 'Unable to connect to Discord.';
-                 messageEl.className = 'error-message';
-                 btn.style.opacity = '1';
-                 btn.style.pointerEvents = 'auto';
-             });
-         });
+              supabase.auth.signInWithOAuth({
+                  provider: 'discord',
+                  options: { redirectTo: redirectUrl }
+              }).then(function(result) {
+                  var error = result.error;
+                  if (error) {
+                      console.error('Discord OAuth error:', error);
+                      messageEl.textContent = error.message;
+                      messageEl.className = 'error-message';
+                      btn.style.opacity = '1';
+                      btn.style.pointerEvents = 'auto';
+                  }
+              }).catch(function(err) {
+                  console.error('Unexpected error:', err);
+                  messageEl.textContent = 'Unable to connect to Discord.';
+                  messageEl.className = 'error-message';
+                  btn.style.opacity = '1';
+                  btn.style.pointerEvents = 'auto';
+              });
+          });
       </script>
 </body>
 </html>
