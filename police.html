@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
+    <title>Pulse CAD - Police Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 70px;
+            background-color: #111;
+            border-right: 1px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            gap: 0.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 50;
+        }
+        .sidebar-logo {
+            width: 36px; height: 36px; border-radius: 8px;
+            margin-bottom: 1rem; overflow: hidden;
+        }
+        .sidebar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .sidebar-item {
+            width: 50px; height: 50px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 8px; cursor: pointer;
+            transition: background-color 0.2s;
+            color: #666; text-decoration: none;
+            font-size: 0.55rem; gap: 3px;
+        }
+        .sidebar-item:hover { background-color: #1a1a1a; color: #aaa; }
+        .sidebar-item.active { color: #4a90e2; }
+        .sidebar-item svg { width: 20px; height: 20px; }
+        .main-content {
+            flex: 1; display: flex; flex-direction: column;
+            margin-left: 70px;
+        }
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+            background-color: #0d0d0d;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 1rem; }
+        .top-bar-logo {
+            width: 28px; height: 28px;
+            border-radius: 6px; overflow: hidden;
+        }
+        .top-bar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .page-title h1 { font-size: 1.1rem; font-weight: 600; color: #fff; }
+        .page-title p { font-size: 0.8rem; color: #666; }
+        .top-bar-right { display: flex; align-items: center; gap: 1rem; }
+        .user-profile {
+            display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; position: relative;
+            padding: 0.25rem 0.5rem; border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .user-profile:hover { background-color: #1a1a1a; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #1e3a8a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; color: #fff;
+        }
+        .user-name { font-size: 0.9rem; color: #ccc; }
+        .user-dropdown {
+            display: none; position: absolute; top: 100%; right: 0;
+            margin-top: 0.5rem; background-color: #1a1a1a;
+            border: 1px solid #2a2a2a; border-radius: 8px;
+            min-width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 200; overflow: hidden;
+        }
+        .user-dropdown.active { display: block; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1rem; color: #ccc; cursor: pointer;
+            transition: background-color 0.2s;
+            border: none; background: none; width: 100%;
+            text-align: left; font-size: 0.85rem;
+        }
+        .dropdown-item:hover { background-color: #2a2a2a; }
+        .dropdown-item.logout { color: #ff4444; border-top: 1px solid #2a2a2a; }
+        .dropdown-item.logout:hover { background-color: #2a1a1a; }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .panel-content { padding: 2rem; flex: 1; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .stats-row {
+            display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+        }
+        .stat-card {
+            background-color: #111; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 1.25rem;
+            flex: 1; min-width: 150px;
+            border-left: 3px solid #1e3a8a;
+        }
+        .stat-card .label {
+            font-size: 0.75rem; color: #4a90e2;
+            text-transform: uppercase; margin-bottom: 0.5rem;
+        }
+        .stat-card .value {
+            font-size: 1.5rem; font-weight: 600; color: #fff;
+        }
+        .stat-card.urgent { border-left-color: #ff4444; }
+        .stat-card.active { border-left-color: #4caf50; }
+        .stat-card.warning { border-left-color: #ff9800; }
+        .section {
+            background-color: #111; border: 1px solid #1a1a1a;
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .section-header {
+            margin-bottom: 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-header h2 { font-size: 1rem; color: #fff; margin-bottom: 0.25rem; }
+        .section-header p { font-size: 0.8rem; color: #666; }
+        .btn {
+            padding: 0.6rem 1.25rem; border-radius: 8px;
+            border: none; font-size: 0.85rem; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn svg { width: 16px; height: 16px; }
+        .btn-primary { background-color: #1e3a8a; color: white; }
+        .btn-primary:hover { background-color: #2548a8; }
+        .btn-danger { background-color: #dc2626; color: white; }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-success { background-color: #059669; color: white; }
+        .btn-success:hover { background-color: #047857; }
+        .btn-secondary { background-color: #333; color: #ccc; }
+        .btn-secondary:hover { background-color: #444; }
+        .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+        .incident-card {
+            background-color: #141414; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .incident-card:hover { border-color: #4a90e2; background-color: #1a1a1a; }
+        .incident-card.urgent { border-left: 3px solid #ff4444; }
+        .incident-card.active { border-left: 3px solid #4caf50; }
+        .incident-card.resolved { border-left: 3px solid #666; opacity: 0.7; }
+        .incident-info { flex: 1; }
+        .incident-title { font-weight: 600; color: #fff; margin-bottom: 0.25rem; }
+        .incident-meta { font-size: 0.8rem; color: #666; }
+        .incident-status {
+            padding: 0.25rem 0.75rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: bold;
+        }
+        .status-urgent { background-color: rgba(255, 68, 68, 0.15); color: #ff4444; }
+        .status-active { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .status-resolved { background-color: rgba(102, 102, 102, 0.15); color: #999; }
+        .status-en-route { background-color: rgba(255, 152, 0, 0.15); color: #ff9800; }
+        .bolo-card {
+            background-color: #141414; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem;
+        }
+        .bolo-card.active { border-left: 3px solid #ff9800; }
+        .bolo-card.expired { border-left: 3px solid #666; opacity: 0.7; }
+        .bolo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .bolo-title { font-weight: 600; color: #fff; }
+        .bolo-desc { font-size: 0.85rem; color: #999; margin-bottom: 0.5rem; }
+        .bolo-details { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.8rem; color: #666; }
+        .bolo-details span { display: flex; align-items: center; gap: 0.25rem; }
+        .lookup-form {
+            display: flex; gap: 0.75rem; margin-bottom: 1.5rem;
+        }
+        .lookup-form input {
+            flex: 1; padding: 0.75rem;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #141414; color: #fff;
+            font-size: 0.9rem;
+        }
+        .lookup-form input:focus { outline: none; border-color: #4a90e2; }
+        .lookup-results { margin-top: 1rem; }
+        .result-card {
+            background-color: #141414; border: 1px solid #1a1a1a;
+            border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem;
+        }
+        .result-card h4 { color: #fff; margin-bottom: 0.5rem; }
+        .result-card p { font-size: 0.85rem; color: #999; margin-bottom: 0.25rem; }
+        .dispatch-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .unit-card {
+            background-color: #141414; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 1rem;
+        }
+        .unit-card.available { border-left: 3px solid #4caf50; }
+        .unit-card.busy { border-left: 3px solid #ff4444; }
+        .unit-card.en-route { border-left: 3px solid #ff9800; }
+        .unit-card.off-duty { border-left: 3px solid #666; }
+        .unit-name { font-weight: 600; color: #fff; margin-bottom: 0.25rem; }
+        .unit-officer { font-size: 0.85rem; color: #999; margin-bottom: 0.5rem; }
+        .unit-status {
+            padding: 0.25rem 0.5rem; border-radius: 4px;
+            font-size: 0.7rem; font-weight: bold;
+            display: inline-block;
+        }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background-color: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 12px; padding: 2rem;
+            width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+        }
+        .modal h2 { color: #fff; margin-bottom: 1.5rem; }
+        .modal-input {
+            width: 100%; padding: 0.75rem;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #111; color: #fff;
+            font-size: 0.9rem; margin-bottom: 1rem; box-sizing: border-box;
+        }
+        .modal-input:focus { outline: none; border-color: #4a90e2; }
+        .modal-textarea {
+            width: 100%; padding: 0.75rem; min-height: 100px;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #111; color: #fff;
+            font-size: 0.9rem; margin-bottom: 1rem; box-sizing: border-box;
+            resize: vertical; font-family: inherit;
+        }
+        .modal-textarea:focus { outline: none; border-color: #4a90e2; }
+        .modal-btn {
+            padding: 0.75rem 1.5rem; border: none;
+            border-radius: 8px; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .modal-btn.primary { background-color: #1e3a8a; color: white; }
+        .modal-btn.primary:hover { background-color: #2548a8; }
+        .modal-btn.secondary { background-color: #333; color: #ccc; }
+        .modal-btn.secondary:hover { background-color: #444; }
+        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #aaa; font-size: 0.85rem; }
+        .form-group select {
+            width: 100%; padding: 0.75rem;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #111; color: #fff;
+            font-size: 0.9rem; box-sizing: border-box;
+        }
+        .form-group select:focus { outline: none; border-color: #4a90e2; }
+        .empty-state {
+            text-align: center; padding: 2rem;
+            color: #444; font-size: 0.9rem;
+        }
+        .warrant-card {
+            background-color: #141414; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem;
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        .warrant-card.active { border-left: 3px solid #dc2626; }
+        .warrant-card.served { border-left: 3px solid #4caf50; opacity: 0.7; }
+        .warrant-info h4 { color: #fff; margin-bottom: 0.25rem; }
+        .warrant-info p { font-size: 0.85rem; color: #999; margin-bottom: 0.25rem; }
+        .warrant-reason { font-style: italic; color: #666; font-size: 0.8rem; }
+        .timestamp { font-size: 0.75rem; color: #555; }
+        .officer-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem; border-bottom: 1px solid #1a1a1a;
+        }
+        .officer-row:last-child { border-bottom: none; }
+        .officer-info { display: flex; align-items: center; gap: 0.75rem; }
+        .officer-badge {
+            width: 36px; height: 36px; border-radius: 50%;
+            background-color: #1e3a8a; display: flex;
+            align-items: center; justify-content: center;
+            color: white; font-size: 0.8rem; font-weight: bold;
+        }
+        .officer-name { font-weight: 600; color: #fff; }
+        .officer-rank { font-size: 0.8rem; color: #999; }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            display: inline-block; margin-right: 0.5rem;
+        }
+        .status-dot.online { background-color: #4caf50; }
+        .status-dot.offline { background-color: #666; }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+        <a href="#" class="sidebar-item active" data-page="dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            Dashboard
+        </a>
+        <a href="#" class="sidebar-item" data-page="incidents">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            Incidents
+        </a>
+        <a href="#" class="sidebar-item" data-page="warrants">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Warrants
+        </a>
+        <a href="#" class="sidebar-item" data-page="bolos">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            BOLOs
+        </a>
+        <a href="#" class="sidebar-item" data-page="lookup">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11a2 2 0 002 2z"/></svg>
+            Lookup
+        </a>
+        <a href="#" class="sidebar-item" data-page="dispatch">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Dispatch
+        </a>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <div class="top-bar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+                <div class="page-title">
+                    <h1 id="page-title">Police Dashboard</h1>
+                    <p id="page-desc">Manage incidents, warrants, and dispatch</p>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <div class="user-profile" id="user-profile-trigger">
+                    <div class="user-avatar" id="user-avatar">O</div>
+                    <span class="user-name" id="user-email">Officer</span>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <button class="dropdown-item" id="btn-go-home">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                            Go Home
+                        </button>
+                        <button class="dropdown-item logout" id="btn-logout">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="panel-content">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page active">
+                <div class="stats-row">
+                    <div class="stat-card urgent">
+                        <div class="label">Urgent Incidents</div>
+                        <div class="value" id="stat-urgent">0</div>
+                    </div>
+                    <div class="stat-card active">
+                        <div class="label">Active Incidents</div>
+                        <div class="value" id="stat-active">0</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="label">Active Warrants</div>
+                        <div class="value" id="stat-warrants">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Active BOLOs</div>
+                        <div class="value" id="stat-bolos">0</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Recent Incidents</h2>
+                            <p>Latest reported incidents</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewIncidentModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Incident
+                        </button>
+                    </div>
+                    <div id="recent-incidents">
+                        <div class="empty-state">No incidents yet. Create one to get started.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incidents Page -->
+            <div id="page-incidents" class="page">
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>All Incidents</h2>
+                            <p>View and manage all reported incidents</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewIncidentModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Incident
+                        </button>
+                    </div>
+                    <div id="all-incidents">
+                        <div class="empty-state">No incidents yet.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warrants Page -->
+            <div id="page-warrants" class="page">
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Active Warrants</h2>
+                            <p>Wanted persons and arrest warrants</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="openNewWarrantModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Warrant
+                        </button>
+                    </div>
+                    <div id="warrants-list">
+                        <div class="empty-state">No active warrants.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOLOs Page -->
+            <div id="page-bolos" class="page">
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>BOLOs</h2>
+                            <p>Be On the Lookout alerts</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewBoloModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New BOLO
+                        </button>
+                    </div>
+                    <div id="bolos-list">
+                        <div class="empty-state">No active BOLOs.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lookup Page -->
+            <div id="page-lookup" class="page">
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Name Lookup</h2>
+                            <p>Search for persons in the system</p>
+                        </div>
+                    </div>
+                    <div class="lookup-form">
+                        <input type="text" id="name-lookup-input" placeholder="Enter name to search...">
+                        <button class="btn btn-primary" onclick="lookupName()">Search</button>
+                    </div>
+                    <div id="name-lookup-results" class="lookup-results"></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Vehicle Lookup</h2>
+                            <p>Search for registered vehicles</p>
+                        </div>
+                    </div>
+                    <div class="lookup-form">
+                        <input type="text" id="vehicle-lookup-input" placeholder="Enter plate number...">
+                        <button class="btn btn-primary" onclick="lookupVehicle()">Search</button>
+                    </div>
+                    <div id="vehicle-lookup-results" class="lookup-results"></div>
+                </div>
+            </div>
+
+            <!-- Dispatch Page -->
+            <div id="page-dispatch" class="page">
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Active Units</h2>
+                            <p>Officers currently on duty</p>
+                        </div>
+                        <button class="btn btn-success" onclick="openNewUnitModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Add Unit
+                        </button>
+                    </div>
+                    <div class="dispatch-grid" id="units-grid">
+                        <div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Incident Modal -->
+    <div id="incident-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>New Incident</h2>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="incident-title-input" class="modal-input" placeholder="e.g. Vehicle Pursuit">
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <select id="incident-type-input">
+                    <option value="traffic_stop">Traffic Stop</option>
+                    <option value="pursuit">Vehicle Pursuit</option>
+                    <option value="robbery">Robbery</option>
+                    <option value="assault">Assault</option>
+                    <option value="shots_fired">Shots Fired</option>
+                    <option value="suspicious_activity">Suspicious Activity</option>
+                    <option value="domestic">Domestic Disturbance</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Priority</label>
+                <select id="incident-priority-input">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="incident-desc-input" class="modal-textarea" placeholder="Describe the incident..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="incident-location-input" class="modal-input" placeholder="e.g. Mirror Park Blvd">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('incident-modal')">Cancel</button>
+                <button class="modal-btn primary" onclick="createIncident()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Warrant Modal -->
+    <div id="warrant-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>New Warrant</h2>
+            <div class="form-group">
+                <label>Subject Name</label>
+                <input type="text" id="warrant-name-input" class="modal-input" placeholder="Full name">
+            </div>
+            <div class="form-group">
+                <label>Charges</label>
+                <input type="text" id="warrant-charges-input" class="modal-input" placeholder="e.g. Grand Theft Auto">
+            </div>
+            <div class="form-group">
+                <label>Reason</label>
+                <textarea id="warrant-reason-input" class="modal-textarea" placeholder="Details about the warrant..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('warrant-modal')">Cancel</button>
+                <button class="modal-btn primary" onclick="createWarrant()">Issue Warrant</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New BOLO Modal -->
+    <div id="bolo-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>New BOLO</h2>
+            <div class="form-group">
+                <label>Subject/Vehicle</label>
+                <input type="text" id="bolo-subject-input" class="modal-input" placeholder="Person or vehicle description">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="bolo-desc-input" class="modal-textarea" placeholder="Full description, last known location, etc..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Priority</label>
+                <select id="bolo-priority-input">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('bolo-modal')">Cancel</button>
+                <button class="modal-btn primary" onclick="createBolo()">Issue BOLO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Unit Modal -->
+    <div id="unit-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Add Unit</h2>
+            <div class="form-group">
+                <label>Officer Name</label>
+                <input type="text" id="unit-name-input" class="modal-input" placeholder="e.g. Officer J. Smith">
+            </div>
+            <div class="form-group">
+                <label>Badge Number</label>
+                <input type="text" id="unit-badge-input" class="modal-input" placeholder="e.g. 1042">
+            </div>
+            <div class="form-group">
+                <label>Rank</label>
+                <select id="unit-rank-input">
+                    <option value="Cadet">Cadet</option>
+                    <option value="Officer">Officer</option>
+                    <option value="Senior Officer">Senior Officer</option>
+                    <option value="Corporal">Corporal</option>
+                    <option value="Sergeant">Sergeant</option>
+                    <option value="Lieutenant">Lieutenant</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Commander">Commander</option>
+                    <option value="Chief">Chief</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Unit Number</label>
+                <input type="text" id="unit-number-input" class="modal-input" placeholder="e.g. A-12">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('unit-modal')">Cancel</button>
+                <button class="modal-btn primary" onclick="createUnit()">Add Unit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+
+            const user = session.user;
+            const displayName = user.email ? user.email.split('@')[0] : 'Officer';
+            document.getElementById('user-email').textContent = displayName;
+            document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
+
+            const userDropdown = document.getElementById('user-dropdown');
+            document.getElementById('user-profile-trigger').addEventListener('click', (e) => {
+                e.stopPropagation(); userDropdown.classList.toggle('active');
+            });
+            document.addEventListener('click', () => { userDropdown.classList.remove('active'); });
+            userDropdown.addEventListener('click', (e) => { e.stopPropagation(); });
+
+            document.getElementById('btn-logout').addEventListener('click', async () => {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            });
+
+            document.getElementById('btn-go-home').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            const pageConfig = {
+                dashboard: { title: 'Police Dashboard', desc: 'Manage incidents, warrants, and dispatch' },
+                incidents: { title: 'Incidents', desc: 'View and manage all incidents' },
+                warrants: { title: 'Warrants', desc: 'Active and served warrants' },
+                bolos: { title: 'BOLOs', desc: 'Be On the Lookout alerts' },
+                lookup: { title: 'Lookup', desc: 'Name and vehicle lookups' },
+                dispatch: { title: 'Dispatch', desc: 'Active units and assignments' }
+            };
+
+            document.querySelectorAll('.sidebar-item[data-page]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.getAttribute('data-page');
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+                    document.getElementById('page-' + page).classList.add('active');
+                    item.classList.add('active');
+                    document.getElementById('page-title').textContent = pageConfig[page].title;
+                    document.getElementById('page-desc').textContent = pageConfig[page].desc;
+                });
+            });
+
+            await loadDashboard();
+        });
+
+        const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+        let currentUser = null;
+
+        async function getCurrentUser() {
+            if (!currentUser) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) currentUser = session.user;
+            }
+            return currentUser;
+        }
+
+        async function loadDashboard() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const { data: incidents } = await supabaseClient
+                .from('police_incidents')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            const { data: warrants } = await supabaseClient
+                .from('warrants')
+                .select('*')
+                .eq('status', 'active');
+
+            const { data: bolos } = await supabaseClient
+                .from('bolos')
+                .select('*')
+                .eq('status', 'active');
+
+            const { data: units } = await supabaseClient
+                .from('units')
+                .select('*')
+                .eq('on_duty', true);
+
+            const urgentCount = incidents ? incidents.filter(i => i.priority === 'urgent').length : 0;
+            const activeCount = incidents ? incidents.filter(i => i.status === 'active').length : 0;
+
+            document.getElementById('stat-urgent').textContent = urgentCount;
+            document.getElementById('stat-active').textContent = activeCount;
+            document.getElementById('stat-warrants').textContent = warrants ? warrants.length : 0;
+            document.getElementById('stat-bolos').textContent = bolos ? bolos.length : 0;
+
+            const container = document.getElementById('recent-incidents');
+            if (!incidents || incidents.length === 0) {
+                container.innerHTML = '<div class="empty-state">No incidents yet. Create one to get started.</div>';
+            } else {
+                container.innerHTML = incidents.map(inc => `
+                    <div class="incident-card ${inc.status}">
+                        <div class="incident-info">
+                            <div class="incident-title">${inc.title}</div>
+                            <div class="incident-meta">${inc.type} • ${inc.location || 'No location'} • ${new Date(inc.created_at).toLocaleString()}</div>
+                        </div>
+                        <span class="incident-status status-${inc.priority}">${inc.priority.toUpperCase()}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadIncidents() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const { data: incidents } = await supabaseClient
+                .from('police_incidents')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('all-incidents');
+            if (!incidents || incidents.length === 0) {
+                container.innerHTML = '<div class="empty-state">No incidents yet.</div>';
+            } else {
+                container.innerHTML = incidents.map(inc => `
+                    <div class="incident-card ${inc.status}">
+                        <div class="incident-info">
+                            <div class="incident-title">${inc.title}</div>
+                            <div class="incident-meta">${inc.type} • ${inc.location || 'No location'} • ${new Date(inc.created_at).toLocaleString()}</div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="incident-status status-${inc.priority}">${inc.priority.toUpperCase()}</span>
+                            <button class="btn btn-sm btn-secondary" onclick="updateIncidentStatus('${inc.id}')">${inc.status === 'resolved' ? 'Reopen' : 'Resolve'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadWarrants() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const { data: warrants } = await supabaseClient
+                .from('warrants')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('warrants-list');
+            if (!warrants || warrants.length === 0) {
+                container.innerHTML = '<div class="empty-state">No active warrants.</div>';
+            } else {
+                container.innerHTML = warrants.map(w => `
+                    <div class="warrant-card ${w.status}">
+                        <div class="warrant-info">
+                            <h4>${w.subject_name}</h4>
+                            <p>${w.charges}</p>
+                            <p class="warrant-reason">${w.reason || ''}</p>
+                            <span class="timestamp">${new Date(w.created_at).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="incident-status ${w.status === 'active' ? 'status-urgent' : 'status-active'}">${w.status.toUpperCase()}</span>
+                            ${w.status === 'active' ? `<button class="btn btn-sm btn-success" onclick="serveWarrant('${w.id}')">Mark Served</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadBolos() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const { data: bolos } = await supabaseClient
+                .from('bolos')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('bolos-list');
+            if (!bolos || bolos.length === 0) {
+                container.innerHTML = '<div class="empty-state">No active BOLOs.</div>';
+            } else {
+                container.innerHTML = bolos.map(b => `
+                    <div class="bolo-card ${b.status}">
+                        <div class="bolo-header">
+                            <span class="bolo-title">${b.subject}</span>
+                            <span class="incident-status ${b.priority === 'high' ? 'status-urgent' : b.priority === 'medium' ? 'status-en-route' : 'status-active'}">${b.priority.toUpperCase()}</span>
+                        </div>
+                        <p class="bolo-desc">${b.description}</p>
+                        <div class="bolo-details">
+                            <span>Issued: ${new Date(b.created_at).toLocaleString()}</span>
+                            <span>By: ${b.issued_by || 'Unknown'}</span>
+                        </div>
+                        ${b.status === 'active' ? `<button class="btn btn-sm btn-secondary" style="margin-top: 0.5rem;" onclick="expireBolo('${b.id}')">Expire</button>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadUnits() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const { data: units } = await supabaseClient
+                .from('units')
+                .select('*')
+                .order('unit_number');
+
+            const container = document.getElementById('units-grid');
+            if (!units || units.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>';
+            } else {
+                container.innerHTML = units.map(u => {
+                    const statusClass = u.on_duty ? (u.status === 'available' ? 'available' : u.status === 'busy' ? 'busy' : 'en-route') : 'off-duty';
+                    const statusLabel = u.on_duty ? (u.status || 'Available') : 'Off Duty';
+                    return `
+                        <div class="unit-card ${statusClass}">
+                            <div class="unit-name">Unit ${u.unit_number}</div>
+                            <div class="unit-officer">${u.officer_name} • ${u.rank}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="unit-status" style="background: ${u.on_duty ? 'rgba(76,175,80,0.15); color: #4caf50;' : 'rgba(102,102,102,0.15); color: #666;'}">${statusLabel}</span>
+                                <button class="btn btn-sm btn-secondary" onclick="toggleUnitDuty('${u.id}', ${u.on_duty})">${u.on_duty ? 'Off Duty' : 'On Duty'}</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function openNewIncidentModal() {
+            document.getElementById('incident-modal').classList.add('active');
+            document.getElementById('incident-title-input').focus();
+        }
+
+        function openNewWarrantModal() {
+            document.getElementById('warrant-modal').classList.add('active');
+            document.getElementById('warrant-name-input').focus();
+        }
+
+        function openNewBoloModal() {
+            document.getElementById('bolo-modal').classList.add('active');
+            document.getElementById('bolo-subject-input').focus();
+        }
+
+        function openNewUnitModal() {
+            document.getElementById('unit-modal').classList.add('active');
+            document.getElementById('unit-name-input').focus();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        async function createIncident() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const title = document.getElementById('incident-title-input').value.trim();
+            const type = document.getElementById('incident-type-input').value;
+            const priority = document.getElementById('incident-priority-input').value;
+            const desc = document.getElementById('incident-desc-input').value.trim();
+            const location = document.getElementById('incident-location-input').value.trim();
+
+            if (!title) { alert('Title is required'); return; }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('police_incidents')
+                    .insert({
+                        title, type, priority,
+                        description: desc,
+                        location,
+                        status: 'active',
+                        created_by: user.id,
+                        officer_name: user.email.split('@')[0]
+                    });
+
+                if (error) throw error;
+
+                closeModal('incident-modal');
+                document.getElementById('incident-title-input').value = '';
+                document.getElementById('incident-desc-input').value = '';
+                document.getElementById('incident-location-input').value = '';
+                loadDashboard();
+                loadIncidents();
+            } catch (err) {
+                alert('Error creating incident: ' + err.message);
+            }
+        }
+
+        async function createWarrant() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const name = document.getElementById('warrant-name-input').value.trim();
+            const charges = document.getElementById('warrant-charges-input').value.trim();
+            const reason = document.getElementById('warrant-reason-input').value.trim();
+
+            if (!name || !charges) { alert('Name and charges are required'); return; }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('warrants')
+                    .insert({
+                        subject_name: name,
+                        charges,
+                        reason,
+                        status: 'active',
+                        created_by: user.id,
+                        issued_by: user.email.split('@')[0]
+                    });
+
+                if (error) throw error;
+
+                closeModal('warrant-modal');
+                document.getElementById('warrant-name-input').value = '';
+                document.getElementById('warrant-charges-input').value = '';
+                document.getElementById('warrant-reason-input').value = '';
+                loadWarrants();
+            } catch (err) {
+                alert('Error creating warrant: ' + err.message);
+            }
+        }
+
+        async function createBolo() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const subject = document.getElementById('bolo-subject-input').value.trim();
+            const desc = document.getElementById('bolo-desc-input').value.trim();
+            const priority = document.getElementById('bolo-priority-input').value;
+
+            if (!subject) { alert('Subject is required'); return; }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('bolos')
+                    .insert({
+                        subject,
+                        description: desc,
+                        priority,
+                        status: 'active',
+                        created_by: user.id,
+                        issued_by: user.email.split('@')[0]
+                    });
+
+                if (error) throw error;
+
+                closeModal('bolo-modal');
+                document.getElementById('bolo-subject-input').value = '';
+                document.getElementById('bolo-desc-input').value = '';
+                loadBolos();
+            } catch (err) {
+                alert('Error creating BOLO: ' + err.message);
+            }
+        }
+
+        async function createUnit() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const name = document.getElementById('unit-name-input').value.trim();
+            const badge = document.getElementById('unit-badge-input').value.trim();
+            const rank = document.getElementById('unit-rank-input').value;
+            const unitNum = document.getElementById('unit-number-input').value.trim();
+
+            if (!name || !unitNum) { alert('Officer name and unit number are required'); return; }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('units')
+                    .insert({
+                        officer_name: name,
+                        badge_number: badge,
+                        rank,
+                        unit_number: unitNum,
+                        on_duty: true,
+                        status: 'available',
+                        created_by: user.id
+                    });
+
+                if (error) throw error;
+
+                closeModal('unit-modal');
+                document.getElementById('unit-name-input').value = '';
+                document.getElementById('unit-badge-input').value = '';
+                document.getElementById('unit-number-input').value = '';
+                loadUnits();
+            } catch (err) {
+                alert('Error creating unit: ' + err.message);
+            }
+        }
+
+        async function updateIncidentStatus(id) {
+            const { data: incident } = await supabaseClient
+                .from('police_incidents')
+                .select('status')
+                .eq('id', id)
+                .single();
+
+            const newStatus = incident.status === 'resolved' ? 'active' : 'resolved';
+
+            await supabaseClient
+                .from('police_incidents')
+                .update({ status: newStatus })
+                .eq('id', id);
+
+            loadDashboard();
+            loadIncidents();
+        }
+
+        async function serveWarrant(id) {
+            await supabaseClient
+                .from('warrants')
+                .update({ status: 'served' })
+                .eq('id', id);
+            loadWarrants();
+        }
+
+        async function expireBolo(id) {
+            await supabaseClient
+                .from('bolos')
+                .update({ status: 'expired' })
+                .eq('id', id);
+            loadBolos();
+        }
+
+        async function toggleUnitDuty(id, currentlyOnDuty) {
+            await supabaseClient
+                .from('units')
+                .update({ on_duty: !currentlyOnDuty })
+                .eq('id', id);
+            loadUnits();
+        }
+
+        async function lookupName() {
+            const name = document.getElementById('name-lookup-input').value.trim();
+            const container = document.getElementById('name-lookup-results');
+
+            if (!name) { container.innerHTML = '<div class="empty-state">Enter a name to search</div>'; return; }
+
+            const { data: warrants } = await supabaseClient
+                .from('warrants')
+                .select('*')
+                .ilike('subject_name', '%' + name + '%');
+
+            const { data: incidents } = await supabaseClient
+                .from('police_incidents')
+                .select('*')
+                .or(`title.ilike.%${name}%,description.ilike.%${name}%`);
+
+            let html = '';
+            if (warrants && warrants.length > 0) {
+                html += '<h3 style="color: #fff; margin: 1rem 0 0.5rem;">Warrant Matches</h3>';
+                html += warrants.map(w => `
+                    <div class="result-card">
+                        <h4>${w.subject_name}</h4>
+                        <p>Charges: ${w.charges}</p>
+                        <p>Status: ${w.status}</p>
+                    </div>
+                `).join('');
+            }
+            if (incidents && incidents.length > 0) {
+                html += '<h3 style="color: #fff; margin: 1rem 0 0.5rem;">Incident Matches</h3>';
+                html += incidents.map(i => `
+                    <div class="result-card">
+                        <h4>${i.title}</h4>
+                        <p>Type: ${i.type} • Status: ${i.status}</p>
+                        <p>${i.description || ''}</p>
+                    </div>
+                `).join('');
+            }
+            container.innerHTML = html || '<div class="empty-state">No results found for "' + name + '"</div>';
+        }
+
+        async function lookupVehicle() {
+            const plate = document.getElementById('vehicle-lookup-input').value.trim();
+            const container = document.getElementById('vehicle-lookup-results');
+
+            if (!plate) { container.innerHTML = '<div class="empty-state">Enter a plate number</div>'; return; }
+
+            const { data: incidents } = await supabaseClient
+                .from('police_incidents')
+                .select('*')
+                .or(`description.ilike.%${plate}%,location.ilike.%${plate}%`);
+
+            let html = '';
+            if (incidents && incidents.length > 0) {
+                html += incidents.map(i => `
+                    <div class="result-card">
+                        <h4>${i.title}</h4>
+                        <p>Type: ${i.type} • Status: ${i.status}</p>
+                        <p>Location: ${i.location || 'N/A'}</p>
+                    </div>
+                `).join('');
+            }
+            container.innerHTML = html || '<div class="empty-state">No results found for plate "' + plate + '"</div>';
+        }
+
+        window.openNewIncidentModal = openNewIncidentModal;
+        window.openNewWarrantModal = openNewWarrantModal;
+        window.openNewBoloModal = openNewBoloModal;
+        window.openNewUnitModal = openNewUnitModal;
+        window.closeModal = closeModal;
+        window.createIncident = createIncident;
+        window.createWarrant = createWarrant;
+        window.createBolo = createBolo;
+        window.createUnit = createUnit;
+        window.updateIncidentStatus = updateIncidentStatus;
+        window.serveWarrant = serveWarrant;
+        window.expireBolo = expireBolo;
+        window.toggleUnitDuty = toggleUnitDuty;
+        window.lookupName = lookupName;
+        window.lookupVehicle = lookupVehicle;
+        window.loadDashboard = loadDashboard;
+        window.loadIncidents = loadIncidents;
+        window.loadWarrants = loadWarrants;
+        window.loadBolos = loadBolos;
+        window.loadUnits = loadUnits;
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.classList.contains('active')) {
+                    const pageId = mutation.target.id.replace('page-', '');
+                    switch(pageId) {
+                        case 'dashboard': loadDashboard(); break;
+                        case 'incidents': loadIncidents(); break;
+                        case 'warrants': loadWarrants(); break;
+                        case 'bolos': loadBolos(); break;
+                        case 'dispatch': loadUnits(); break;
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.page').forEach(page => {
+            observer.observe(page, { attributes: true, attributeFilter: ['class'] });
+        });
+    </script>
+</body>
+</html>

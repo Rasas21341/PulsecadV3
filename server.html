@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
+    <title>Pulse CAD - Server</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 70px;
+            background-color: #111;
+            border-right: 1px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            gap: 0.5rem;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .sidebar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .sidebar-item {
+            width: 50px; height: 50px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 8px; cursor: pointer;
+            transition: background-color 0.2s;
+            color: #666; text-decoration: none;
+            font-size: 0.6rem; gap: 4px;
+        }
+        .sidebar-item:hover { background-color: #1a1a1a; color: #aaa; }
+        .sidebar-item.active { color: #4a90e2; }
+        .sidebar-item svg { width: 20px; height: 20px; }
+        .main-content {
+            flex: 1; display: flex; flex-direction: column;
+            margin-left: 70px;
+        }
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+            background-color: #0d0d0d;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 1rem; }
+        .back-btn {
+            background: none; border: none; color: #aaa;
+            cursor: pointer; padding: 0.5rem;
+            border-radius: 6px; transition: background-color 0.2s;
+        }
+        .back-btn:hover { background-color: #1a1a1a; color: #fff; }
+        .top-bar-logo {
+            width: 28px; height: 28px;
+            border-radius: 6px; overflow: hidden;
+        }
+        .top-bar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .page-title h1 { font-size: 1.1rem; font-weight: 600; color: #fff; }
+        .page-title p { font-size: 0.8rem; color: #666; }
+        .top-bar-right { display: flex; align-items: center; gap: 1rem; }
+        .credits-badge {
+            background-color: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 8px; padding: 0.5rem 1rem;
+            font-size: 0.85rem; color: #aaa;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .credits-badge .dot {
+            width: 8px; height: 8px;
+            background-color: #4caf50; border-radius: 50%;
+        }
+        .user-profile {
+            display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; position: relative;
+            padding: 0.25rem 0.5rem; border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .user-profile:hover { background-color: #1a1a1a; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #333;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+        }
+        .user-name { font-size: 0.9rem; color: #ccc; }
+        .user-dropdown {
+            display: none; position: absolute; top: 100%; right: 0;
+            margin-top: 0.5rem; background-color: #1a1a1a;
+            border: 1px solid #2a2a2a; border-radius: 8px;
+            min-width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 200; overflow: hidden;
+        }
+        .user-dropdown.active { display: block; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1rem; color: #ccc; cursor: pointer;
+            transition: background-color 0.2s;
+            border: none; background: none; width: 100%;
+            text-align: left; font-size: 0.85rem;
+        }
+        .dropdown-item:hover { background-color: #2a2a2a; }
+        .dropdown-item.logout { color: #ff4444; border-top: 1px solid #2a2a2a; }
+        .dropdown-item.logout:hover { background-color: #2a1a1a; }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dashboard-content { padding: 2rem; flex: 1; }
+        .section {
+            background-color: #111; border: 1px solid #1a1a1a;
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .section-header { margin-bottom: 1.25rem; }
+        .section-header h2 { font-size: 1rem; color: #fff; margin-bottom: 0.25rem; }
+        .section-header p { font-size: 0.8rem; color: #666; }
+        .server-header {
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .server-header-icon {
+            width: 60px; height: 60px; border-radius: 12px;
+            background-color: #1a1a1a; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.5rem; color: #ccc;
+        }
+        .server-header-info h1 { font-size: 1.5rem; color: #fff; }
+        .server-header-info p { color: #666; font-size: 0.9rem; }
+        .server-header-info .suspended-badge {
+            background-color: rgba(255, 68, 68, 0.15);
+            color: #ff4444; padding: 0.25rem 0.5rem;
+            border-radius: 4px; font-size: 0.7rem; margin-left: 0.5rem;
+        }
+        .invite-code-box {
+            display: flex; gap: 0.5rem; margin-top: 1rem;
+        }
+        .invite-code-box input {
+            flex: 1; padding: 0.75rem;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #111; color: #4a90e2;
+            font-size: 0.9rem; font-family: monospace;
+        }
+        .invite-code-box button {
+            padding: 0.75rem 1.25rem;
+            background-color: #4a90e2; border: none;
+            border-radius: 8px; color: white;
+            font-weight: bold; cursor: pointer;
+        }
+        .invite-code-box button:hover { background-color: #3a7bc8; }
+        .admin-actions {
+            display: flex; gap: 0.75rem; flex-wrap: wrap;
+        }
+        .admin-btn {
+            padding: 0.6rem 1.25rem; border-radius: 8px;
+            border: 1px solid #4a90e2; background-color: transparent;
+            color: #4a90e2; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .admin-btn:hover { background-color: #4a90e2; color: white; }
+        .admin-btn.danger { border-color: #ff4444; color: #ff4444; }
+        .admin-btn.danger:hover { background-color: #ff4444; color: white; }
+        .admin-btn.success { border-color: #4caf50; color: #4caf50; }
+        .admin-btn.success:hover { background-color: #4caf50; color: white; }
+        .role-buttons {
+            display: flex; justify-content: center; align-items: center;
+            gap: 1.5rem; margin-top: 1.5rem; flex-wrap: wrap;
+        }
+        .role-btn-nav {
+            padding: 1.25rem 3rem; font-size: 1.1rem; font-weight: bold;
+            border: none; border-radius: 8px; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s; color: white;
+            min-width: 200px;
+        }
+        .role-btn-nav:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+        .role-btn-nav.police { background-color: #1e3a8a; }
+        .role-btn-nav.fire { background-color: #dc2626; }
+        .role-btn-nav.admin { background-color: #7c3aed; }
+        .members-list { list-style: none; }
+        .members-list li {
+            padding: 0.75rem; border-bottom: 1px solid #1a1a1a;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .members-list li:last-child { border-bottom: none; }
+        .member-role {
+            font-size: 0.75rem; padding: 0.2rem 0.5rem;
+            border-radius: 4px; background-color: #1a1a1a; color: #aaa;
+        }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background-color: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 12px; padding: 2rem;
+            width: 90%; max-width: 400px;
+        }
+        .modal h2 { color: #fff; margin-bottom: 1.5rem; text-align: center; }
+        .modal-input {
+            width: 100%; padding: 0.75rem;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #111; color: #fff;
+            font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box;
+        }
+        .modal-input:focus { outline: none; border-color: #4a90e2; }
+        .modal-btn {
+            width: 100%; padding: 0.75rem; border: none;
+            border-radius: 8px; font-size: 1rem; font-weight: bold;
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .modal-btn.primary { background-color: #4a90e2; color: white; }
+        .modal-btn.primary:hover { background-color: #3a7bc8; }
+        .modal-btn.secondary { background-color: #333; color: #ccc; margin-top: 0.5rem; }
+        .modal-btn.secondary:hover { background-color: #444; }
+        .modal-message {
+            padding: 0.75rem; border-radius: 8px;
+            margin-bottom: 1rem; display: none; text-align: center;
+        }
+        .modal-message.error { background-color: rgba(255, 68, 68, 0.15); color: #ff4444; }
+        .modal-message.success { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block; margin-bottom: 0.5rem;
+            color: #aaa; font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+        <a href="dashboard.html" class="sidebar-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="top-bar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+                <div class="page-title">
+                    <h1 id="page-title-text">Server</h1>
+                    <p id="page-title-desc">Manage your server</p>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <div class="credits-badge">
+                    <span class="dot"></span>
+                    <span id="user-credits">0 credits</span>
+                </div>
+                <div class="user-profile" id="user-profile-trigger">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <span class="user-name" id="user-email">user@email.com</span>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <button class="dropdown-item" id="btn-settings">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            Settings
+                        </button>
+                        <button class="dropdown-item logout" id="btn-logout">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content" id="server-content">
+            <p style="color: #666;">Loading server...</p>
+        </div>
+    </div>
+
+    <!-- Edit Server Modal -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Edit Server</h2>
+            <div id="edit-message" class="modal-message"></div>
+            <div class="form-group">
+                <label>Server Name</label>
+                <input type="text" id="edit-name-input" class="modal-input" placeholder="Server name">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="edit-desc-input" class="modal-input" placeholder="Description">
+            </div>
+            <hr style="border-color: #2a2a2a; margin: 1rem 0;">
+            <h3 style="color: #fff; font-size: 0.9rem; margin-bottom: 0.75rem;">ERLC Integration</h3>
+            <div class="form-group">
+                <label>ERLC Server ID</label>
+                <input type="text" id="edit-erlc-id-input" class="modal-input" placeholder="e.g. ABCD-1234">
+            </div>
+            <button class="modal-btn primary" id="btn-save-edit">Save Changes</button>
+            <button class="modal-btn secondary" style="background-color: #ff4444; color: white; margin-top: 0.5rem;" id="btn-delete-server-modal">Delete Server</button>
+            <button class="modal-btn secondary" id="btn-cancel-edit">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Police Panel Modal -->
+    <div id="police-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <h2>Police Panel - Live Map</h2>
+            <div id="police-message" class="modal-message"></div>
+            <div id="erlc-map" style="width: 100%; height: 400px; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #2a2a2a;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="color: #aaa; font-size: 0.85rem;" id="player-count">Loading players...</span>
+                <button class="admin-btn" onclick="refreshERLCMap()" style="font-size: 0.8rem;">Refresh</button>
+            </div>
+            <div id="player-list" style="max-height: 200px; overflow-y: auto; background: #111; border-radius: 8px; padding: 0.5rem;"></div>
+            <button class="modal-btn secondary" id="btn-cancel-police" style="margin-top: 1rem;">Close</button>
+        </div>
+    </div>
+
+    <!-- Fire Department Modal -->
+    <div id="fire-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <h2>Fire Department - Live Map</h2>
+            <div id="fire-message" class="modal-message"></div>
+            <div id="fire-map" style="width: 100%; height: 400px; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #2a2a2a;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="color: #aaa; font-size: 0.85rem;" id="fire-player-count">Loading units...</span>
+                <button class="admin-btn" onclick="refreshFireMap()" style="font-size: 0.8rem;">Refresh</button>
+            </div>
+            <div id="fire-player-list" style="max-height: 200px; overflow-y: auto; background: #111; border-radius: 8px; padding: 0.5rem;"></div>
+            <button class="modal-btn secondary" id="btn-cancel-fire" style="margin-top: 1rem;">Close</button>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+
+            const user = session.user;
+            const displayName = user.email ? user.email.split('@')[0] : 'User';
+            document.getElementById('user-email').textContent = displayName;
+            document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
+
+            // User dropdown
+            const userDropdown = document.getElementById('user-dropdown');
+            document.getElementById('user-profile-trigger').addEventListener('click', (e) => {
+                e.stopPropagation(); userDropdown.classList.toggle('active');
+            });
+            document.addEventListener('click', () => { userDropdown.classList.remove('active'); });
+            userDropdown.addEventListener('click', (e) => { e.stopPropagation(); });
+            document.getElementById('btn-logout').addEventListener('click', async () => {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            });
+
+            // Load credits
+            const { data: creditsData } = await supabaseClient.from('user_credits').select('credits').eq('user_id', user.id).single();
+            document.getElementById('user-credits').textContent = (creditsData ? creditsData.credits : 0) + ' credits';
+
+            // Get server ID from URL
+            const params = new URLSearchParams(window.location.search);
+            const serverId = params.get('id');
+            if (!serverId) { window.location.href = 'dashboard.html'; return; }
+
+            // Load server data
+            const { data: server } = await supabaseClient.from('servers').select('*').eq('id', serverId).single();
+            if (!server) {
+                document.getElementById('server-content').innerHTML = '<p style="color: #ff4444;">Server not found.</p>';
+                return;
+            }
+
+            const isOwner = server.owner_id === user.id;
+            document.getElementById('page-title-text').textContent = server.name;
+            document.getElementById('page-title-desc').textContent = server.description || 'No description';
+
+            const members = server.members || [];
+            const membersList = members.map(m => `
+                <li>
+                    <span>${m === user.id ? displayName : 'Member'}</span>
+                    <span class="member-role">${m === server.owner_id ? 'Owner' : 'Member'}</span>
+                </li>
+            `).join('');
+
+            document.getElementById('server-content').innerHTML = `
+                <div class="section">
+                    <div class="server-header">
+                        <div class="server-header-icon">${server.name.charAt(0).toUpperCase()}</div>
+                        <div class="server-header-info">
+                            <h1>${server.name} ${server.suspended ? '<span class="suspended-badge">SUSPENDED</span>' : ''}</h1>
+                            <p>${server.description || 'No description'}</p>
+                        </div>
+                    </div>
+                    <div class="invite-code-box">
+                        <input type="text" value="${server.invite_code || 'N/A'}" readonly id="invite-code-display">
+                        <button onclick="copyInviteCode()">Copy Code</button>
+                    </div>
+                    <div class="role-buttons">
+                        <button class="role-btn-nav police" onclick="openPolicePanel()">Police</button>
+                        <button class="role-btn-nav fire" onclick="openFirePanel()">Fire</button>
+                        ${isOwner ? '<button class="role-btn-nav admin" onclick="openEditModal()">Admin</button>' : ''}
+                    </div>
+                </div>
+            `;
+
+            // Auto-open panel from URL
+            const panelParam = params.get('panel');
+            if (panelParam === 'police') {
+                setTimeout(() => { window.openPolicePanel(); }, 300);
+            } else if (panelParam === 'fire') {
+                setTimeout(() => { window.openFirePanel(); }, 300);
+            }
+
+            // Edit modal
+            window.openEditModal = function() {
+                document.getElementById('edit-name-input').value = server.name;
+                document.getElementById('edit-desc-input').value = server.description || '';
+                document.getElementById('edit-erlc-id-input').value = server.erlc_server_id || '';
+                document.getElementById('edit-modal').classList.add('active');
+            };
+            document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+                document.getElementById('edit-modal').classList.remove('active');
+            });
+            document.getElementById('btn-save-edit').addEventListener('click', async () => {
+                const name = document.getElementById('edit-name-input').value.trim();
+                const desc = document.getElementById('edit-desc-input').value.trim();
+                const erlcId = document.getElementById('edit-erlc-id-input').value.trim();
+                if (!name) return;
+                const { error } = await supabaseClient.from('servers').update({ name, description: desc, erlc_server_id: erlcId }).eq('id', serverId);
+                if (!error) {
+                    document.getElementById('edit-message').textContent = 'Saved!';
+                    document.getElementById('edit-message').className = 'modal-message success';
+                    document.getElementById('edit-message').style.display = 'block';
+                    setTimeout(() => { location.reload(); }, 1000);
+                }
+            });
+            document.getElementById('btn-delete-server-modal').addEventListener('click', async () => {
+                if (!confirm('Delete this server? This cannot be undone.')) return;
+                await supabaseClient.from('servers').delete().eq('id', serverId);
+                window.location.href = 'dashboard.html';
+            });
+
+            // ERLC Map
+            let erlcMap = null;
+            let playerMarkers = [];
+            let erlcRefreshInterval = null;
+            let erlcMapOverlay = null;
+            const erlcMapUrl = 'https://tse2.mm.bing.net/th/id/OIP.mlPSXG5QXR17m0f3Mr8mIgHaGp?rs=1&pid=ImgDetMain&o=7&rm=3';
+
+            window.openPolicePanel = async function() {
+                document.getElementById('police-modal').classList.add('active');
+                
+                if (!erlcMap) {
+                    erlcMap = L.map('erlc-map', {
+                        crs: L.CRS.Simple,
+                        minZoom: -2,
+                        maxZoom: 2
+                    });
+                    
+                    const bounds = [[0, 0], [1000, 1000]];
+                    erlcMapOverlay = L.imageOverlay(erlcMapUrl, bounds).addTo(erlcMap);
+                    erlcMap.fitBounds(bounds);
+                }
+                
+                setTimeout(() => { erlcMap.invalidateSize(); }, 100);
+                await fetchERLCData();
+                
+                if (erlcRefreshInterval) clearInterval(erlcRefreshInterval);
+                erlcRefreshInterval = setInterval(fetchERLCData, 30000);
+            };
+
+            window.refreshERLCMap = async function() {
+                await fetchERLCData();
+            };
+
+            async function fetchERLCData() {
+                const erlcId = server.erlc_server_id;
+                const playerList = document.getElementById('player-list');
+                const playerCount = document.getElementById('player-count');
+
+                if (!erlcId) {
+                    playerList.innerHTML = '<p style="color: #666; text-align: center; padding: 1rem;">No ERLC Server ID configured. Set one in Edit Server.</p>';
+                    playerCount.textContent = 'No ERLC Server ID';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`https://policeroleplay.community/api/v1/server/${erlcId}`);
+                    const data = await response.json();
+
+                    if (!data.success || !data.players) {
+                        playerList.innerHTML = '<p style="color: #ff4444; text-align: center; padding: 1rem;">Could not fetch server data. Check Server ID.</p>';
+                        playerCount.textContent = 'Error fetching data';
+                        return;
+                    }
+
+                    const players = data.players || [];
+                    playerCount.textContent = `${players.length} player(s) online`;
+
+                    // Clear old markers
+                    playerMarkers.forEach(m => erlcMap.removeLayer(m));
+                    playerMarkers = [];
+
+                    if (players.length === 0) {
+                        playerList.innerHTML = '<p style="color: #666; text-align: center; padding: 1rem;">No players online</p>';
+                        return;
+                    }
+
+                    // Custom police icon
+                    const policeIcon = L.divIcon({
+                        html: '<div style="background: #4a90e2; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">P</div>',
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14],
+                        className: ''
+                    });
+
+                    const civIcon = L.divIcon({
+                        html: '<div style="background: #4caf50; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">C</div>',
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14],
+                        className: ''
+                    });
+
+                    let listHtml = '';
+                    players.forEach(p => {
+                        const pos = p.position || {};
+                        const x = pos.x || 0;
+                        const z = pos.z || 0;
+                        const isPolice = p.team === 'Police' || p.role === 'Police' || (p.username && p.username.toLowerCase().includes('police'));
+                        
+                        // Convert ERLC coords to image overlay coordinates
+                        const mapX = ((x + 2000) / 4000) * 1000;
+                        const mapY = ((z + 2000) / 4000) * 1000;
+
+                        const marker = L.marker([mapY, mapX], {
+                            icon: isPolice ? policeIcon : civIcon
+                        }).addTo(erlcMap);
+                        
+                        marker.bindPopup(`<b>${p.username || 'Unknown'}</b><br>${isPolice ? 'Police' : 'Civilian'}<br>Position: ${x.toFixed(0)}, ${z.toFixed(0)}`);
+                        playerMarkers.push(marker);
+
+                        listHtml += `
+                            <div style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="color: ${isPolice ? '#4a90e2' : '#4caf50'}; font-weight: bold;">${p.username || 'Unknown'}</span>
+                                    <span style="color: #666; font-size: 0.75rem; margin-left: 0.5rem;">${isPolice ? 'Police' : 'Civilian'}</span>
+                                </div>
+                                <span style="color: #666; font-size: 0.75rem;">${x.toFixed(0)}, ${z.toFixed(0)}</span>
+                            </div>
+                        `;
+                    });
+
+                    playerList.innerHTML = listHtml;
+
+                    if (playerMarkers.length > 0) {
+                        const group = L.featureGroup(playerMarkers);
+                        erlcMap.fitBounds(group.getBounds().pad(0.2));
+                    }
+                } catch (err) {
+                    console.error('ERLC fetch error:', err);
+                    playerList.innerHTML = '<p style="color: #ff4444; text-align: center; padding: 1rem;">Error connecting to ERLC API.</p>';
+                    playerCount.textContent = 'Connection error';
+                }
+            }
+
+            document.getElementById('btn-cancel-police').addEventListener('click', () => {
+                document.getElementById('police-modal').classList.remove('active');
+                if (erlcRefreshInterval) clearInterval(erlcRefreshInterval);
+            });
+
+            window.openFirePanel = function() {
+                document.getElementById('fire-modal').classList.add('active');
+            };
+
+            document.getElementById('btn-cancel-fire').addEventListener('click', () => {
+                document.getElementById('fire-modal').classList.remove('active');
+            });
+
+            window.deleteServer = async function(id) {
+                if (!confirm('Delete this server?')) return;
+                await supabaseClient.from('servers').delete().eq('id', id);
+                window.location.href = 'dashboard.html';
+            };
+
+            window.copyInviteCode = function() {
+                const code = document.getElementById('invite-code-display').value;
+                navigator.clipboard.writeText(code);
+                alert('Invite code copied!');
+            };
+        });
+    </script>
+</body>
+</html>

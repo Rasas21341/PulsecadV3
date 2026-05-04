@@ -1,1 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
+    <title>Pulse CAD</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #252525; /* dark gray for entire site */
+            color: #f0f0f0;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+        nav ul li a {
+            color: #f0f0f0;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        nav ul li a:hover {
+            background-color: #3a3a3a;
+        }
+        .login-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .login-btn:hover {
+            background-color: #3a7bc8;
+            text-decoration: none;
+        }
 
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 80px);
+            gap: 2rem;
+        }
+        .role-btn {
+            padding: 2rem 4rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+            min-width: 250px;
+        }
+        .role-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .police-btn {
+            background-color: #1e3a8a;
+        }
+        .civilian-btn {
+            background-color: #059669;
+        }
+        .fire-btn {
+            background-color: #dc2626;
+        }
+        .admin-btn-nav {
+            background-color: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <div class="logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+            <span>Pulse CAD</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Team</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="login.html" class="login-btn">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="content">
+        <p>Login to access the CAD system</p>
+    </div>
+</body>
+</html>
