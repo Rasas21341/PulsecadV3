@@ -34,9 +34,6 @@
         .rank-badge.user { background: linear-gradient(135deg, #4a90e2, #3a7bc8); color: #fff; }
         .rank-info h3 { font-size: 1.25rem; color: #fff; margin-bottom: 0.25rem; }
         .rank-info p { font-size: 0.85rem; color: #666; }
-        .action-btn { display: flex; align-items: center; gap: 0.5rem; background-color: #5865F2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background-color 0.2s; }
-        .action-btn:hover { background-color: #4752c4; }
-        .action-btn svg { width: 16px; height: 16px; }
     </style>
 </head>
 <body>
@@ -75,27 +72,6 @@
                     </div>
                 </div>
             </div>
-            <div class="section">
-                <div class="section-header">
-                    <h2>Discord Integration</h2>
-                    <p>Link your Discord account for enhanced features</p>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background-color: #141414; border-radius: 10px; border: 1px solid #1a1a1a;">
-                    <div id="discord-status" style="flex: 1;">
-                        <div id="discord-linked" style="display: none;">
-                            <div style="color: #4caf50; font-size: 0.9rem; margin-bottom: 0.25rem;">Connected</div>
-                            <div id="discord-username" style="color: #fff; font-weight: 500;"></div>
-                        </div>
-                        <div id="discord-not-linked">
-                            <div style="color: #666; font-size: 0.9rem;">Not connected</div>
-                        </div>
-                    </div>
-                    <button id="btn-link-discord" class="action-btn">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.742-4.242l5.656-5.657m-5.657 5.657L9.172 10.172"/></svg>
-                        Link Discord
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -125,15 +101,7 @@
                 rankName.textContent = 'User';
                 rankDescription.textContent = 'Standard user account';
             }
-
-            document.getElementById('btn-link-discord').addEventListener('click', () => {
-                const clientId = '1498146442047651900';
-                const redirectUri = window.location.origin + '/settings.html';
-                const discordAuthUrl = 'https://discord.com/oauth2/authorize?client_id=' + clientId + '&redirect_uri=' + encodeURIComponent(redirectUri) + '&response_type=code&scope=identify';
-                window.location.href = discordAuthUrl;
-            });
         });
     </script>
 </body>
 </html>
-
