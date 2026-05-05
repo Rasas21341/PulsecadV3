@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
+    <title>Pulse CAD - Settings</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a; color: #e0e0e0; display: flex; min-height: 100vh; }
+        .sidebar { width: 70px; background-color: #111; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; align-items: center; padding: 1rem 0; gap: 0.5rem; position: fixed; height: 100vh; }
+        .sidebar-logo { width: 36px; height: 36px; border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+        .sidebar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .sidebar-item { width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; color: #666; text-decoration: none; font-size: 0.6rem; gap: 4px; }
+        .sidebar-item:hover { background-color: #1a1a1a; color: #aaa; }
+        .sidebar-item.active { color: #4a90e2; }
+        .sidebar-item svg { width: 20px; height: 20px; }
+        .main-content { flex: 1; display: flex; flex-direction: column; margin-left: 70px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid #1a1a1a; background-color: #0d0d0d; position: sticky; top: 0; z-index: 100; }
+        .top-bar-left { display: flex; align-items: center; gap: 1rem; }
+        .top-bar-logo { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; }
+        .top-bar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .page-title h1 { font-size: 1.1rem; font-weight: 600; color: #fff; }
+        .page-title p { font-size: 0.8rem; color: #666; }
+        .settings-content { padding: 2rem; flex: 1; }
+        .section { background-color: #111; border: 1px solid #1a1a1a; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .section-header { margin-bottom: 1.25rem; }
+        .section-header h2 { font-size: 1rem; color: #fff; margin-bottom: 0.25rem; }
+        .section-header p { font-size: 0.8rem; color: #666; }
+        .rank-display { display: flex; align-items: center; gap: 1rem; padding: 1.5rem; background-color: #141414; border-radius: 10px; border: 1px solid #1a1a1a; }
+        .rank-badge { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.5rem; flex-shrink: 0; }
+        .rank-badge.founder { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; }
+        .rank-badge.admin { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; }
+        .rank-badge.user { background: linear-gradient(135deg, #4a90e2, #3a7bc8); color: #fff; }
+        .rank-info h3 { font-size: 1.25rem; color: #fff; margin-bottom: 0.25rem; }
+        .rank-info p { font-size: 0.85rem; color: #666; }
+        .action-btn { display: flex; align-items: center; gap: 0.5rem; background-color: #5865F2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background-color 0.2s; }
+        .action-btn:hover { background-color: #4752c4; }
+        .action-btn svg { width: 16px; height: 16px; }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+        <a href="dashboard.html" class="sidebar-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            Dashboard
+        </a>
+        <a href="settings.html" class="sidebar-item active">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Settings
+        </a>
+    </nav>
+    <div class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <div class="top-bar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+                <div class="page-title">
+                    <h1>Settings</h1>
+                    <p>Manage your account settings</p>
+                </div>
+            </div>
+        </header>
+        <div class="settings-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2>Your Rank</h2>
+                    <p>Your current role and permissions in Pulse CAD</p>
+                </div>
+                <div class="rank-display" id="rank-display">
+                    <div class="rank-badge user" id="rank-badge">U</div>
+                    <div class="rank-info">
+                        <h3 id="rank-name">User</h3>
+                        <p id="rank-description">Standard user account</p>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-header">
+                    <h2>Discord Integration</h2>
+                    <p>Link your Discord account for enhanced features</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background-color: #141414; border-radius: 10px; border: 1px solid #1a1a1a;">
+                    <div id="discord-status" style="flex: 1;">
+                        <div id="discord-linked" style="display: none;">
+                            <div style="color: #4caf50; font-size: 0.9rem; margin-bottom: 0.25rem;">Connected</div>
+                            <div id="discord-username" style="color: #fff; font-weight: 500;"></div>
+                        </div>
+                        <div id="discord-not-linked">
+                            <div style="color: #666; font-size: 0.9rem;">Not connected</div>
+                        </div>
+                    </div>
+                    <button id="btn-link-discord" class="action-btn">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.742-4.242l5.656-5.657m-5.657 5.657L9.172 10.172"/></svg>
+                        Link Discord
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const user = session.user;
+            const email = user.email;
+            const username = email ? email.split('@')[0] : 'User';
+            const lowerUsername = username.toLowerCase();
+            const isFounder = lowerUsername === 'ryanmasterson2026';
+            const rankBadge = document.getElementById('rank-badge');
+            const rankName = document.getElementById('rank-name');
+            const rankDescription = document.getElementById('rank-description');
+            if (isFounder) {
+                rankBadge.className = 'rank-badge founder';
+                rankBadge.textContent = 'F';
+                rankName.textContent = 'Founder';
+                rankDescription.textContent = 'Highest rank - Original creator of Pulse CAD';
+            } else {
+                rankBadge.className = 'rank-badge user';
+                rankBadge.textContent = username.charAt(0).toUpperCase();
+                rankName.textContent = 'User';
+                rankDescription.textContent = 'Standard user account';
+            }
+
+            document.getElementById('btn-link-discord').addEventListener('click', () => {
+                const clientId = '1498146442047651900';
+                const redirectUri = window.location.origin + '/settings.html';
+                const discordAuthUrl = 'https://discord.com/oauth2/authorize?client_id=' + clientId + '&redirect_uri=' + encodeURIComponent(redirectUri) + '&response_type=code&scope=identify';
+                window.location.href = discordAuthUrl;
+            });
+        });
+    </script>
+</body>
+</html>
+
