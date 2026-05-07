@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
+    <title>Pulse CAD - Civilian Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 70px;
+            background-color: #111;
+            border-right: 1px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            gap: 0.5rem;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            width: 36px; height: 36px;
+            border-radius: 8px; margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .sidebar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .sidebar-item {
+            width: 50px; height: 50px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 8px; cursor: pointer;
+            transition: background-color 0.2s;
+            color: #666; text-decoration: none;
+            font-size: 0.6rem; gap: 4px;
+        }
+        .sidebar-item:hover { background-color: #1a1a1a; color: #aaa; }
+        .sidebar-item.active { color: #059669; }
+        .sidebar-item svg { width: 20px; height: 20px; }
+        .main-content {
+            flex: 1; display: flex; flex-direction: column;
+            margin-left: 70px;
+        }
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+            background-color: #0d0d0d;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 1rem; }
+        .back-btn {
+            background: none; border: none; color: #aaa;
+            cursor: pointer; padding: 0.5rem;
+            border-radius: 6px; transition: background-color 0.2s;
+        }
+        .back-btn:hover { background-color: #1a1a1a; color: #fff; }
+        .top-bar-logo {
+            width: 28px; height: 28px;
+            border-radius: 6px; overflow: hidden;
+        }
+        .top-bar-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .page-title h1 { font-size: 1.1rem; font-weight: 600; color: #fff; }
+        .page-title p { font-size: 0.8rem; color: #666; }
+        .top-bar-right { display: flex; align-items: center; gap: 1rem; }
+        .credits-badge {
+            background-color: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 8px; padding: 0.5rem 1rem;
+            font-size: 0.85rem; color: #aaa;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .credits-badge .dot {
+            width: 8px; height: 8px;
+            background-color: #4caf50; border-radius: 50%;
+        }
+        .user-profile {
+            display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; position: relative;
+            padding: 0.25rem 0.5rem; border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .user-profile:hover { background-color: #1a1a1a; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #333;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+        }
+        .user-name { font-size: 0.9rem; color: #ccc; }
+        .user-dropdown {
+            display: none; position: absolute; top: 100%; right: 0;
+            margin-top: 0.5rem; background-color: #1a1a1a;
+            border: 1px solid #2a2a2a; border-radius: 8px;
+            min-width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 200; overflow: hidden;
+        }
+        .user-dropdown.active { display: block; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1rem; color: #ccc; cursor: pointer;
+            transition: background-color 0.2s;
+            border: none; background: none; width: 100%;
+            text-align: left; font-size: 0.85rem;
+        }
+        .dropdown-item:hover { background-color: #2a2a2a; }
+        .dropdown-item.logout { color: #ff4444; border-top: 1px solid #2a2a2a; }
+        .dropdown-item.logout:hover { background-color: #2a1a1a; }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dashboard-content { padding: 2rem; flex: 1; }
+        .section {
+            background-color: #111; border: 1px solid #1a1a1a;
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .section-header { margin-bottom: 1.25rem; }
+        .section-header h2 { font-size: 1rem; color: #fff; margin-bottom: 0.25rem; }
+        .section-header p { font-size: 0.8rem; color: #666; }
+        .form-row {
+            display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+        }
+        .form-group { flex: 1; min-width: 200px; }
+        .form-group label {
+            display: block; margin-bottom: 0.5rem;
+            color: #aaa; font-size: 0.85rem;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 0.75rem;
+            border: 1px solid #333; border-radius: 8px;
+            background-color: #111; color: #fff;
+            font-size: 0.9rem; box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: #059669;
+        }
+        .btn-save {
+            padding: 0.75rem 1.5rem;
+            background-color: #059669; border: none;
+            border-radius: 8px; color: white;
+            font-weight: bold; cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-save:hover { background-color: #047857; }
+        .civilian-card {
+            background-color: #141414; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: border-color 0.2s;
+        }
+        .civilian-card:hover { border-color: #059669; }
+        .civilian-info h3 { color: #fff; font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .civilian-info p { color: #666; font-size: 0.8rem; }
+        .civilian-actions { display: flex; gap: 0.5rem; }
+        .btn-edit {
+            padding: 0.4rem 0.75rem; border-radius: 6px;
+            border: 1px solid #4a90e2; background-color: transparent;
+            color: #4a90e2; font-size: 0.75rem; cursor: pointer;
+        }
+        .btn-edit:hover { background-color: #4a90e2; color: white; }
+        .btn-delete {
+            padding: 0.4rem 0.75rem; border-radius: 6px;
+            border: 1px solid #ff4444; background-color: transparent;
+            color: #ff4444; font-size: 0.75rem; cursor: pointer;
+        }
+        .btn-delete:hover { background-color: #ff4444; color: white; }
+        .message {
+            padding: 0.75rem; border-radius: 8px;
+            margin-bottom: 1rem; display: none; text-align: center;
+        }
+        .message.error { background-color: rgba(255, 68, 68, 0.15); color: #ff4444; }
+        .message.success { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background-color: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 12px; padding: 2rem;
+            width: 90%; max-width: 500px;
+        }
+        .modal h2 { color: #fff; margin-bottom: 1.5rem; text-align: center; }
+        .modal-btn {
+            width: 100%; padding: 0.75rem; border: none;
+            border-radius: 8px; font-size: 1rem; font-weight: bold;
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .modal-btn.primary { background-color: #059669; color: white; }
+        .modal-btn.primary:hover { background-color: #047857; }
+        .modal-btn.secondary { background-color: #333; color: #ccc; margin-top: 0.5rem; }
+        .modal-btn.secondary:hover { background-color: #444; }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+        <a href="dashboard.html" class="sidebar-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="back-btn" onclick="window.location.href='server.html?id=' + (new URLSearchParams(window.location.search)).get('server')">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="top-bar-logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+                <div class="page-title">
+                    <h1>Civilian Panel</h1>
+                    <p>Manage civilian records</p>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <div class="credits-badge">
+                    <span class="dot"></span>
+                    <span id="user-credits">0 credits</span>
+                </div>
+                <div class="user-profile" id="user-profile-trigger">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <span class="user-name" id="user-email">user@email.com</span>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <button class="dropdown-item logout" id="btn-logout">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2>Add Civilian</h2>
+                    <p>Register a new civilian record</p>
+                </div>
+                <div id="add-message" class="message"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="civ-name" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" id="civ-dob">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="civ-phone" placeholder="555-0123">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="civ-address" placeholder="123 Main St">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Occupation</label>
+                        <input type="text" id="civ-occupation" placeholder="Engineer">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <input type="text" id="civ-notes" placeholder="Additional notes">
+                    </div>
+                </div>
+                <button class="btn-save" id="btn-add-civilian">Add Civilian</button>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>Civilian Records</h2>
+                    <p>View and manage registered civilians</p>
+                </div>
+                <div id="civilians-list">
+                    <p style="color: #444; font-size: 0.85rem;">No civilian records yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Civilian Modal -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Edit Civilian</h2>
+            <div id="edit-message" class="message"></div>
+            <input type="hidden" id="edit-id">
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Full Name</label>
+                <input type="text" id="edit-name" class="form-group input">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Date of Birth</label>
+                <input type="date" id="edit-dob">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Phone Number</label>
+                <input type="text" id="edit-phone">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Address</label>
+                <input type="text" id="edit-address">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Occupation</label>
+                <input type="text" id="edit-occupation">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Notes</label>
+                <input type="text" id="edit-notes">
+            </div>
+            <button class="modal-btn primary" id="btn-save-edit">Save Changes</button>
+            <button class="modal-btn secondary" id="btn-cancel-edit">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+
+            const user = session.user;
+            const displayName = user.email ? user.email.split('@')[0] : 'User';
+            document.getElementById('user-email').textContent = displayName;
+            document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
+
+            const params = new URLSearchParams(window.location.search);
+            const serverId = params.get('server');
+
+            const headers = {
+                'apikey': supabaseAnonKey,
+                'Authorization': 'Bearer ' + session.access_token,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            };
+
+            // User dropdown
+            const userDropdown = document.getElementById('user-dropdown');
+            document.getElementById('user-profile-trigger').addEventListener('click', (e) => {
+                e.stopPropagation(); userDropdown.classList.toggle('active');
+            });
+            document.addEventListener('click', () => { userDropdown.classList.remove('active'); });
+            userDropdown.addEventListener('click', (e) => { e.stopPropagation(); });
+            document.getElementById('btn-logout').addEventListener('click', async () => {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            });
+
+            const { data: creditsData } = await supabaseClient.from('user_credits').select('credits').eq('user_id', user.id).single();
+            document.getElementById('user-credits').textContent = (creditsData ? creditsData.credits : 0) + ' credits';
+
+            async function loadCivilians() {
+                const res = await fetch(supabaseUrl + '/rest/v1/civilians?select=*&server_id=eq.' + serverId + '&order=created_at.desc', { headers });
+                if (!res.ok) return;
+                const civilians = await res.json();
+
+                const container = document.getElementById('civilians-list');
+                if (!civilians || civilians.length === 0) {
+                    container.innerHTML = '<p style="color: #444; font-size: 0.85rem;">No civilian records yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = civilians.map(c => `
+                    <div class="civilian-card">
+                        <div class="civilian-info">
+                            <h3>${c.name}</h3>
+                            <p>DOB: ${c.dob || 'N/A'} • Phone: ${c.phone || 'N/A'} • ${c.address || 'No address'} • ${c.occupation || 'No occupation'}</p>
+                        </div>
+                        <div class="civilian-actions">
+                            <button class="btn-edit" onclick="openEditModal('${c.id}')">Edit</button>
+                            <button class="btn-delete" onclick="deleteCivilian('${c.id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('btn-add-civilian').addEventListener('click', async () => {
+                const name = document.getElementById('civ-name').value.trim();
+                const dob = document.getElementById('civ-dob').value || null;
+                const phone = document.getElementById('civ-phone').value.trim() || null;
+                const address = document.getElementById('civ-address').value.trim() || null;
+                const occupation = document.getElementById('civ-occupation').value.trim() || null;
+                const notes = document.getElementById('civ-notes').value.trim() || null;
+                const msgEl = document.getElementById('add-message');
+
+                if (!name) {
+                    msgEl.textContent = 'Full name is required';
+                    msgEl.className = 'message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+
+                const body = { name, dob, phone, address, occupation, notes, server_id: serverId, created_by: user.id };
+                const res = await fetch(supabaseUrl + '/rest/v1/civilians', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    msgEl.textContent = 'Error adding civilian: ' + (err.message || 'Unknown error');
+                    msgEl.className = 'message error';
+                    msgEl.style.display = 'block';
+                } else {
+                    msgEl.textContent = 'Civilian added!';
+                    msgEl.className = 'message success';
+                    msgEl.style.display = 'block';
+                    document.getElementById('civ-name').value = '';
+                    document.getElementById('civ-dob').value = '';
+                    document.getElementById('civ-phone').value = '';
+                    document.getElementById('civ-address').value = '';
+                    document.getElementById('civ-occupation').value = '';
+                    document.getElementById('civ-notes').value = '';
+                    loadCivilians();
+                    setTimeout(() => { msgEl.style.display = 'none'; }, 2000);
+                }
+            });
+
+            window.openEditModal = async function(id) {
+                const res = await fetch(supabaseUrl + '/rest/v1/civilians?select=*&id=eq.' + id, { headers });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || data.length === 0) return;
+                const civ = data[0];
+
+                document.getElementById('edit-id').value = civ.id;
+                document.getElementById('edit-name').value = civ.name;
+                document.getElementById('edit-dob').value = civ.dob || '';
+                document.getElementById('edit-phone').value = civ.phone || '';
+                document.getElementById('edit-address').value = civ.address || '';
+                document.getElementById('edit-occupation').value = civ.occupation || '';
+                document.getElementById('edit-notes').value = civ.notes || '';
+                document.getElementById('edit-modal').classList.add('active');
+            };
+
+            document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+                document.getElementById('edit-modal').classList.remove('active');
+            });
+
+            document.getElementById('btn-save-edit').addEventListener('click', async () => {
+                const id = document.getElementById('edit-id').value;
+                const body = {
+                    name: document.getElementById('edit-name').value.trim(),
+                    dob: document.getElementById('edit-dob').value || null,
+                    phone: document.getElementById('edit-phone').value.trim() || null,
+                    address: document.getElementById('edit-address').value.trim() || null,
+                    occupation: document.getElementById('edit-occupation').value.trim() || null,
+                    notes: document.getElementById('edit-notes').value.trim() || null
+                };
+
+                const res = await fetch(supabaseUrl + '/rest/v1/civilians?id=eq.' + id, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(body)
+                });
+
+                const msgEl = document.getElementById('edit-message');
+                if (!res.ok) {
+                    msgEl.textContent = 'Error updating civilian';
+                    msgEl.className = 'message error';
+                    msgEl.style.display = 'block';
+                } else {
+                    msgEl.textContent = 'Civilian updated!';
+                    msgEl.className = 'message success';
+                    msgEl.style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('edit-modal').classList.remove('active');
+                        loadCivilians();
+                    }, 1000);
+                }
+            });
+
+            window.deleteCivilian = async function(id) {
+                if (!confirm('Delete this civilian record?')) return;
+                await fetch(supabaseUrl + '/rest/v1/civilians?id=eq.' + id, {
+                    method: 'DELETE',
+                    headers
+                });
+                loadCivilians();
+            };
+
+            await loadCivilians();
+        });
+    </script>
+</body>
+</html>
