@@ -2,6 +2,7 @@
 -- Run this in your Supabase SQL Editor
 
 -- Drop tables with CASCADE (removes all dependent triggers, indexes, policies)
+DROP TABLE IF EXISTS civilians CASCADE;
 DROP TABLE IF EXISTS access_keys CASCADE;
 DROP TABLE IF EXISTS servers CASCADE;
 DROP TABLE IF EXISTS user_credits CASCADE;
@@ -105,6 +106,67 @@ CREATE POLICY "Anyone can redeem available keys"
     ON access_keys FOR UPDATE
     USING (redeemed = false);
 
+-- Civilians Table
+CREATE TABLE civilians (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    dob TEXT,
+    phone TEXT,
+    address TEXT,
+    occupation TEXT,
+    notes TEXT,
+    server_id UUID REFERENCES servers(id) ON DELETE CASCADE,
+    created_by UUID REFERENCES auth.users(id),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_civilians_server_id ON civilians(server_id);
+CREATE INDEX idx_civilians_name ON civilians(name);
+CREATE INDEX idx_civilians_created_by ON civilians(created_by);
+
+ALTER TABLE civilians ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view civilians in their servers"
+    ON civilians FOR SELECT
+    USING (
+        server_id IN (
+            SELECT s.id FROM servers s 
+            WHERE s.owner_id = auth.uid() 
+            OR s.members @> ARRAY[auth.uid()]
+        )
+    );
+
+CREATE POLICY "Users can insert civilians in their servers"
+    ON civilians FOR INSERT
+    WITH CHECK (
+        server_id IN (
+            SELECT s.id FROM servers s 
+            WHERE s.owner_id = auth.uid() 
+            OR s.members @> ARRAY[auth.uid()]
+        )
+    );
+
+CREATE POLICY "Users can update civilians in their servers"
+    ON civilians FOR UPDATE
+    USING (
+        server_id IN (
+            SELECT s.id FROM servers s 
+            WHERE s.owner_id = auth.uid() 
+            OR s.members @> ARRAY[auth.uid()]
+        )
+    );
+
+CREATE POLICY "Users can delete civilians in their servers"
+    ON civilians FOR DELETE
+    USING (
+        server_id IN (
+            SELECT s.id FROM servers s 
+            WHERE s.owner_id = auth.uid() 
+            OR s.members @> ARRAY[auth.uid()]
+        )
+    );
+
 -- Updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -129,6 +191,11 @@ CREATE TRIGGER update_access_keys_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_civilians_updated_at
+    BEFORE UPDATE ON civilians
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Server invite code generator
 CREATE OR REPLACE FUNCTION generate_server_invite_code()
 RETURNS TRIGGER AS $$
@@ -145,17 +212,5 @@ CREATE TRIGGER set_server_invite_code
     FOR EACH ROW
     EXECUTE FUNCTION generate_server_invite_code();
 
--- Auto-create user credits on signup
-CREATE OR REPLACE FUNCTION handle_new_user_credits()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO user_credits (user_id, credits)
-    VALUES (NEW.id, 0);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW
-    EXECUTE FUNCTION handle_new_user_credits();
+-- NOTE: user_credits is now created in login.html after signup, not via trigger
+-- This avoids "Database error saving new user" caused by auth.users triggers

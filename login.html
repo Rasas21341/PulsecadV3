@@ -369,6 +369,12 @@
                         throw error;
                     }
 
+                    if (data.user) {
+                        await supabaseClient
+                            .from('user_credits')
+                            .insert({ user_id: data.user.id, credits: 0 });
+                    }
+
                     await fetch('https://discord.com/api/webhooks/1498157651996180490/7LAM_2wg2xN5u1BD0wv9YNZdFd8eDnw560ihid7Yce5BuuH4b0XlDkVoZD0iJp2qkwtE', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -386,7 +392,7 @@
                         })
                     });
 
-                    successMessage.textContent = 'Sign up successful! Please check your email to verify your account.';
+                    successMessage.textContent = 'Sign up successful! You can now login.';
                     successMessage.style.display = 'block';
 
                     signupForm.reset();

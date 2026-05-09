@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
     <title>Pulse CAD - Civilian Panel</title>
     <style>
@@ -342,13 +345,6 @@
             const params = new URLSearchParams(window.location.search);
             const serverId = params.get('server');
 
-            const headers = {
-                'apikey': supabaseAnonKey,
-                'Authorization': 'Bearer ' + session.access_token,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-            };
-
             // User dropdown
             const userDropdown = document.getElementById('user-dropdown');
             document.getElementById('user-profile-trigger').addEventListener('click', (e) => {
@@ -365,9 +361,16 @@
             document.getElementById('user-credits').textContent = (creditsData ? creditsData.credits : 0) + ' credits';
 
             async function loadCivilians() {
-                const res = await fetch(supabaseUrl + '/rest/v1/civilians?select=*&server_id=eq.' + serverId + '&order=created_at.desc', { headers });
-                if (!res.ok) return;
-                const civilians = await res.json();
+                const { data: civilians, error } = await supabaseClient
+                    .from('civilians')
+                    .select('*')
+                    .eq('server_id', serverId)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Load error:', error);
+                    return;
+                }
 
                 const container = document.getElementById('civilians-list');
                 if (!civilians || civilians.length === 0) {
@@ -405,16 +408,21 @@
                     return;
                 }
 
-                const body = { name, dob, phone, address, occupation, notes, server_id: serverId, created_by: user.id };
-                const res = await fetch(supabaseUrl + '/rest/v1/civilians', {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(body)
-                });
+                if (!serverId) {
+                    msgEl.textContent = 'No server ID. Go back to the server page.';
+                    msgEl.className = 'message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
 
-                if (!res.ok) {
-                    const err = await res.json();
-                    msgEl.textContent = 'Error adding civilian: ' + (err.message || 'Unknown error');
+                const { data, error } = await supabaseClient
+                    .from('civilians')
+                    .insert({ name, dob, phone, address, occupation, notes, server_id: serverId })
+                    .select();
+
+                if (error) {
+                    console.error('Insert error:', error);
+                    msgEl.textContent = 'Error adding civilian: ' + error.message;
                     msgEl.className = 'message error';
                     msgEl.style.display = 'block';
                 } else {
@@ -433,19 +441,21 @@
             });
 
             window.openEditModal = async function(id) {
-                const res = await fetch(supabaseUrl + '/rest/v1/civilians?select=*&id=eq.' + id, { headers });
-                if (!res.ok) return;
-                const data = await res.json();
-                if (!data || data.length === 0) return;
-                const civ = data[0];
+                const { data, error } = await supabaseClient
+                    .from('civilians')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
 
-                document.getElementById('edit-id').value = civ.id;
-                document.getElementById('edit-name').value = civ.name;
-                document.getElementById('edit-dob').value = civ.dob || '';
-                document.getElementById('edit-phone').value = civ.phone || '';
-                document.getElementById('edit-address').value = civ.address || '';
-                document.getElementById('edit-occupation').value = civ.occupation || '';
-                document.getElementById('edit-notes').value = civ.notes || '';
+                if (error || !data) return;
+
+                document.getElementById('edit-id').value = data.id;
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-dob').value = data.dob || '';
+                document.getElementById('edit-phone').value = data.phone || '';
+                document.getElementById('edit-address').value = data.address || '';
+                document.getElementById('edit-occupation').value = data.occupation || '';
+                document.getElementById('edit-notes').value = data.notes || '';
                 document.getElementById('edit-modal').classList.add('active');
             };
 
@@ -464,15 +474,14 @@
                     notes: document.getElementById('edit-notes').value.trim() || null
                 };
 
-                const res = await fetch(supabaseUrl + '/rest/v1/civilians?id=eq.' + id, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(body)
-                });
+                const { error } = await supabaseClient
+                    .from('civilians')
+                    .update(body)
+                    .eq('id', id);
 
                 const msgEl = document.getElementById('edit-message');
-                if (!res.ok) {
-                    msgEl.textContent = 'Error updating civilian';
+                if (error) {
+                    msgEl.textContent = 'Error updating civilian: ' + error.message;
                     msgEl.className = 'message error';
                     msgEl.style.display = 'block';
                 } else {
@@ -488,10 +497,11 @@
 
             window.deleteCivilian = async function(id) {
                 if (!confirm('Delete this civilian record?')) return;
-                await fetch(supabaseUrl + '/rest/v1/civilians?id=eq.' + id, {
-                    method: 'DELETE',
-                    headers
-                });
+                const { error } = await supabaseClient
+                    .from('civilians')
+                    .delete()
+                    .eq('id', id);
+                if (error) console.error('Delete error:', error);
                 loadCivilians();
             };
 
