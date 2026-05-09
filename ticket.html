@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" type="image/webp">
+    <title>Pulse CAD - Ticket</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+            background-color: #0d0d0d;
+        }
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .back-link {
+            color: #f0f0f0;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .back-link:hover {
+            background-color: #3a3a3a;
+        }
+        .ticket-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .ticket-header {
+            background-color: #141414;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .ticket-header h1 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        .ticket-meta {
+            display: flex;
+            gap: 1rem;
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        .ticket-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .ticket-status.open {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+        }
+        .ticket-status.closed {
+            background-color: rgba(255, 68, 68, 0.15);
+            color: #ff4444;
+        }
+        .ticket-description {
+            background-color: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            padding: 1rem;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+        .message {
+            background-color: #141414;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .message.support {
+            border-color: #4a90e2;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .message-author {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .message-author.support-badge {
+            background-color: rgba(74, 144, 226, 0.15);
+            color: #4a90e2;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        .message-date {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        .message-content {
+            color: #ccc;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .reply-form {
+            background-color: #141414;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .reply-form h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .reply-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .reply-form textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        .reply-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .btn-reply {
+            padding: 0.75rem 1.5rem;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-reply:hover {
+            background-color: #3a7bc8;
+        }
+        .btn-reply:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        .btn-close {
+            padding: 0.75rem 1.5rem;
+            background-color: #ff4444;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-close:hover {
+            background-color: #cc3333;
+        }
+        .btn-reopen {
+            padding: 0.75rem 1.5rem;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-reopen:hover {
+            background-color: #3d8b40;
+        }
+        .error-message,
+        .success-message {
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .error-message {
+            background-color: #ff4444;
+            color: white;
+        }
+        .success-message {
+            background-color: #4caf50;
+            color: white;
+        }
+        .no-messages {
+            text-align: center;
+            color: #444;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <div class="logo"><img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1280" alt="Logo"></div>
+            <span>Pulse CAD - Ticket</span>
+        </div>
+        <a href="support.html" class="back-link">Back to Support</a>
+    </header>
+
+    <div class="ticket-container">
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <div id="ticket-header" class="ticket-header">
+            <h1 id="ticket-subject">Loading...</h1>
+            <div class="ticket-meta">
+                <span id="ticket-email"></span>
+                <span id="ticket-date"></span>
+                <span id="ticket-status" class="ticket-status open">OPEN</span>
+            </div>
+            <div id="ticket-description" class="ticket-description"></div>
+        </div>
+
+        <div id="messages" class="messages">
+            <div class="no-messages">No messages yet.</div>
+        </div>
+
+        <div id="reply-form" class="reply-form">
+            <h3>Reply to Ticket</h3>
+            <textarea id="reply-message" placeholder="Type your response..."></textarea>
+            <div class="reply-actions">
+                <button class="btn-reply" id="btn-send-reply">Send Reply</button>
+                <button class="btn-close" id="btn-close-ticket">Close Ticket</button>
+                <button class="btn-reopen" id="btn-reopen-ticket" style="display:none;">Reopen Ticket</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const supabaseUrl = 'https://sbgpcbdegyqzwkdympim.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3BjYmRlZ3lxendrZHltcGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjc2NTQsImV4cCI6MjA5MzkwMzY1NH0.hyYZTM-w0wbJAzZzygsDcgMjj8oMt5oP1ait3O0MxT8';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            let user = null;
+
+            if (session) {
+                user = session.user;
+            } else {
+                const localSession = JSON.parse(localStorage.getItem('pulse_session') || 'null');
+                if (!localSession) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                user = { id: localSession.user_id, email: localSession.email };
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticketId = urlParams.get('id');
+
+            if (!ticketId) {
+                window.location.href = 'support.html';
+                return;
+            }
+
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            const btnReply = document.getElementById('btn-send-reply');
+            const btnClose = document.getElementById('btn-close-ticket');
+            const btnReopen = document.getElementById('btn-reopen-ticket');
+            const replyInput = document.getElementById('reply-message');
+
+            let currentTicket = null;
+
+            async function loadTicket() {
+                const { data: ticket } = await supabaseClient
+                    .from('support_tickets')
+                    .select('*')
+                    .eq('id', ticketId)
+                    .single();
+
+                if (!ticket) {
+                    errorMessage.textContent = 'Ticket not found.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                currentTicket = ticket;
+
+                document.getElementById('ticket-subject').textContent = ticket.subject;
+                document.getElementById('ticket-email').textContent = ticket.email;
+                document.getElementById('ticket-date').textContent = new Date(ticket.created_at).toLocaleDateString();
+                document.getElementById('ticket-description').textContent = ticket.description;
+
+                const statusEl = document.getElementById('ticket-status');
+                statusEl.textContent = ticket.status.toUpperCase();
+                statusEl.className = 'ticket-status ' + ticket.status;
+
+                if (ticket.status === 'closed') {
+                    btnClose.style.display = 'none';
+                    btnReopen.style.display = 'inline-block';
+                } else {
+                    btnClose.style.display = 'inline-block';
+                    btnReopen.style.display = 'none';
+                }
+
+                await loadMessages();
+            }
+
+            async function loadMessages() {
+                const { data: messages } = await supabaseClient
+                    .from('ticket_messages')
+                    .select('*')
+                    .eq('ticket_id', ticketId)
+                    .order('created_at', { ascending: true });
+
+                const container = document.getElementById('messages');
+                if (!messages || messages.length === 0) {
+                    container.innerHTML = '<div class="no-messages">No messages yet.</div>';
+                    return;
+                }
+
+                container.innerHTML = messages.map(m => `
+                    <div class="message ${m.is_support ? 'support' : ''}">
+                        <div class="message-header">
+                            <span class="message-author ${m.is_support ? 'support-badge' : ''}">${m.is_support ? 'Support Team' : 'User'}</span>
+                            <span class="message-date">${new Date(m.created_at).toLocaleString()}</span>
+                        </div>
+                        <div class="message-content">${m.message}</div>
+                    </div>
+                `).join('');
+            }
+
+            btnReply.addEventListener('click', async () => {
+                const message = replyInput.value.trim();
+                if (!message) {
+                    errorMessage.textContent = 'Please type a message.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                btnReply.disabled = true;
+                btnReply.textContent = 'Sending...';
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('ticket_messages')
+                        .insert({
+                            ticket_id: ticketId,
+                            user_id: user.id,
+                            message: message,
+                            is_support: false
+                        });
+
+                    if (error) throw error;
+
+                    replyInput.value = '';
+                    await loadMessages();
+
+                    successMessage.textContent = 'Message sent!';
+                    successMessage.style.display = 'block';
+                    setTimeout(() => { successMessage.style.display = 'none'; }, 2000);
+
+                } catch (err) {
+                    console.error('Error sending message:', err);
+                    errorMessage.textContent = 'Failed to send message.';
+                    errorMessage.style.display = 'block';
+                } finally {
+                    btnReply.disabled = false;
+                    btnReply.textContent = 'Send Reply';
+                }
+            });
+
+            btnClose.addEventListener('click', async () => {
+                if (!confirm('Close this ticket?')) return;
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('support_tickets')
+                        .update({ status: 'closed' })
+                        .eq('id', ticketId);
+
+                    if (error) throw error;
+                    await loadTicket();
+                } catch (err) {
+                    console.error('Error closing ticket:', err);
+                }
+            });
+
+            btnReopen.addEventListener('click', async () => {
+                try {
+                    const { error } = await supabaseClient
+                        .from('support_tickets')
+                        .update({ status: 'open' })
+                        .eq('id', ticketId);
+
+                    if (error) throw error;
+                    await loadTicket();
+                } catch (err) {
+                    console.error('Error reopening ticket:', err);
+                }
+            });
+
+            await loadTicket();
+            setInterval(loadMessages, 10000);
+        });
+    </script>
+</body>
+</html>

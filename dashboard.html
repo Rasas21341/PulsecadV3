@@ -593,8 +593,8 @@
                     <span class="dot"></span>
                     <span id="user-credits">0 credits</span>
                 </div>
-                <button class="notification-btn">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <button class="notification-btn" onclick="window.location.href='support.html'">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 00-9.75 9.75c0 5.385 4.365 9.75 9.75 9.75s9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8.25v3m0 3.75v.008"/></svg>
                 </button>
                 <div class="user-profile" id="user-profile-trigger">
                     <div class="user-avatar" id="user-avatar">U</div>
@@ -709,6 +709,19 @@
                 <div class="section">
                     <div class="section-header">
                         <div>
+                            <h2>Support Team</h2>
+                            <p>View and manage user support tickets</p>
+                        </div>
+                        <button class="action-btn" onclick="window.location.href='support-team.html'" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                            Open Support Panel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div>
                             <h2>Servers</h2>
                             <p>View all connected servers</p>
                         </div>
@@ -790,14 +803,23 @@
 
             const { data: { session } } = await supabaseClient.auth.getSession();
 
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
-            }
+            let user, email, displayName;
 
-            const user = session.user;
-            const email = user.email;
-            const displayName = email ? email.split('@')[0] : 'User';
+            if (session) {
+                user = session.user;
+                email = user.email;
+                displayName = email ? email.split('@')[0] : 'User';
+            } else {
+                // localStorage fallback
+                const localSession = JSON.parse(localStorage.getItem('pulse_session') || 'null');
+                if (!localSession) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                email = localSession.email;
+                displayName = email ? email.split('@')[0] : 'User';
+                user = { id: localSession.user_id, email: email };
+            }
 
             document.getElementById('user-email').textContent = displayName;
             document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
@@ -845,6 +867,7 @@
 
             document.getElementById('btn-logout').addEventListener('click', async () => {
                 await supabaseClient.auth.signOut();
+                localStorage.removeItem('pulse_session');
                 window.location.href = 'login.html';
             });
 
