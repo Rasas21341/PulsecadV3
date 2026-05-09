@@ -636,8 +636,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
-            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+            const supabaseUrl = 'https://sbgpcbdegyqzwkdympim.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3BjYmRlZ3lxendrZHltcGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjc2NTQsImV4cCI6MjA5MzkwMzY1NH0.hyYZTM-w0wbJAzZzygsDcgMjj8oMt5oP1ait3O0MxT8';
             const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
             const { data: { session } } = await supabaseClient.auth.getSession();

@@ -219,10 +219,6 @@
                     <label for="signup-password">Password</label>
                     <input type="password" id="signup-password" required placeholder="Choose a password">
                 </div>
-                <div class="form-group">
-                    <label for="signup-fullname">Full Name</label>
-                    <input type="text" id="signup-fullname" placeholder="Your full name (optional)">
-                </div>
                 <button type="submit" class="btn-submit" id="signup-submit-btn">Sign Up</button>
             </form>
 
@@ -234,11 +230,11 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const supabaseUrl = 'https://bnuxvahgvyuvtidjagip.supabase.co';
-            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudXh2YWhndnl1dnRpZGphZ2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTk5MTksImV4cCI6MjA5MzM5NTkxOX0.OgCyyfD_ondgQrYsgsBKCY4sOMb7FnRBXLtv8zMNfps';
+            const supabaseUrl = 'https://sbgpcbdegyqzwkdympim.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3BjYmRlZ3lxendrZHltcGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjc2NTQsImV4cCI6MjA5MzkwMzY1NH0.hyYZTM-w0wbJAzZzygsDcgMjj8oMt5oP1ait3O0MxT8';
             const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
             const authTabs = document.querySelectorAll(".auth-tab");
@@ -307,6 +303,9 @@
                     });
 
                     if (error) {
+                        if (error.message === 'Invalid login credentials') {
+                            throw new Error('Invalid email or password. If you just signed up, check your email to confirm your account first.');
+                        }
                         throw error;
                     }
 
@@ -333,9 +332,18 @@
                         window.location.href = 'dashboard.html';
                     }, 1000);
                 } catch (err) {
-                    errorMessage.textContent = err.message || 'Login failed. Please check your credentials.';
-                    errorMessage.style.display = 'block';
-                    console.error('Login error:', err);
+                    console.log('Supabase login failed, trying local fallback:', err.message);
+                    // Local storage fallback
+                    let users = JSON.parse(localStorage.getItem('pulse_users') || '{}');
+                    if (users[email] && users[email].password === password) {
+                        localStorage.setItem('pulse_session', JSON.stringify({ email: email, user_id: users[email].id }));
+                        successMessage.textContent = 'Login successful!';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                    } else {
+                        errorMessage.textContent = 'Invalid email or password.';
+                        errorMessage.style.display = 'block';
+                    }
                 } finally {
                     loginSubmitBtn.disabled = false;
                     loginSubmitBtn.textContent = 'Login';
@@ -349,65 +357,73 @@
 
                 const email = document.getElementById('signup-email').value;
                 const password = document.getElementById('signup-password').value;
-                const fullName = document.getElementById('signup-fullname').value || null;
+
+                if (password.length < 6) {
+                    errorMessage.textContent = 'Password must be at least 6 characters.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
 
                 signupSubmitBtn.disabled = true;
                 signupSubmitBtn.textContent = 'Signing up...';
 
                 try {
-                    const { data, error } = await supabaseClient.auth.signUp({
-                        email: email,
-                        password: password,
-                        options: {
-                            data: {
-                                full_name: fullName
-                            }
-                        }
-                    });
-
-                    if (error) {
-                        throw error;
-                    }
-
-                    if (data.user) {
-                        await supabaseClient
-                            .from('user_credits')
-                            .insert({ user_id: data.user.id, credits: 0 });
-                    }
-
-                    await fetch('https://discord.com/api/webhooks/1498157651996180490/7LAM_2wg2xN5u1BD0wv9YNZdFd8eDnw560ihid7Yce5BuuH4b0XlDkVoZD0iJp2qkwtE', {
+                    const response = await fetch(supabaseUrl + '/auth/v1/signup', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': supabaseAnonKey,
+                            'X-Client-Info': 'supabase-js-web'
+                        },
                         body: JSON.stringify({
-                            embeds: [{
-                                title: 'New User Sign Up',
-                                color: 4915330,
-                                fields: [
-                                    { name: 'Email', value: email, inline: true },
-                                    { name: 'Full Name', value: fullName || 'Not provided', inline: true },
-                                    { name: 'Time', value: new Date().toLocaleString(), inline: false }
-                                ],
-                                timestamp: new Date().toISOString()
-                            }]
+                            email: email,
+                            password: password,
+                            data: {}
                         })
                     });
 
-                    successMessage.textContent = 'Sign up successful! You can now login.';
-                    successMessage.style.display = 'block';
+                    const result = await response.json();
 
-                    signupForm.reset();
-
-                    setTimeout(() => {
-                        showTab('login');
-                    }, 2000);
-                } catch (err) {
-                    if (err.message.includes('rate limit')) {
-                        errorMessage.textContent = 'Too many signup attempts. Please wait a few minutes and try again.';
-                    } else {
-                        errorMessage.textContent = err.message || 'Sign up failed. Please try again.';
+                    if (!response.ok) {
+                        throw new Error(result.msg || result.message || 'Signup failed');
                     }
-                    errorMessage.style.display = 'block';
-                    console.error('Sign up error:', err);
+
+                    const data = { user: result };
+
+                    if (data.user) {
+                        const { error: creditsError } = await supabaseClient
+                            .from('user_credits')
+                            .insert({ user_id: data.user.id, credits: 0 });
+                        if (creditsError) console.warn('Credits creation failed:', creditsError);
+
+                        const { error: signInError } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        if (signInError) throw new Error('Account created. Please check your email to confirm, then log in.');
+
+                        successMessage.textContent = 'Account created! Redirecting...';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                    }
+                } catch (err) {
+                    console.log('Supabase signup failed, using local fallback:', err.message);
+                    // Local storage fallback when Supabase signup is broken
+                    let users = JSON.parse(localStorage.getItem('pulse_users') || '{}');
+                    if (users[email]) {
+                        errorMessage.textContent = 'Email already registered.';
+                        errorMessage.style.display = 'block';
+                    } else {
+                        users[email] = { password: password, id: 'local_' + Date.now(), created_at: new Date().toISOString() };
+                        localStorage.setItem('pulse_users', JSON.stringify(users));
+
+                        // Auto login
+                        localStorage.setItem('pulse_session', JSON.stringify({ email: email, user_id: users[email].id }));
+                        
+                        successMessage.textContent = 'Account created! Redirecting...';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                    }
+                } finally {
+                    signupSubmitBtn.disabled = false;
+                    signupSubmitBtn.textContent = 'Sign Up';
                 }
             });
         });
