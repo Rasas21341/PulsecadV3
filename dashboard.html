@@ -144,9 +144,44 @@
             justify-content: center;
             cursor: pointer;
             transition: background-color 0.2s;
+            position: relative;
         }
         .notification-btn:hover {
             background-color: #2a2a2a;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #4caf50;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: bold;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .redeemed-key-dropdown-item {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .redeemed-key-dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .redeemed-key-dropdown-item .key-name {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        .redeemed-key-dropdown-item .key-credits {
+            color: #4caf50;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
         .user-profile {
             display: flex;
@@ -432,6 +467,34 @@
             font-size: 0.75rem;
             color: #666;
         }
+        .redeemed-key-card {
+            background-color: #141414;
+            border: 1px solid #1a1a1a;
+            border-left: 3px solid #4caf50;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .redeemed-key-info h4 {
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .redeemed-key-info p {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        .credits-earned-badge {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
         .logout-btn {
             background-color: #1a1a1a;
             border: 1px solid #2a2a2a;
@@ -593,6 +656,18 @@
                     <span class="dot"></span>
                     <span id="user-credits">0 credits</span>
                 </div>
+                <div style="position: relative;">
+                    <button class="notification-btn" id="btn-redeemed-keys-toggle" title="Redeemed Keys">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                        <span class="notif-badge" id="redeemed-keys-count" style="display: none;">0</span>
+                    </button>
+                    <div class="user-dropdown" id="redeemed-keys-dropdown" style="right: 0; min-width: 280px; top: 100%; margin-top: 0.5rem;">
+                        <div style="padding: 0.75rem 1rem; border-bottom: 1px solid #2a2a2a; color: #fff; font-weight: bold; font-size: 0.85rem;">Redeemed Keys</div>
+                        <div id="redeemed-keys-dropdown-list" style="max-height: 300px; overflow-y: auto; padding: 0.5rem;">
+                            <p style="color: #666; font-size: 0.8rem; padding: 0.5rem;">No keys redeemed yet.</p>
+                        </div>
+                    </div>
+                </div>
                 <button class="notification-btn" onclick="window.location.href='support.html'">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 00-9.75 9.75c0 5.385 4.365 9.75 9.75 9.75s9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8.25v3m0 3.75v.008"/></svg>
                 </button>
@@ -660,6 +735,28 @@
                         <p style="color: #444; font-size: 0.85rem;">No panels yet. Create one to get started.</p>
                     </div>
                 </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Redeemed Keys</h2>
+                            <p>Keys you've redeemed and credits earned</p>
+                        </div>
+                    </div>
+                    <div class="stats-row" style="margin-bottom: 1rem;">
+                        <div class="stat-card" style="border-left-color: #4caf50;">
+                            <div class="label">Total Credits Earned</div>
+                            <div class="value" id="stat-total-earned">0</div>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #ff9800;">
+                            <div class="label">Keys Redeemed</div>
+                            <div class="value" id="stat-keys-redeemed">0</div>
+                        </div>
+                    </div>
+                    <div id="redeemed-keys-list">
+                        <p style="color: #444; font-size: 0.85rem;">No keys redeemed yet.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- My Servers Page -->
@@ -689,6 +786,7 @@
                     <div class="create-key-form">
                         <input type="text" id="key-server-input" placeholder="Server name">
                         <input type="text" id="key-type-input" placeholder="Key type (e.g. premium)">
+                        <input type="number" id="key-credits-input" placeholder="Credits amount (e.g. 100)" min="0">
                         <button id="btn-create-key">Create Key</button>
                     </div>
                     <div id="create-key-message" class="modal-message"></div>
@@ -865,6 +963,68 @@
                 e.stopPropagation();
             });
 
+            // Redeemed keys dropdown
+            const redeemedKeysDropdown = document.getElementById('redeemed-keys-dropdown');
+            const redeemedKeysToggle = document.getElementById('btn-redeemed-keys-toggle');
+
+            redeemedKeysToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                redeemedKeysDropdown.classList.toggle('active');
+                if (redeemedKeysDropdown.classList.contains('active')) {
+                    loadRedeemedKeysDropdown();
+                }
+            });
+
+            redeemedKeysDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', () => {
+                redeemedKeysDropdown.classList.remove('active');
+            });
+
+            async function loadRedeemedKeysDropdown() {
+                const { data: keys } = await supabaseClient
+                    .from('access_keys')
+                    .select('*')
+                    .eq('redeemed', true)
+                    .eq('redeemed_by', user.id)
+                    .order('redeemed_at', { ascending: false });
+
+                const container = document.getElementById('redeemed-keys-dropdown-list');
+                const countBadge = document.getElementById('redeemed-keys-count');
+
+                if (!keys || keys.length === 0) {
+                    container.innerHTML = '<p style="color: #666; font-size: 0.8rem; padding: 0.5rem;">No keys redeemed yet.</p>';
+                    countBadge.style.display = 'none';
+                    return;
+                }
+
+                let totalCredits = 0;
+                keys.forEach(k => { totalCredits += (k.credits_amount || 0); });
+
+                countBadge.textContent = keys.length;
+                countBadge.style.display = 'flex';
+
+                container.innerHTML = keys.map(k => `
+                    <div class="redeemed-key-dropdown-item">
+                        <div>
+                            <div class="key-name">${k.server_name} • ${k.key_type}</div>
+                            <div style="color: #555; font-size: 0.7rem;">${new Date(k.redeemed_at).toLocaleDateString()}</div>
+                        </div>
+                        <span class="key-credits">+${k.credits_amount || 0}</span>
+                    </div>
+                `).join('') + `
+                    <div style="padding: 0.75rem 0.75rem; border-top: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #aaa; font-size: 0.8rem; font-weight: bold;">Total Earned</span>
+                        <span style="color: #4caf50; font-size: 0.85rem; font-weight: bold;">${totalCredits} credits</span>
+                    </div>
+                `;
+            }
+
+            // Load redeemed keys on page load
+            loadRedeemedKeysDropdown();
+
             document.getElementById('btn-logout').addEventListener('click', async () => {
                 await supabaseClient.auth.signOut();
                 localStorage.removeItem('pulse_session');
@@ -919,7 +1079,23 @@
                         .update({ redeemed: true, redeemed_by: user.id, redeemed_at: new Date().toISOString() })
                         .eq('id', data.id);
 
-                    msgEl.textContent = 'Key redeemed successfully!';
+                    const creditsToAdd = data.credits_amount || 0;
+                    if (creditsToAdd > 0) {
+                        const { data: currentCredits } = await supabaseClient
+                            .from('user_credits')
+                            .select('credits')
+                            .eq('user_id', user.id)
+                            .single();
+
+                        const newTotal = (currentCredits ? currentCredits.credits : 0) + creditsToAdd;
+                        await supabaseClient
+                            .from('user_credits')
+                            .upsert({ user_id: user.id, credits: newTotal });
+
+                        loadCredits();
+                    }
+
+                    msgEl.textContent = 'Key redeemed successfully!' + (creditsToAdd > 0 ? ` +${creditsToAdd} credits!` : '');
                     msgEl.className = 'modal-message success';
                     msgEl.style.display = 'block';
 

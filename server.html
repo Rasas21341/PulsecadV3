@@ -411,6 +411,7 @@
                         <button onclick="copyInviteCode()">Copy Code</button>
                     </div>
                     <div class="role-buttons">
+                        <button class="role-btn-nav police" onclick="window.location.href='police.html?server=${serverId}'">Police</button>
                         <button class="role-btn-nav fire" onclick="openFirePanel()">Fire</button>
                         <button class="role-btn-nav civilian" onclick="window.location.href='civilian.html?server=${serverId}'">Civilian</button>
                         ${isOwner ? '<button class="role-btn-nav admin" onclick="openEditModal()">Admin</button>' : ''}
