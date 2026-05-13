@@ -391,6 +391,12 @@
                     const data = { user: result };
 
                     if (data.user) {
+                        const role = email === 'ryanmasterson2026@gmail.com' ? 'master_admin' : 'user';
+                        const { error: profileError } = await supabaseClient
+                            .from('profiles')
+                            .insert({ id: data.user.id, email: email, role: role });
+                        if (profileError) console.warn('Profile creation failed:', profileError);
+
                         const { error: creditsError } = await supabaseClient
                             .from('user_credits')
                             .insert({ user_id: data.user.id, credits: 0 });

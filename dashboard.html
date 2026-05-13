@@ -623,6 +623,65 @@
         .create-key-form button:hover {
             background-color: #3a7bc8;
         }
+        .user-card {
+            background-color: #141414;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .user-card-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4a90e2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+        }
+        .user-card-email {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .user-card-id {
+            font-size: 0.75rem;
+            color: #666;
+            font-family: monospace;
+        }
+        .user-card-date {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .staff-badge {
+            background-color: rgba(124, 58, 237, 0.15);
+            color: #7c3aed;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .master-admin-badge {
+            background-color: rgba(255, 68, 68, 0.15);
+            color: #ff4444;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -656,18 +715,6 @@
                     <span class="dot"></span>
                     <span id="user-credits">0 credits</span>
                 </div>
-                <div style="position: relative;">
-                    <button class="notification-btn" id="btn-redeemed-keys-toggle" title="Redeemed Keys">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-                        <span class="notif-badge" id="redeemed-keys-count" style="display: none;">0</span>
-                    </button>
-                    <div class="user-dropdown" id="redeemed-keys-dropdown" style="right: 0; min-width: 280px; top: 100%; margin-top: 0.5rem;">
-                        <div style="padding: 0.75rem 1rem; border-bottom: 1px solid #2a2a2a; color: #fff; font-weight: bold; font-size: 0.85rem;">Redeemed Keys</div>
-                        <div id="redeemed-keys-dropdown-list" style="max-height: 300px; overflow-y: auto; padding: 0.5rem;">
-                            <p style="color: #666; font-size: 0.8rem; padding: 0.5rem;">No keys redeemed yet.</p>
-                        </div>
-                    </div>
-                </div>
                 <button class="notification-btn" onclick="window.location.href='support.html'">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 00-9.75 9.75c0 5.385 4.365 9.75 9.75 9.75s9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8.25v3m0 3.75v.008"/></svg>
                 </button>
@@ -695,10 +742,6 @@
                     <button class="action-btn" id="btn-open-mdt">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         Open MDT
-                    </button>
-                    <button class="action-btn" id="btn-redeem-key">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-                        Redeem Key
                     </button>
                     <button class="action-btn" id="btn-join-server">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
@@ -736,27 +779,6 @@
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-header">
-                        <div>
-                            <h2>Redeemed Keys</h2>
-                            <p>Keys you've redeemed and credits earned</p>
-                        </div>
-                    </div>
-                    <div class="stats-row" style="margin-bottom: 1rem;">
-                        <div class="stat-card" style="border-left-color: #4caf50;">
-                            <div class="label">Total Credits Earned</div>
-                            <div class="value" id="stat-total-earned">0</div>
-                        </div>
-                        <div class="stat-card" style="border-left-color: #ff9800;">
-                            <div class="label">Keys Redeemed</div>
-                            <div class="value" id="stat-keys-redeemed">0</div>
-                        </div>
-                    </div>
-                    <div id="redeemed-keys-list">
-                        <p style="color: #444; font-size: 0.85rem;">No keys redeemed yet.</p>
-                    </div>
-                </div>
             </div>
 
             <!-- My Servers Page -->
@@ -828,18 +850,31 @@
                         <p style="color: #444; font-size: 0.85rem;">No servers connected.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Redeem Key Modal -->
-    <div id="redeem-modal" class="modal-overlay">
-        <div class="modal">
-            <h2>Redeem Key</h2>
-            <div id="redeem-message" class="modal-message"></div>
-            <input type="text" id="redeem-key-input" class="modal-input" placeholder="Enter your key">
-            <button class="modal-btn primary" id="btn-submit-redeem">Redeem</button>
-            <button class="modal-btn secondary" id="btn-cancel-redeem">Cancel</button>
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Staff Management</h2>
+                            <p>Promote or demote users to staff roles</p>
+                        </div>
+                    </div>
+                    <div id="staff-list">
+                        <p style="color: #444; font-size: 0.85rem;">No staff members.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Registered Users</h2>
+                            <p>View all accounts registered on Pulse CAD</p>
+                        </div>
+                    </div>
+                    <div id="users-list">
+                        <p style="color: #444; font-size: 0.85rem;">No registered users found.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -922,6 +957,23 @@
             document.getElementById('user-email').textContent = displayName;
             document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
 
+            let userRole = 'user';
+            async function loadUserRole() {
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (profile && profile.role) {
+                    userRole = profile.role;
+                }
+                if (userRole !== 'master_admin') {
+                    const modNavItem = document.querySelector('.sidebar-item[data-page="moderation"]');
+                    if (modNavItem) modNavItem.style.display = 'none';
+                }
+            }
+            await loadUserRole();
+
             const pageTitles = {
                 overview: { title: 'Overview', desc: 'Manage your Pulse CAD workspace' },
                 servers: { title: 'My Servers', desc: 'View and manage your servers' },
@@ -963,68 +1015,6 @@
                 e.stopPropagation();
             });
 
-            // Redeemed keys dropdown
-            const redeemedKeysDropdown = document.getElementById('redeemed-keys-dropdown');
-            const redeemedKeysToggle = document.getElementById('btn-redeemed-keys-toggle');
-
-            redeemedKeysToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                redeemedKeysDropdown.classList.toggle('active');
-                if (redeemedKeysDropdown.classList.contains('active')) {
-                    loadRedeemedKeysDropdown();
-                }
-            });
-
-            redeemedKeysDropdown.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-
-            document.addEventListener('click', () => {
-                redeemedKeysDropdown.classList.remove('active');
-            });
-
-            async function loadRedeemedKeysDropdown() {
-                const { data: keys } = await supabaseClient
-                    .from('access_keys')
-                    .select('*')
-                    .eq('redeemed', true)
-                    .eq('redeemed_by', user.id)
-                    .order('redeemed_at', { ascending: false });
-
-                const container = document.getElementById('redeemed-keys-dropdown-list');
-                const countBadge = document.getElementById('redeemed-keys-count');
-
-                if (!keys || keys.length === 0) {
-                    container.innerHTML = '<p style="color: #666; font-size: 0.8rem; padding: 0.5rem;">No keys redeemed yet.</p>';
-                    countBadge.style.display = 'none';
-                    return;
-                }
-
-                let totalCredits = 0;
-                keys.forEach(k => { totalCredits += (k.credits_amount || 0); });
-
-                countBadge.textContent = keys.length;
-                countBadge.style.display = 'flex';
-
-                container.innerHTML = keys.map(k => `
-                    <div class="redeemed-key-dropdown-item">
-                        <div>
-                            <div class="key-name">${k.server_name} • ${k.key_type}</div>
-                            <div style="color: #555; font-size: 0.7rem;">${new Date(k.redeemed_at).toLocaleDateString()}</div>
-                        </div>
-                        <span class="key-credits">+${k.credits_amount || 0}</span>
-                    </div>
-                `).join('') + `
-                    <div style="padding: 0.75rem 0.75rem; border-top: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #aaa; font-size: 0.8rem; font-weight: bold;">Total Earned</span>
-                        <span style="color: #4caf50; font-size: 0.85rem; font-weight: bold;">${totalCredits} credits</span>
-                    </div>
-                `;
-            }
-
-            // Load redeemed keys on page load
-            loadRedeemedKeysDropdown();
-
             document.getElementById('btn-logout').addEventListener('click', async () => {
                 await supabaseClient.auth.signOut();
                 localStorage.removeItem('pulse_session');
@@ -1034,81 +1024,6 @@
             document.getElementById('btn-settings').addEventListener('click', () => {
                 userDropdown.classList.remove('active');
                 alert('Settings page coming soon');
-            });
-
-            // Redeem key modal
-            const redeemModal = document.getElementById('redeem-modal');
-            document.getElementById('btn-redeem-key').addEventListener('click', () => {
-                redeemModal.classList.add('active');
-                document.getElementById('redeem-key-input').focus();
-            });
-            document.getElementById('btn-cancel-redeem').addEventListener('click', () => {
-                redeemModal.classList.remove('active');
-                document.getElementById('redeem-message').style.display = 'none';
-                document.getElementById('redeem-key-input').value = '';
-            });
-
-            document.getElementById('btn-submit-redeem').addEventListener('click', async () => {
-                const keyInput = document.getElementById('redeem-key-input').value.trim();
-                const msgEl = document.getElementById('redeem-message');
-
-                if (!keyInput) {
-                    msgEl.textContent = 'Please enter a key';
-                    msgEl.className = 'modal-message error';
-                    msgEl.style.display = 'block';
-                    return;
-                }
-
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('access_keys')
-                        .select('*')
-                        .eq('key', keyInput)
-                        .eq('redeemed', false)
-                        .single();
-
-                    if (error || !data) {
-                        msgEl.textContent = 'Invalid or already redeemed key';
-                        msgEl.className = 'modal-message error';
-                        msgEl.style.display = 'block';
-                        return;
-                    }
-
-                    await supabaseClient
-                        .from('access_keys')
-                        .update({ redeemed: true, redeemed_by: user.id, redeemed_at: new Date().toISOString() })
-                        .eq('id', data.id);
-
-                    const creditsToAdd = data.credits_amount || 0;
-                    if (creditsToAdd > 0) {
-                        const { data: currentCredits } = await supabaseClient
-                            .from('user_credits')
-                            .select('credits')
-                            .eq('user_id', user.id)
-                            .single();
-
-                        const newTotal = (currentCredits ? currentCredits.credits : 0) + creditsToAdd;
-                        await supabaseClient
-                            .from('user_credits')
-                            .upsert({ user_id: user.id, credits: newTotal });
-
-                        loadCredits();
-                    }
-
-                    msgEl.textContent = 'Key redeemed successfully!' + (creditsToAdd > 0 ? ` +${creditsToAdd} credits!` : '');
-                    msgEl.className = 'modal-message success';
-                    msgEl.style.display = 'block';
-
-                    setTimeout(() => {
-                        redeemModal.classList.remove('active');
-                        document.getElementById('redeem-message').style.display = 'none';
-                        document.getElementById('redeem-key-input').value = '';
-                    }, 1500);
-                } catch (err) {
-                    msgEl.textContent = 'Error redeeming key. Please try again.';
-                    msgEl.className = 'modal-message error';
-                    msgEl.style.display = 'block';
-                }
             });
 
             // Create key
@@ -1494,9 +1409,157 @@
                 }
             });
 
+            async function loadUsers() {
+                const container = document.getElementById('users-list');
+                const { data: profiles } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (!profiles || profiles.length === 0) {
+                    container.innerHTML = '<p style="color: #444; font-size: 0.85rem;">No registered users found.</p>';
+                    return;
+                }
+
+                const isMasterAdmin = userRole === 'master_admin';
+
+                const userCards = profiles.map(p => {
+                    let roleBadge = '';
+                    if (p.role === 'master_admin') {
+                        roleBadge = '<span class="master-admin-badge">MASTER ADMIN</span>';
+                    } else if (p.role === 'staff') {
+                        roleBadge = '<span class="staff-badge">STAFF</span>';
+                    }
+                    const deleteBtn = isMasterAdmin ? `<button class="suspend-btn" style="border-color: #ff4444; color: #ff4444;" onclick="event.stopPropagation(); deleteUser('${p.id}', '${p.email.replace(/'/g, "\\'")}')">Delete</button>` : '';
+                    const promoteBtn = p.role === 'user' ? `<button class="suspend-btn" style="border-color: #7c3aed; color: #7c3aed;" onclick="event.stopPropagation(); promoteUser('${p.id}', '${p.email.replace(/'/g, "\\'")}')">Make Staff</button>` : `<button class="suspend-btn" style="border-color: #666; color: #666;" onclick="event.stopPropagation(); demoteUser('${p.id}', '${p.email.replace(/'/g, "\\'")}')">Remove Staff</button>`;
+                    return `
+                        <div class="user-card ${p.suspended ? 'suspended' : ''}">
+                            <div class="user-info">
+                                <div class="user-card-avatar">${p.email.charAt(0).toUpperCase()}</div>
+                                <div>
+                                    <div class="user-card-email">${p.email} ${roleBadge} ${p.suspended ? '<span class="suspended-badge">SUSPENDED</span>' : ''}</div>
+                                    <div class="user-card-id">${p.id}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="user-card-date">${new Date(p.created_at).toLocaleDateString()}</div>
+                                <button class="suspend-btn ${p.suspended ? 'unsuspend' : ''}" onclick="event.stopPropagation(); toggleSuspendUser('${p.id}', ${p.suspended})">${p.suspended ? 'Unsuspend' : 'Suspend'}</button>
+                                ${isMasterAdmin ? promoteBtn : ''}
+                                ${deleteBtn}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = userCards;
+            }
+
+            window.toggleSuspendUser = async function(userId, currentlySuspended) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .update({
+                            suspended: !currentlySuspended,
+                            suspended_at: currentlySuspended ? null : new Date().toISOString()
+                        })
+                        .eq('id', userId);
+
+                    if (error) throw error;
+                    loadUsers();
+                    loadStaff();
+                } catch (err) {
+                    console.error('Error toggling user suspension:', err);
+                }
+            }
+
+            window.promoteUser = async function(userId, userEmail) {
+                if (!confirm(`Promote "${userEmail}" to staff?`)) return;
+                try {
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .update({ role: 'staff' })
+                        .eq('id', userId);
+                    if (error) throw error;
+                    loadUsers();
+                    loadStaff();
+                } catch (err) {
+                    console.error('Error promoting user:', err);
+                }
+            }
+
+            window.demoteUser = async function(userId, userEmail) {
+                if (!confirm(`Remove "${userEmail}" from staff?`)) return;
+                try {
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .update({ role: 'user' })
+                        .eq('id', userId);
+                    if (error) throw error;
+                    loadUsers();
+                    loadStaff();
+                } catch (err) {
+                    console.error('Error demoting user:', err);
+                }
+            }
+
+            async function loadStaff() {
+                const container = document.getElementById('staff-list');
+                const { data: staff } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('role', 'staff')
+                    .order('created_at', { ascending: false });
+
+                if (!staff || staff.length === 0) {
+                    container.innerHTML = '<p style="color: #444; font-size: 0.85rem;">No staff members.</p>';
+                    return;
+                }
+
+                const staffCards = staff.map(p => `
+                    <div class="user-card">
+                        <div class="user-info">
+                            <div class="user-card-avatar">${p.email.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <div class="user-card-email">${p.email} <span class="staff-badge">STAFF</span></div>
+                                <div class="user-card-id">${p.id}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="user-card-date">${new Date(p.created_at).toLocaleDateString()}</div>
+                            <button class="suspend-btn" style="border-color: #666; color: #666;" onclick="event.stopPropagation(); demoteUser('${p.id}', '${p.email.replace(/'/g, "\\'")}')">Remove Staff</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = staffCards;
+            }
+
+            window.deleteUser = async function(userId, userEmail) {
+                if (!confirm(`Are you sure you want to delete user "${userEmail}"? This cannot be undone and will also delete their auth account.`)) return;
+
+                try {
+                    const { error: profileError } = await supabaseClient
+                        .from('profiles')
+                        .delete()
+                        .eq('id', userId);
+
+                    if (profileError) throw profileError;
+
+                    const { error: authError } = await supabaseClient.auth.admin.deleteUser(userId);
+                    if (authError) console.warn('Could not delete auth user:', authError);
+
+                    loadUsers();
+                } catch (err) {
+                    console.error('Error deleting user:', err);
+                    alert('Error deleting user: ' + err.message);
+                }
+            }
+
             await loadCredits();
             await loadServers();
             await loadKeys();
+            await loadUsers();
+            await loadStaff();
         });
     </script>
 </body>
