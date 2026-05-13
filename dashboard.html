@@ -1163,13 +1163,11 @@
 
                 const overviewList = document.getElementById('panels-list');
                 const serversList = document.getElementById('servers-list');
-                const modServersList = document.getElementById('mod-servers-list');
 
                 if (!servers || servers.length === 0) {
                     const emptyMsg = '<p style="color: #444; font-size: 0.85rem;">No servers yet.</p>';
                     overviewList.innerHTML = emptyMsg;
                     serversList.innerHTML = emptyMsg;
-                    modServersList.innerHTML = emptyMsg;
                     return;
                 }
 
@@ -1195,6 +1193,23 @@
                     </div>
                 `).join('');
 
+                overviewList.innerHTML = serverCards;
+                serversList.innerHTML = serverCards;
+            }
+
+            async function loadAllServers() {
+                const { data: servers } = await supabaseClient
+                    .from('servers')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                const modServersList = document.getElementById('mod-servers-list');
+
+                if (!servers || servers.length === 0) {
+                    modServersList.innerHTML = '<p style="color: #444; font-size: 0.85rem;">No servers connected.</p>';
+                    return;
+                }
+
                 const modServerCards = servers.map(s => `
                     <div class="server-card ${s.suspended ? 'suspended' : ''}" onclick="openServer('${s.id}')">
                         <div class="server-info">
@@ -1211,8 +1226,6 @@
                     </div>
                 `).join('');
 
-                overviewList.innerHTML = serverCards;
-                serversList.innerHTML = serverCards;
                 modServersList.innerHTML = modServerCards;
             }
 
@@ -1455,6 +1468,7 @@
                         document.getElementById('join-server-message').style.display = 'none';
                         document.getElementById('join-server-input').value = '';
                         loadServers();
+                        loadAllServers();
                     }, 1000);
                 } catch (err) {
                     msgEl.textContent = 'Error joining server.';
@@ -1670,6 +1684,7 @@
 
             await loadCredits();
             await loadServers();
+            await loadAllServers();
             await loadKeys();
             await loadUsers();
             await loadStaff();

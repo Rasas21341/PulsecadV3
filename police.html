@@ -310,10 +310,6 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             Incidents
         </a>
-        <a href="#" class="sidebar-item" data-page="warrants">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            Warrants
-        </a>
         <a href="#" class="sidebar-item" data-page="bolos">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             BOLOs
@@ -358,44 +354,15 @@
         <div class="panel-content">
             <!-- Dashboard Page -->
             <div id="page-dashboard" class="page active">
-                <div class="stats-row">
-                    <div class="stat-card urgent">
-                        <div class="label">Urgent Incidents</div>
-                        <div class="value" id="stat-urgent">0</div>
-                    </div>
-                    <div class="stat-card active">
-                        <div class="label">Active Incidents</div>
-                        <div class="value" id="stat-active">0</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="label">Active Warrants</div>
-                        <div class="value" id="stat-warrants">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Active BOLOs</div>
-                        <div class="value" id="stat-bolos">0</div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-header">
-                        <div>
-                            <h2>Attendance</h2>
-                            <p id="attendance-status">Loading...</p>
-                        </div>
-                    </div>
-                    <div id="attendance-actions"></div>
-                </div>
-
                 <div class="section">
                     <div class="section-header">
                         <div>
                             <h2>Active Units</h2>
                             <p>Officers currently on duty</p>
                         </div>
-                        <button class="btn btn-success btn-sm" onclick="openNewUnitModal()">
+                        <button class="btn btn-success btn-sm" id="btn-clock-in" onclick="openClockInModal()">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Add Unit
+                            Clock In
                         </button>
                     </div>
                     <div class="dispatch-grid" id="dashboard-units-grid">
@@ -435,25 +402,6 @@
                     </div>
                     <div id="all-incidents">
                         <div class="empty-state">No incidents yet.</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Warrants Page -->
-            <div id="page-warrants" class="page">
-                <div class="section">
-                    <div class="section-header">
-                        <div>
-                            <h2>Active Warrants</h2>
-                            <p>Wanted persons and arrest warrants</p>
-                        </div>
-                        <button class="btn btn-danger" onclick="openNewWarrantModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            New Warrant
-                        </button>
-                    </div>
-                    <div id="warrants-list">
-                        <div class="empty-state">No active warrants.</div>
                     </div>
                 </div>
             </div>
@@ -574,29 +522,6 @@
         </div>
     </div>
 
-    <!-- New Warrant Modal -->
-    <div id="warrant-modal" class="modal-overlay">
-        <div class="modal">
-            <h2>New Warrant</h2>
-            <div class="form-group">
-                <label>Subject Name</label>
-                <input type="text" id="warrant-name-input" class="modal-input" placeholder="Full name">
-            </div>
-            <div class="form-group">
-                <label>Charges</label>
-                <input type="text" id="warrant-charges-input" class="modal-input" placeholder="e.g. Grand Theft Auto">
-            </div>
-            <div class="form-group">
-                <label>Reason</label>
-                <textarea id="warrant-reason-input" class="modal-textarea" placeholder="Details about the warrant..."></textarea>
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn secondary" onclick="closeModal('warrant-modal')">Cancel</button>
-                <button class="modal-btn primary" onclick="createWarrant()">Issue Warrant</button>
-            </div>
-        </div>
-    </div>
-
     <!-- New BOLO Modal -->
     <div id="bolo-modal" class="modal-overlay">
         <div class="modal">
@@ -661,6 +586,35 @@
         </div>
     </div>
 
+    <!-- Clock In Modal -->
+    <div id="clockin-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Clock In</h2>
+            <div class="form-group">
+                <label>Rank</label>
+                <select id="clockin-rank-input" class="modal-input">
+                    <option value="Cadet">Cadet</option>
+                    <option value="Officer">Officer</option>
+                    <option value="Senior Officer">Senior Officer</option>
+                    <option value="Corporal">Corporal</option>
+                    <option value="Sergeant">Sergeant</option>
+                    <option value="Lieutenant">Lieutenant</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Commander">Commander</option>
+                    <option value="Chief">Chief</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Callsign / Unit Number</label>
+                <input type="text" id="clockin-callsign-input" class="modal-input" placeholder="e.g. A-12">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('clockin-modal')">Cancel</button>
+                <button class="modal-btn primary" onclick="clockIn()">Clock In</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Civilian Detail Modal -->
     <div id="civilian-modal" class="modal-overlay">
         <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
@@ -682,6 +636,15 @@
             </div>
             <div id="civ-tickets-list"></div>
 
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; margin-bottom: 1rem;">
+                <h3 style="color: #fff; font-size: 1rem;">Warrants</h3>
+                <button class="btn btn-danger btn-sm" onclick="openNewWarrantForCiv()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    New Warrant
+                </button>
+            </div>
+            <div id="civ-warrants-list"></div>
+
             <button class="modal-btn secondary" onclick="closeModal('civilian-modal')" style="margin-top: 1rem;">Close</button>
         </div>
     </div>
@@ -693,6 +656,18 @@
             <div class="form-group">
                 <label>Title</label>
                 <input type="text" id="ticket-title-input" class="modal-input" placeholder="e.g. Traffic Violation">
+            </div>
+            <div class="form-group">
+                <label>Violation</label>
+                <input type="text" id="ticket-violation-input" class="modal-input" placeholder="e.g. Speeding, Running Red Light">
+            </div>
+            <div class="form-group">
+                <label>Fine Amount ($)</label>
+                <input type="number" id="ticket-fine-input" class="modal-input" placeholder="e.g. 250" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Court Date (optional)</label>
+                <input type="datetime-local" id="ticket-court-input" class="modal-input">
             </div>
             <div class="form-group">
                 <label>Description</label>
@@ -768,7 +743,6 @@
             const pageConfig = {
                 dashboard: { title: 'Police Dashboard', desc: 'Manage incidents, warrants, and dispatch' },
                 incidents: { title: 'Incidents', desc: 'View and manage all incidents' },
-                warrants: { title: 'Warrants', desc: 'Active and served warrants' },
                 bolos: { title: 'BOLOs', desc: 'Be On the Lookout alerts' },
                 lookup: { title: 'Lookup', desc: 'Name and vehicle lookups' },
                 dispatch: { title: 'Dispatch', desc: 'Active units and assignments' }
@@ -818,32 +792,23 @@
             const urgentCount = incidents ? incidents.filter(i => i.priority === 'urgent').length : 0;
             const activeCount = incidents ? incidents.filter(i => i.status === 'active').length : 0;
 
-            document.getElementById('stat-urgent').textContent = urgentCount;
-            document.getElementById('stat-active').textContent = activeCount;
-            document.getElementById('stat-warrants').textContent = warrants ? warrants.length : 0;
-            document.getElementById('stat-bolos').textContent = bolos ? bolos.length : 0;
-
-            // Load attendance status
-            const { data: dutyRecord } = await supabaseClient
-                .from('duty_records')
+            // Check if user is clocked in
+            const { data: myUnit } = await supabaseClient
+                .from('units')
                 .select('*')
-                .eq('user_id', user.id)
-                .eq('server_id', currentServerId)
-                .eq('is_on_duty', true)
-                .order('clock_in', { ascending: false })
-                .limit(1)
+                .eq('created_by', user.id)
+                .eq('on_duty', true)
                 .maybeSingle();
 
-            const attendanceStatus = document.getElementById('attendance-status');
-            const attendanceActions = document.getElementById('attendance-actions');
-
-            if (dutyRecord) {
-                const clockInTime = new Date(dutyRecord.clock_in).toLocaleString();
-                attendanceStatus.textContent = `On duty since ${clockInTime}`;
-                attendanceActions.innerHTML = `<button class="btn btn-danger" onclick="clockOut('${dutyRecord.id}')">Clock Out</button>`;
+            const clockInBtn = document.getElementById('btn-clock-in');
+            if (myUnit) {
+                clockInBtn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Clock Out`;
+                clockInBtn.className = 'btn btn-danger btn-sm';
+                clockInBtn.onclick = () => clockOut(myUnit.id);
             } else {
-                attendanceStatus.textContent = 'You are not currently on duty';
-                attendanceActions.innerHTML = `<button class="btn btn-success" onclick="clockIn()">Clock In</button>`;
+                clockInBtn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Clock In`;
+                clockInBtn.className = 'btn btn-success btn-sm';
+                clockInBtn.onclick = () => openClockInModal();
             }
 
             // Load units on dashboard
@@ -883,33 +848,52 @@
             }
         }
 
+        function openClockInModal() {
+            document.getElementById('clockin-modal').classList.add('active');
+            document.getElementById('clockin-callsign-input').focus();
+        }
+
         async function clockIn() {
             const user = await getCurrentUser();
             if (!user) return;
 
-            const { error } = await supabaseClient
-                .from('duty_records')
-                .insert({
-                    user_id: user.id,
-                    server_id: currentServerId,
-                    officer_name: user.email.split('@')[0],
-                    is_on_duty: true
-                });
+            const rank = document.getElementById('clockin-rank-input').value;
+            const callsign = document.getElementById('clockin-callsign-input').value.trim();
 
-            if (error) {
-                alert('Error clocking in: ' + error.message);
-            } else {
+            if (!callsign) { alert('Callsign is required'); return; }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('units')
+                    .insert({
+                        officer_name: user.email.split('@')[0],
+                        rank,
+                        unit_number: callsign,
+                        on_duty: true,
+                        status: 'available',
+                        created_by: user.id,
+                        server_id: currentServerId
+                    });
+
+                if (error) throw error;
+
+                closeModal('clockin-modal');
+                document.getElementById('clockin-callsign-input').value = '';
                 loadDashboard();
+                loadUnits();
+            } catch (err) {
+                alert('Error clocking in: ' + err.message);
             }
         }
 
-        async function clockOut(recordId) {
+        async function clockOut(unitId) {
             await supabaseClient
-                .from('duty_records')
-                .update({ clock_out: new Date().toISOString(), is_on_duty: false })
-                .eq('id', recordId);
+                .from('units')
+                .update({ on_duty: false })
+                .eq('id', unitId);
 
             loadDashboard();
+            loadUnits();
         }
 
         async function loadIncidents() {
@@ -934,36 +918,6 @@
                         <div style="display: flex; gap: 0.5rem; align-items: center;">
                             <span class="incident-status status-${inc.priority}">${inc.priority.toUpperCase()}</span>
                             <button class="btn btn-sm btn-secondary" onclick="updateIncidentStatus('${inc.id}')">${inc.status === 'resolved' ? 'Reopen' : 'Resolve'}</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        async function loadWarrants() {
-            const user = await getCurrentUser();
-            if (!user) return;
-
-            const { data: warrants } = await supabaseClient
-                .from('warrants')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            const container = document.getElementById('warrants-list');
-            if (!warrants || warrants.length === 0) {
-                container.innerHTML = '<div class="empty-state">No active warrants.</div>';
-            } else {
-                container.innerHTML = warrants.map(w => `
-                    <div class="warrant-card ${w.status}">
-                        <div class="warrant-info">
-                            <h4>${w.subject_name}</h4>
-                            <p>${w.charges}</p>
-                            <p class="warrant-reason">${w.reason || ''}</p>
-                            <span class="timestamp">${new Date(w.created_at).toLocaleString()}</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <span class="incident-status ${w.status === 'active' ? 'status-urgent' : 'status-active'}">${w.status.toUpperCase()}</span>
-                            ${w.status === 'active' ? `<button class="btn btn-sm btn-success" onclick="serveWarrant('${w.id}')">Mark Served</button>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -1035,11 +989,6 @@
             document.getElementById('incident-title-input').focus();
         }
 
-        function openNewWarrantModal() {
-            document.getElementById('warrant-modal').classList.add('active');
-            document.getElementById('warrant-name-input').focus();
-        }
-
         function openNewBoloModal() {
             document.getElementById('bolo-modal').classList.add('active');
             document.getElementById('bolo-subject-input').focus();
@@ -1088,40 +1037,6 @@
                 loadIncidents();
             } catch (err) {
                 alert('Error creating incident: ' + err.message);
-            }
-        }
-
-        async function createWarrant() {
-            const user = await getCurrentUser();
-            if (!user) return;
-
-            const name = document.getElementById('warrant-name-input').value.trim();
-            const charges = document.getElementById('warrant-charges-input').value.trim();
-            const reason = document.getElementById('warrant-reason-input').value.trim();
-
-            if (!name || !charges) { alert('Name and charges are required'); return; }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('warrants')
-                    .insert({
-                        subject_name: name,
-                        charges,
-                        reason,
-                        status: 'active',
-                        created_by: user.id,
-                        issued_by: user.email.split('@')[0]
-                    });
-
-                if (error) throw error;
-
-                closeModal('warrant-modal');
-                document.getElementById('warrant-name-input').value = '';
-                document.getElementById('warrant-charges-input').value = '';
-                document.getElementById('warrant-reason-input').value = '';
-                loadWarrants();
-            } catch (err) {
-                alert('Error creating warrant: ' + err.message);
             }
         }
 
@@ -1210,14 +1125,6 @@
 
             loadDashboard();
             loadIncidents();
-        }
-
-        async function serveWarrant(id) {
-            await supabaseClient
-                .from('warrants')
-                .update({ status: 'served' })
-                .eq('id', id);
-            loadWarrants();
         }
 
         async function expireBolo(id) {
@@ -1325,6 +1232,8 @@
 
         let currentCivilianId = null;
 
+        let currentCivilianName = null;
+
         function openCivilianModal(civilianId) {
             currentCivilianId = civilianId;
             document.getElementById('civilian-modal').classList.add('active');
@@ -1344,6 +1253,7 @@
                 return;
             }
 
+            currentCivilianName = civ.name;
             document.getElementById('civ-modal-title').textContent = civ.name;
             document.getElementById('civ-notes-input').value = civ.notes || '';
 
@@ -1355,6 +1265,36 @@
                     <p><strong style="color: #fff;">Occupation:</strong> ${civ.occupation || 'N/A'}</p>
                 </div>
             `;
+
+            loadCivilianWarrants(civ.name);
+        }
+
+        async function loadCivilianWarrants(name) {
+            const container = document.getElementById('civ-warrants-list');
+            if (!name) { container.innerHTML = '<div class="empty-state">No name to search warrants.</div>'; return; }
+
+            const { data: warrants } = await supabaseClient
+                .from('warrants')
+                .select('*')
+                .ilike('subject_name', '%' + name + '%')
+                .order('created_at', { ascending: false });
+
+            if (!warrants || warrants.length === 0) {
+                container.innerHTML = '<div class="empty-state">No warrants for this person.</div>';
+                return;
+            }
+
+            container.innerHTML = warrants.map(w => `
+                <div class="warrant-card ${w.status}">
+                    <div class="warrant-info">
+                        <h4>${w.subject_name}</h4>
+                        <p>${w.charges}</p>
+                        <p class="warrant-reason">${w.reason || ''}</p>
+                        <span class="timestamp">${new Date(w.created_at).toLocaleString()}</span>
+                    </div>
+                    <span class="incident-status ${w.status === 'active' ? 'status-urgent' : 'status-resolved'}">${w.status.toUpperCase()}</span>
+                </div>
+            `).join('');
         }
 
         async function saveCivilianNotes() {
@@ -1390,16 +1330,21 @@
                 <div class="incident-card ${t.status === 'open' ? 'active' : t.status === 'pending' ? '' : 'resolved'}">
                     <div class="incident-info">
                         <div class="incident-title">${t.title}</div>
+                        <div class="incident-meta">${t.violation || 'No violation specified'}</div>
                         <div class="incident-meta">${t.description || 'No description'} • ${new Date(t.created_at).toLocaleString()}</div>
                         <div class="incident-meta">By: ${t.officer_name || 'Unknown'}</div>
+                        ${t.fine_amount > 0 ? `<div class="incident-meta" style="color: #ff9800; font-weight: bold;">Fine: $${t.fine_amount.toFixed(2)}</div>` : ''}
+                        ${t.court_date ? `<div class="incident-meta">Court: ${new Date(t.court_date).toLocaleString()}</div>` : ''}
+                        ${t.signed ? `<div class="incident-meta" style="color: #4caf50;">✓ Signed by ${t.signed_by} on ${new Date(t.signed_at).toLocaleDateString()}</div>` : ''}
                     </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-direction: column;">
                         <span class="incident-status ${t.status === 'open' ? 'status-urgent' : t.status === 'pending' ? 'status-en-route' : 'status-resolved'}">${t.status.toUpperCase()}</span>
                         <select class="btn btn-sm btn-secondary" onchange="updateTicketStatus('${t.id}', this.value)" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">
                             <option value="open" ${t.status === 'open' ? 'selected' : ''}>Open</option>
                             <option value="pending" ${t.status === 'pending' ? 'selected' : ''}>Pending</option>
                             <option value="closed" ${t.status === 'closed' ? 'selected' : ''}>Closed</option>
                         </select>
+                        ${!t.signed ? `<button class="btn btn-sm btn-success" onclick="signTicket('${t.id}')">Sign</button>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -1418,6 +1363,9 @@
             if (!user || !currentCivilianId) return;
 
             const title = document.getElementById('ticket-title-input').value.trim();
+            const violation = document.getElementById('ticket-violation-input').value.trim();
+            const fine = document.getElementById('ticket-fine-input').value.trim();
+            const courtDate = document.getElementById('ticket-court-input').value;
             const desc = document.getElementById('ticket-desc-input').value.trim();
             const status = document.getElementById('ticket-status-input').value;
 
@@ -1431,6 +1379,9 @@
                     title,
                     description: desc,
                     status,
+                    violation,
+                    fine_amount: fine ? parseFloat(fine) : 0,
+                    court_date: courtDate || null,
                     created_by: user.id,
                     officer_name: user.email.split('@')[0]
                 });
@@ -1439,6 +1390,26 @@
                 alert('Error creating ticket: ' + error.message);
             } else {
                 closeModal('ticket-modal');
+                loadCivilianTickets(currentCivilianId);
+            }
+        }
+
+        async function signTicket(ticketId) {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const { error } = await supabaseClient
+                .from('police_tickets')
+                .update({
+                    signed: true,
+                    signed_at: new Date().toISOString(),
+                    signed_by: user.email.split('@')[0]
+                })
+                .eq('id', ticketId);
+
+            if (error) {
+                alert('Error signing ticket: ' + error.message);
+            } else {
                 loadCivilianTickets(currentCivilianId);
             }
         }
@@ -1455,32 +1426,24 @@
         }
 
         window.openNewIncidentModal = openNewIncidentModal;
-        window.openNewWarrantModal = openNewWarrantModal;
         window.openNewBoloModal = openNewBoloModal;
-        window.openNewUnitModal = openNewUnitModal;
-        window.closeModal = closeModal;
-        window.createIncident = createIncident;
-        window.createWarrant = createWarrant;
-        window.createBolo = createBolo;
-        window.createUnit = createUnit;
-        window.updateIncidentStatus = updateIncidentStatus;
-        window.serveWarrant = serveWarrant;
         window.expireBolo = expireBolo;
         window.toggleUnitDuty = toggleUnitDuty;
         window.lookupName = lookupName;
         window.lookupVehicle = lookupVehicle;
         window.loadDashboard = loadDashboard;
         window.loadIncidents = loadIncidents;
-        window.loadWarrants = loadWarrants;
         window.loadBolos = loadBolos;
         window.loadUnits = loadUnits;
         window.openCivilianModal = openCivilianModal;
         window.saveCivilianNotes = saveCivilianNotes;
+        window.loadCivilianWarrants = loadCivilianWarrants;
         window.openNewTicketModal = openNewTicketModal;
         window.createTicket = createTicket;
         window.updateTicketStatus = updateTicketStatus;
         window.clockIn = clockIn;
         window.clockOut = clockOut;
+        window.openClockInModal = openClockInModal;
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -1489,7 +1452,6 @@
                     switch(pageId) {
                         case 'dashboard': loadDashboard(); break;
                         case 'incidents': loadIncidents(); break;
-                        case 'warrants': loadWarrants(); break;
                         case 'bolos': loadBolos(); break;
                         case 'dispatch': loadUnits(); break;
                     }
