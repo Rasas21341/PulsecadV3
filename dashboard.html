@@ -798,7 +798,7 @@
 
             <!-- Moderation Page -->
             <div id="page-moderation" class="page">
-                <div class="section">
+                <div class="section section-keys" id="mod-section-keys">
                     <div class="section-header">
                         <div>
                             <h2>Create Key</h2>
@@ -814,7 +814,7 @@
                     <div id="create-key-message" class="modal-message"></div>
                 </div>
 
-                <div class="section">
+                <div class="section section-keys" id="mod-section-keys-list">
                     <div class="section-header">
                         <div>
                             <h2>Created Keys</h2>
@@ -826,7 +826,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section section-support" id="mod-section-support">
                     <div class="section-header">
                         <div>
                             <h2>Support Team</h2>
@@ -839,7 +839,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section section-servers" id="mod-section-servers">
                     <div class="section-header">
                         <div>
                             <h2>Servers</h2>
@@ -851,7 +851,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section section-staff" id="mod-section-staff">
                     <div class="section-header">
                         <div>
                             <h2>Staff Management</h2>
@@ -863,7 +863,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section section-users" id="mod-section-users">
                     <div class="section-header">
                         <div>
                             <h2>Registered Users</h2>
@@ -927,6 +927,35 @@
         </div>
     </div>
 
+    <!-- Promote to Staff Modal -->
+    <div id="promote-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 400px;">
+            <h2>Promote to Staff</h2>
+            <div id="promote-message" class="modal-message"></div>
+            <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;" id="promote-user-email"></p>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="perm-keys" style="accent-color: #7c3aed;">
+                    Manage Keys
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="perm-servers" style="accent-color: #7c3aed;">
+                    Manage Servers
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="perm-users" style="accent-color: #7c3aed;">
+                    Manage Users
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="perm-support" style="accent-color: #7c3aed;">
+                    Manage Support
+                </label>
+            </div>
+            <button class="modal-btn primary" id="btn-confirm-promote">Promote</button>
+            <button class="modal-btn secondary" id="btn-cancel-promote">Cancel</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
@@ -958,18 +987,43 @@
             document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
 
             let userRole = 'user';
+            let userPerms = { can_manage_keys: false, can_manage_servers: false, can_manage_users: false, can_manage_staff: false, can_manage_support: false };
             async function loadUserRole() {
                 const { data: profile } = await supabaseClient
                     .from('profiles')
-                    .select('role')
+                    .select('role, can_manage_keys, can_manage_servers, can_manage_users, can_manage_staff, can_manage_support')
                     .eq('id', user.id)
                     .single();
-                if (profile && profile.role) {
-                    userRole = profile.role;
+                if (profile) {
+                    userRole = profile.role || 'user';
+                    userPerms = {
+                        can_manage_keys: profile.can_manage_keys || false,
+                        can_manage_servers: profile.can_manage_servers || false,
+                        can_manage_users: profile.can_manage_users || false,
+                        can_manage_staff: profile.can_manage_staff || false,
+                        can_manage_support: profile.can_manage_support || false
+                    };
                 }
-                if (userRole !== 'master_admin') {
+                const isMaster = userRole === 'master_admin';
+                applyModerationPermissions();
+                if (!isMaster && !userPerms.can_manage_keys && !userPerms.can_manage_servers && !userPerms.can_manage_users && !userPerms.can_manage_staff && !userPerms.can_manage_support) {
                     const modNavItem = document.querySelector('.sidebar-item[data-page="moderation"]');
                     if (modNavItem) modNavItem.style.display = 'none';
+                }
+            }
+
+            function applyModerationPermissions() {
+                const isMaster = userRole === 'master_admin';
+                document.getElementById('mod-section-keys').style.display = (isMaster || userPerms.can_manage_keys) ? '' : 'none';
+                document.getElementById('mod-section-keys-list').style.display = (isMaster || userPerms.can_manage_keys) ? '' : 'none';
+                document.getElementById('mod-section-servers').style.display = (isMaster || userPerms.can_manage_servers) ? '' : 'none';
+                document.getElementById('mod-section-users').style.display = (isMaster || userPerms.can_manage_users) ? '' : 'none';
+                document.getElementById('mod-section-staff').style.display = (isMaster || userPerms.can_manage_staff) ? '' : 'none';
+                document.getElementById('mod-section-support').style.display = (isMaster || userPerms.can_manage_support) ? '' : 'none';
+                if (isMaster) {
+                    document.getElementById('btn-create-key').disabled = false;
+                } else {
+                    document.getElementById('btn-create-key').disabled = !userPerms.can_manage_keys;
                 }
             }
             await loadUserRole();
@@ -1472,27 +1526,56 @@
                 }
             }
 
-            window.promoteUser = async function(userId, userEmail) {
-                if (!confirm(`Promote "${userEmail}" to staff?`)) return;
+            let pendingPromoteUserId = null;
+            let pendingPromoteUserEmail = null;
+
+            window.promoteUser = function(userId, userEmail) {
+                pendingPromoteUserId = userId;
+                pendingPromoteUserEmail = userEmail;
+                document.getElementById('promote-user-email').textContent = userEmail;
+                document.getElementById('perm-keys').checked = false;
+                document.getElementById('perm-servers').checked = false;
+                document.getElementById('perm-users').checked = false;
+                document.getElementById('perm-support').checked = false;
+                document.getElementById('promote-modal').classList.add('active');
+            }
+
+            document.getElementById('btn-confirm-promote').addEventListener('click', async () => {
+                if (!pendingPromoteUserId) return;
                 try {
                     const { error } = await supabaseClient
                         .from('profiles')
-                        .update({ role: 'staff' })
-                        .eq('id', userId);
+                        .update({
+                            role: 'staff',
+                            can_manage_keys: document.getElementById('perm-keys').checked,
+                            can_manage_servers: document.getElementById('perm-servers').checked,
+                            can_manage_users: document.getElementById('perm-users').checked,
+                            can_manage_support: document.getElementById('perm-support').checked
+                        })
+                        .eq('id', pendingPromoteUserId);
                     if (error) throw error;
+                    document.getElementById('promote-modal').classList.remove('active');
+                    pendingPromoteUserId = null;
+                    pendingPromoteUserEmail = null;
                     loadUsers();
                     loadStaff();
                 } catch (err) {
                     console.error('Error promoting user:', err);
                 }
-            }
+            });
+
+            document.getElementById('btn-cancel-promote').addEventListener('click', () => {
+                document.getElementById('promote-modal').classList.remove('active');
+                pendingPromoteUserId = null;
+                pendingPromoteUserEmail = null;
+            });
 
             window.demoteUser = async function(userId, userEmail) {
                 if (!confirm(`Remove "${userEmail}" from staff?`)) return;
                 try {
                     const { error } = await supabaseClient
                         .from('profiles')
-                        .update({ role: 'user' })
+                        .update({ role: 'user', can_manage_keys: false, can_manage_servers: false, can_manage_users: false, can_manage_staff: false, can_manage_support: false })
                         .eq('id', userId);
                     if (error) throw error;
                     loadUsers();
@@ -1502,8 +1585,22 @@
                 }
             }
 
+            window.togglePermission = async function(userId, permKey, value) {
+                try {
+                    const updates = { [permKey]: value };
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .update(updates)
+                        .eq('id', userId);
+                    if (error) throw error;
+                } catch (err) {
+                    console.error('Error toggling permission:', err);
+                }
+            }
+
             async function loadStaff() {
                 const container = document.getElementById('staff-list');
+                const isMaster = userRole === 'master_admin';
                 const { data: staff } = await supabaseClient
                     .from('profiles')
                     .select('*')
@@ -1515,21 +1612,37 @@
                     return;
                 }
 
-                const staffCards = staff.map(p => `
-                    <div class="user-card">
-                        <div class="user-info">
-                            <div class="user-card-avatar">${p.email.charAt(0).toUpperCase()}</div>
-                            <div>
-                                <div class="user-card-email">${p.email} <span class="staff-badge">STAFF</span></div>
-                                <div class="user-card-id">${p.id}</div>
+                const permLabels = [
+                    { key: 'can_manage_keys', label: 'Keys' },
+                    { key: 'can_manage_servers', label: 'Servers' },
+                    { key: 'can_manage_users', label: 'Users' },
+                    { key: 'can_manage_support', label: 'Support' }
+                ];
+
+                const staffCards = staff.map(p => {
+                    const permCheckboxes = isMaster ? permLabels.map(perm => `
+                        <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: #aaa; cursor: pointer;">
+                            <input type="checkbox" ${p[perm.key] ? 'checked' : ''} onchange="event.stopPropagation(); togglePermission('${p.id}', '${perm.key}', this.checked)" style="accent-color: #7c3aed;">
+                            ${perm.label}
+                        </label>
+                    `).join('') : '';
+
+                    return `
+                        <div class="user-card">
+                            <div class="user-info">
+                                <div class="user-card-avatar">${p.email.charAt(0).toUpperCase()}</div>
+                                <div>
+                                    <div class="user-card-email">${p.email} <span class="staff-badge">STAFF</span></div>
+                                    <div class="user-card-id">${p.id}</div>
+                                    ${isMaster ? `<div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">${permCheckboxes}</div>` : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                ${isMaster ? `<button class="suspend-btn" style="border-color: #666; color: #666;" onclick="event.stopPropagation(); demoteUser('${p.id}', '${p.email.replace(/'/g, "\\'")}')">Remove Staff</button>` : ''}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div class="user-card-date">${new Date(p.created_at).toLocaleDateString()}</div>
-                            <button class="suspend-btn" style="border-color: #666; color: #666;" onclick="event.stopPropagation(); demoteUser('${p.id}', '${p.email.replace(/'/g, "\\'")}')">Remove Staff</button>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 container.innerHTML = staffCards;
             }
