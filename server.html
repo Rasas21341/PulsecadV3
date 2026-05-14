@@ -381,9 +381,16 @@
             const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
+            let user;
 
-            const user = session.user;
+            if (session) {
+                user = session.user;
+            } else {
+                const localSession = JSON.parse(localStorage.getItem('pulse_session') || 'null');
+                if (!localSession) { window.location.href = 'login.html'; return; }
+                user = { id: localSession.user_id, email: localSession.email };
+            }
+
             const displayName = user.email ? user.email.split('@')[0] : 'User';
             document.getElementById('user-email').textContent = displayName;
             document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
@@ -396,13 +403,18 @@
             document.addEventListener('click', () => { userDropdown.classList.remove('active'); });
             userDropdown.addEventListener('click', (e) => { e.stopPropagation(); });
             document.getElementById('btn-logout').addEventListener('click', async () => {
-                await supabaseClient.auth.signOut();
+                await supabaseClient.auth.signOut().catch(() => {});
+                localStorage.removeItem('pulse_session');
                 window.location.href = 'login.html';
             });
 
-            // Load credits
-            const { data: creditsData } = await supabaseClient.from('user_credits').select('credits').eq('user_id', user.id).single();
-            document.getElementById('user-credits').textContent = (creditsData ? creditsData.credits : 0) + ' credits';
+            // Load credits (only for Supabase users)
+            if (session) {
+                const { data: creditsData } = await supabaseClient.from('user_credits').select('credits').eq('user_id', user.id).single();
+                document.getElementById('user-credits').textContent = (creditsData ? creditsData.credits : 0) + ' credits';
+            } else {
+                document.getElementById('user-credits').textContent = '0 credits';
+            }
 
             // Get server ID from URL
             const params = new URLSearchParams(window.location.search);
