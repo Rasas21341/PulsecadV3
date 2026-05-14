@@ -1930,18 +1930,25 @@
                 toggle.onchange = async function() {
                     const msgEl = document.getElementById('dev-mode-message');
                     try {
-                        const { error } = await supabaseClient
-                            .from('site_settings')
-                            .update({ dev_mode: toggle.checked, updated_at: new Date().toISOString() })
-                            .eq('id', settings ? settings.id : '00000000-0000-0000-0000-000000000001');
-                        if (error) throw error;
+                        if (settings && settings.id) {
+                            const { error } = await supabaseClient
+                                .from('site_settings')
+                                .update({ dev_mode: toggle.checked, updated_at: new Date().toISOString() })
+                                .eq('id', settings.id);
+                            if (error) throw error;
+                        } else {
+                            const { error } = await supabaseClient
+                                .from('site_settings')
+                                .insert({ dev_mode: toggle.checked, updated_at: new Date().toISOString() });
+                            if (error) throw error;
+                        }
                         status.textContent = toggle.checked ? 'ON - Only master admins can access' : 'OFF - Everyone can access';
                         msgEl.textContent = toggle.checked ? 'Development mode enabled' : 'Development mode disabled';
                         msgEl.className = 'modal-message success';
                         msgEl.style.display = 'block';
                         setTimeout(() => { msgEl.style.display = 'none'; }, 2000);
                     } catch (err) {
-                        msgEl.textContent = 'Error updating development mode';
+                        msgEl.textContent = 'Error updating development mode: ' + err.message;
                         msgEl.className = 'modal-message error';
                         msgEl.style.display = 'block';
                     }

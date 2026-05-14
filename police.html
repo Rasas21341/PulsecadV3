@@ -591,6 +591,10 @@
         <div class="modal">
             <h2>Clock In</h2>
             <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="clockin-name-input" class="modal-input" placeholder="e.g. Officer J. Smith">
+            </div>
+            <div class="form-group">
                 <label>Rank</label>
                 <select id="clockin-rank-input" class="modal-input">
                     <option value="Cadet">Cadet</option>
@@ -726,6 +730,14 @@
             // Get server ID from URL
             const params = new URLSearchParams(window.location.search);
             currentServerId = params.get('server');
+            const entryName = params.get('name');
+            const entryRank = params.get('rank');
+            const entryCallsign = params.get('callsign');
+
+            // Auto-populate clock in modal if coming from server.html
+            if (entryName) document.getElementById('clockin-name-input').value = entryName;
+            if (entryRank) document.getElementById('clockin-rank-input').value = entryRank;
+            if (entryCallsign) document.getElementById('clockin-callsign-input').value = entryCallsign;
 
             const userDropdown = document.getElementById('user-dropdown');
             document.getElementById('user-profile-trigger').addEventListener('click', (e) => {
@@ -864,6 +876,7 @@
             const user = await getCurrentUser();
             if (!user) return;
 
+            const officerName = document.getElementById('clockin-name-input').value.trim() || user.email.split('@')[0];
             const rank = document.getElementById('clockin-rank-input').value;
             const callsign = document.getElementById('clockin-callsign-input').value.trim();
 
@@ -873,7 +886,7 @@
                 const { error } = await supabaseClient
                     .from('units')
                     .insert({
-                        officer_name: user.email.split('@')[0],
+                        officer_name: officerName,
                         rank,
                         unit_number: callsign,
                         on_duty: true,

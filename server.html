@@ -340,6 +340,37 @@
         </div>
     </div>
 
+    <!-- Police Entry Modal -->
+    <div id="police-entry-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Enter Police Panel</h2>
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="police-entry-name" class="modal-input" placeholder="e.g. Officer J. Smith">
+            </div>
+            <div class="form-group">
+                <label>Rank</label>
+                <select id="police-entry-rank" class="modal-input">
+                    <option value="Cadet">Cadet</option>
+                    <option value="Officer">Officer</option>
+                    <option value="Senior Officer">Senior Officer</option>
+                    <option value="Corporal">Corporal</option>
+                    <option value="Sergeant">Sergeant</option>
+                    <option value="Lieutenant">Lieutenant</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Commander">Commander</option>
+                    <option value="Chief">Chief</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Callsign</label>
+                <input type="text" id="police-entry-callsign" class="modal-input" placeholder="e.g. A-12">
+            </div>
+            <button class="modal-btn primary" id="btn-enter-police">Enter CAD</button>
+            <button class="modal-btn secondary" id="btn-cancel-police-entry">Cancel</button>
+        </div>
+    </div>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -411,7 +442,7 @@
                         <button onclick="copyInviteCode()">Copy Code</button>
                     </div>
                     <div class="role-buttons">
-                        <button class="role-btn-nav police" onclick="window.location.href='police.html?server=${serverId}'">Police</button>
+                        <button class="role-btn-nav police" onclick="openPoliceEntry()">Police</button>
                         <button class="role-btn-nav fire" onclick="openFirePanel()">Fire</button>
                         <button class="role-btn-nav civilian" onclick="window.location.href='civilian.html?server=${serverId}'">Civilian</button>
                         ${isOwner ? '<button class="role-btn-nav admin" onclick="openEditModal()">Admin</button>' : ''}
@@ -603,6 +634,38 @@
                 navigator.clipboard.writeText(code);
                 alert('Invite code copied!');
             };
+
+            window.openPoliceEntry = function() {
+                document.getElementById('police-entry-modal').classList.add('active');
+                document.getElementById('police-entry-name').focus();
+            };
+
+            document.getElementById('btn-cancel-police-entry').addEventListener('click', () => {
+                document.getElementById('police-entry-modal').classList.remove('active');
+            });
+
+            document.getElementById('btn-enter-police').addEventListener('click', () => {
+                const name = document.getElementById('police-entry-name').value.trim();
+                const rank = document.getElementById('police-entry-rank').value;
+                const callsign = document.getElementById('police-entry-callsign').value.trim();
+
+                if (!name || !callsign) {
+                    alert('Please enter your name and callsign');
+                    return;
+                }
+
+                const serverId = new URLSearchParams(window.location.search).get('id');
+                window.location.href = `police.html?server=${serverId}&name=${encodeURIComponent(name)}&rank=${encodeURIComponent(rank)}&callsign=${encodeURIComponent(callsign)}`;
+            });
+
+            // Allow Enter key to submit police entry
+            document.querySelectorAll('#police-entry-modal input').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        document.getElementById('btn-enter-police').click();
+                    }
+                });
+            });
 
             // Global announcement Realtime
             supabaseClient
