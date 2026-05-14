@@ -1604,10 +1604,17 @@
                     }
 
                     currentMembers.push(user.id);
-                    await supabaseClient
+                    const { error: joinError } = await supabaseClient
                         .from('servers')
                         .update({ members: currentMembers })
                         .eq('id', server.id);
+
+                    if (joinError) {
+                        msgEl.textContent = 'Error joining server: ' + joinError.message;
+                        msgEl.className = 'modal-message error';
+                        msgEl.style.display = 'block';
+                        return;
+                    }
 
                     msgEl.textContent = 'Joined server!';
                     msgEl.className = 'modal-message success';
