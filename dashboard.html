@@ -682,6 +682,87 @@
             font-weight: bold;
             text-transform: uppercase;
         }
+        .announcement-card {
+            background-color: #141414;
+            border: 1px solid #1a1a1a;
+            border-left: 3px solid #4a90e2;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .announcement-card h4 {
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        .announcement-card p {
+            color: #999;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        .announcement-card .meta {
+            color: #666;
+            font-size: 0.75rem;
+        }
+        .global-notification-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1a1a1a;
+            border: 1px solid #4a90e2;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            z-index: 10000;
+            box-shadow: 0 0 30px rgba(74, 144, 226, 0.3);
+            animation: popIn 0.3s ease;
+        }
+        .global-notification-popup.active {
+            display: block;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .global-notification-popup .notif-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 9999;
+        }
+        .global-notification-popup h3 {
+            color: #4a90e2;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .global-notification-popup p {
+            color: #ccc;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        .global-notification-popup .notif-meta {
+            color: #666;
+            font-size: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .global-notification-popup .notif-close {
+            padding: 0.5rem 1.5rem;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .global-notification-popup .notif-close:hover {
+            background-color: #3a7bc8;
+        }
     </style>
 </head>
 <body>
@@ -874,6 +955,50 @@
                         <p style="color: #444; font-size: 0.85rem;">No registered users found.</p>
                     </div>
                 </div>
+
+                <div class="section section-announcements" id="mod-section-announcements">
+                    <div class="section-header">
+                        <div>
+                            <h2>Send Announcement</h2>
+                            <p>Broadcast a message to all users signed into the website</p>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="announcement-title-input" class="modal-input" placeholder="Announcement title" style="margin-bottom: 0.5rem;">
+                        <textarea id="announcement-content-input" class="modal-textarea" placeholder="Announcement message" style="min-height: 80px; margin-bottom: 0.5rem;"></textarea>
+                        <button class="modal-btn primary" id="btn-create-announcement">Send Announcement</button>
+                    </div>
+                    <div id="create-announcement-message" class="modal-message"></div>
+                </div>
+
+                <div class="section section-announcements" id="mod-section-announcements-list">
+                    <div class="section-header">
+                        <div>
+                            <h2>Sent Announcements</h2>
+                            <p>History of all sent announcements</p>
+                        </div>
+                    </div>
+                    <div id="announcements-list">
+                        <p style="color: #444; font-size: 0.85rem;">No announcements sent yet.</p>
+                    </div>
+                </div>
+
+                <div class="section section-devmode" id="mod-section-devmode">
+                    <div class="section-header">
+                        <div>
+                            <h2>Development Mode</h2>
+                            <p>When enabled, only master admins can access the website</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="dev-mode-toggle" style="width: 20px; height: 20px; accent-color: #ff9800;">
+                            <span style="color: #ccc; font-size: 0.9rem;">Enable Development Mode</span>
+                        </label>
+                        <span id="dev-mode-status" style="color: #666; font-size: 0.8rem;"></span>
+                    </div>
+                    <div id="dev-mode-message" class="modal-message"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -956,6 +1081,17 @@
         </div>
     </div>
 
+    <!-- Global Notification Popup -->
+    <div id="global-notif-overlay" class="global-notification-popup">
+        <div class="notif-overlay" onclick="closeGlobalNotif()"></div>
+        <div style="position: relative;">
+            <h3 id="global-notif-title">Announcement</h3>
+            <p id="global-notif-content"></p>
+            <div class="notif-meta" id="global-notif-meta"></div>
+            <button class="notif-close" onclick="closeGlobalNotif()">Dismiss</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
@@ -987,11 +1123,11 @@
             document.getElementById('user-avatar').textContent = displayName.charAt(0).toUpperCase();
 
             let userRole = 'user';
-            let userPerms = { can_manage_keys: false, can_manage_servers: false, can_manage_users: false, can_manage_staff: false, can_manage_support: false };
+            let userPerms = { can_manage_keys: false, can_manage_servers: false, can_manage_users: false, can_manage_staff: false, can_manage_support: false, can_toggle_dev_mode: false };
             async function loadUserRole() {
                 const { data: profile } = await supabaseClient
                     .from('profiles')
-                    .select('role, can_manage_keys, can_manage_servers, can_manage_users, can_manage_staff, can_manage_support')
+                    .select('role, can_manage_keys, can_manage_servers, can_manage_users, can_manage_staff, can_manage_support, can_toggle_dev_mode')
                     .eq('id', user.id)
                     .single();
                 if (profile) {
@@ -1001,15 +1137,25 @@
                         can_manage_servers: profile.can_manage_servers || false,
                         can_manage_users: profile.can_manage_users || false,
                         can_manage_staff: profile.can_manage_staff || false,
-                        can_manage_support: profile.can_manage_support || false
+                        can_manage_support: profile.can_manage_support || false,
+                        can_toggle_dev_mode: profile.can_toggle_dev_mode || false
                     };
                 }
                 const isMaster = userRole === 'master_admin';
                 applyModerationPermissions();
-                if (!isMaster && !userPerms.can_manage_keys && !userPerms.can_manage_servers && !userPerms.can_manage_users && !userPerms.can_manage_staff && !userPerms.can_manage_support) {
+                if (!isMaster && !userPerms.can_manage_keys && !userPerms.can_manage_servers && !userPerms.can_manage_users && !userPerms.can_manage_staff && !userPerms.can_manage_support && !userPerms.can_toggle_dev_mode) {
                     const modNavItem = document.querySelector('.sidebar-item[data-page="moderation"]');
                     if (modNavItem) modNavItem.style.display = 'none';
                 }
+            }
+
+            async function checkDevMode() {
+                const { data: settings } = await supabaseClient.from('site_settings').select('*').limit(1).single();
+                if (settings && settings.dev_mode && userRole !== 'master_admin') {
+                    document.querySelector('.dashboard-content').innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;"><div style="text-align:center;"><h2 style="color:#ff9800;margin-bottom:1rem;">🔧 Development Mode</h2><p style="color:#888;">The website is currently in development mode. Only master admins can access at this time.</p></div></div>';
+                    return false;
+                }
+                return true;
             }
 
             function applyModerationPermissions() {
@@ -1020,6 +1166,9 @@
                 document.getElementById('mod-section-users').style.display = (isMaster || userPerms.can_manage_users) ? '' : 'none';
                 document.getElementById('mod-section-staff').style.display = (isMaster || userPerms.can_manage_staff) ? '' : 'none';
                 document.getElementById('mod-section-support').style.display = (isMaster || userPerms.can_manage_support) ? '' : 'none';
+                document.getElementById('mod-section-announcements').style.display = isMaster ? '' : 'none';
+                document.getElementById('mod-section-announcements-list').style.display = isMaster ? '' : 'none';
+                document.getElementById('mod-section-devmode').style.display = (isMaster || userPerms.can_toggle_dev_mode) ? '' : 'none';
                 if (isMaster) {
                     document.getElementById('btn-create-key').disabled = false;
                 } else {
@@ -1612,6 +1761,81 @@
                 }
             }
 
+            document.getElementById('btn-create-announcement').addEventListener('click', async () => {
+                const title = document.getElementById('announcement-title-input').value.trim();
+                const content = document.getElementById('announcement-content-input').value.trim();
+                const msgEl = document.getElementById('create-announcement-message');
+
+                if (!title || !content) {
+                    msgEl.textContent = 'Please fill in title and message';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('announcements')
+                        .insert({ title, content, created_by_email: email });
+                    if (error) throw error;
+
+                    msgEl.textContent = 'Announcement sent to all users!';
+                    msgEl.className = 'modal-message success';
+                    msgEl.style.display = 'block';
+                    document.getElementById('announcement-title-input').value = '';
+                    document.getElementById('announcement-content-input').value = '';
+                    loadAnnouncements();
+                } catch (err) {
+                    msgEl.textContent = 'Error sending announcement';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                }
+            });
+
+            async function loadAnnouncements() {
+                const container = document.getElementById('announcements-list');
+                const { data: announcements } = await supabaseClient
+                    .from('announcements')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (!announcements || announcements.length === 0) {
+                    container.innerHTML = '<p style="color: #444; font-size: 0.85rem;">No announcements sent yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = announcements.map(a => `
+                    <div class="announcement-card">
+                        <h4>${a.title}</h4>
+                        <p>${a.content}</p>
+                        <div class="meta">By ${a.created_by_email || 'Unknown'} • ${new Date(a.created_at).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            }
+
+            window.closeGlobalNotif = function() {
+                document.getElementById('global-notif-overlay').classList.remove('active');
+                document.getElementById('global-notif-overlay').querySelector('.notif-overlay').style.display = 'none';
+            };
+
+            function showGlobalNotification(title, content, sender, time) {
+                document.getElementById('global-notif-title').textContent = title;
+                document.getElementById('global-notif-content').textContent = content;
+                document.getElementById('global-notif-meta').textContent = `From ${sender || 'Unknown'} • ${new Date(time).toLocaleString()}`;
+                const popup = document.getElementById('global-notif-overlay');
+                popup.classList.add('active');
+                popup.querySelector('.notif-overlay').style.display = 'block';
+            }
+
+            // Supabase Realtime subscription for announcements
+            supabaseClient
+                .channel('announcements')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (payload) => {
+                    const ann = payload.new;
+                    showGlobalNotification(ann.title, ann.content, ann.created_by_email, ann.created_at);
+                })
+                .subscribe();
+
             async function loadStaff() {
                 const container = document.getElementById('staff-list');
                 const isMaster = userRole === 'master_admin';
@@ -1630,7 +1854,8 @@
                     { key: 'can_manage_keys', label: 'Keys' },
                     { key: 'can_manage_servers', label: 'Servers' },
                     { key: 'can_manage_users', label: 'Users' },
-                    { key: 'can_manage_support', label: 'Support' }
+                    { key: 'can_manage_support', label: 'Support' },
+                    { key: 'can_toggle_dev_mode', label: 'Dev Mode' }
                 ];
 
                 const staffCards = staff.map(p => {
@@ -1672,9 +1897,6 @@
 
                     if (profileError) throw profileError;
 
-                    const { error: authError } = await supabaseClient.auth.admin.deleteUser(userId);
-                    if (authError) console.warn('Could not delete auth user:', authError);
-
                     loadUsers();
                 } catch (err) {
                     console.error('Error deleting user:', err);
@@ -1682,12 +1904,61 @@
                 }
             }
 
+            async function loadDevMode() {
+                const section = document.getElementById('mod-section-devmode');
+                const toggle = document.getElementById('dev-mode-toggle');
+                const status = document.getElementById('dev-mode-status');
+                const isMaster = userRole === 'master_admin';
+                const hasPerm = userPerms.can_toggle_dev_mode || isMaster;
+
+                if (!hasPerm) {
+                    section.style.display = 'none';
+                    return;
+                }
+
+                section.style.display = '';
+
+                const { data: settings } = await supabaseClient
+                    .from('site_settings')
+                    .select('*')
+                    .limit(1)
+                    .single();
+
+                toggle.checked = settings && settings.dev_mode;
+                status.textContent = toggle.checked ? 'ON - Only master admins can access' : 'OFF - Everyone can access';
+
+                toggle.onchange = async function() {
+                    const msgEl = document.getElementById('dev-mode-message');
+                    try {
+                        const { error } = await supabaseClient
+                            .from('site_settings')
+                            .update({ dev_mode: toggle.checked, updated_at: new Date().toISOString() })
+                            .eq('id', settings ? settings.id : '00000000-0000-0000-0000-000000000001');
+                        if (error) throw error;
+                        status.textContent = toggle.checked ? 'ON - Only master admins can access' : 'OFF - Everyone can access';
+                        msgEl.textContent = toggle.checked ? 'Development mode enabled' : 'Development mode disabled';
+                        msgEl.className = 'modal-message success';
+                        msgEl.style.display = 'block';
+                        setTimeout(() => { msgEl.style.display = 'none'; }, 2000);
+                    } catch (err) {
+                        msgEl.textContent = 'Error updating development mode';
+                        msgEl.className = 'modal-message error';
+                        msgEl.style.display = 'block';
+                    }
+                };
+            }
+
+            const devModeOk = await checkDevMode();
+            if (!devModeOk) return;
+
             await loadCredits();
             await loadServers();
             await loadAllServers();
             await loadKeys();
             await loadUsers();
             await loadStaff();
+            await loadAnnouncements();
+            await loadDevMode();
         });
     </script>
 </body>

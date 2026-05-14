@@ -124,7 +124,31 @@
         </nav>
     </header>
     <div class="content">
-        <p>Login to access the CAD system</p>
+        <div id="dev-mode-banner" style="display:none;text-align:center;">
+            <h2 style="color:#ff9800;margin-bottom:1rem;">🔧 Development Mode</h2>
+            <p style="color:#888;">The website is currently in development mode. Only master admins can access at this time.</p>
+        </div>
+        <div id="normal-content">
+            <p>Login to access the CAD system</p>
+        </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (async function() {
+            const supabaseUrl = 'https://sbgpcbdegyqzwkdympim.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3BjYmRlZ3lxendrZHltcGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjc2NTQsImV4cCI6MjA5MzkwMzY1NH0.hyYZTM-w0wbJAzZzygsDcgMjj8oMt5oP1ait3O0MxT8';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+            const { data: settings } = await supabaseClient.from('site_settings').select('*').limit(1).single();
+            if (settings && settings.dev_mode) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+                    if (profile && profile.role === 'master_admin') return;
+                }
+                document.getElementById('dev-mode-banner').style.display = 'block';
+                document.getElementById('normal-content').style.display = 'none';
+            }
+        })();
+    </script>
 </body>
 </html>

@@ -603,6 +603,28 @@
                 navigator.clipboard.writeText(code);
                 alert('Invite code copied!');
             };
+
+            // Global announcement Realtime
+            supabaseClient
+                .channel('announcements')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (payload) => {
+                    const ann = payload.new;
+                    showGlobalNotif(ann.title, ann.content, ann.created_by_email);
+                })
+                .subscribe();
+
+            window.showGlobalNotif = function(title, content, sender) {
+                let popup = document.getElementById('global-notif-popup');
+                if (!popup) {
+                    popup = document.createElement('div');
+                    popup.id = 'global-notif-popup';
+                    popup.innerHTML = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;" onclick="this.parentElement.remove()"></div><div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a1a;border:1px solid #4a90e2;border-radius:12px;padding:2rem;width:90%;max-width:500px;z-index:10000;box-shadow:0 0 30px rgba(74,144,226,0.3);"><h3 style="color:#4a90e2;margin-bottom:0.5rem;"></h3><p style="color:#ccc;margin-bottom:1rem;line-height:1.5;"></p><div style="color:#666;font-size:0.75rem;margin-bottom:1rem;"></div><button onclick="this.closest('#global-notif-popup').remove()" style="padding:0.5rem 1.5rem;background:#4a90e2;border:none;border-radius:8px;color:white;font-weight:bold;cursor:pointer;">Dismiss</button></div>`;
+                    document.body.appendChild(popup);
+                }
+                popup.querySelector('h3').textContent = title;
+                popup.querySelector('p').textContent = content;
+                popup.querySelector('div[style*="font-size:0.75rem"]').textContent = 'From ' + (sender || 'Unknown');
+            };
         });
     </script>
 </body>
