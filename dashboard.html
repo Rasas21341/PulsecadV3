@@ -1307,27 +1307,28 @@
                 const { data: servers } = await supabaseClient
                     .from('servers')
                     .select('*')
-                    .or(`owner_id.eq.${user.id},members.cs.{${user.id}}`)
                     .order('created_at', { ascending: false });
+
+                const userServers = (servers || []).filter(s => s.owner_id === user.id || (s.members && s.members.includes(user.id)));
 
                 const overviewList = document.getElementById('panels-list');
                 const serversList = document.getElementById('servers-list');
 
-                if (!servers || servers.length === 0) {
+                if (userServers.length === 0) {
                     const emptyMsg = '<p style="color: #444; font-size: 0.85rem;">No servers yet.</p>';
                     overviewList.innerHTML = emptyMsg;
                     serversList.innerHTML = emptyMsg;
                     return;
                 }
 
-                const owned = servers.filter(s => s.owner_id === user.id);
-                const joined = servers.filter(s => s.owner_id !== user.id);
+                const owned = userServers.filter(s => s.owner_id === user.id);
+                const joined = userServers.filter(s => s.owner_id !== user.id);
 
-                document.getElementById('stat-total-panels').textContent = servers.length;
+                document.getElementById('stat-total-panels').textContent = userServers.length;
                 document.getElementById('stat-owned-panels').textContent = owned.length;
                 document.getElementById('stat-joined-panels').textContent = joined.length;
 
-                const serverCards = servers.map(s => `
+                const serverCards = userServers.map(s => `
                     <div class="server-card ${s.suspended ? 'suspended' : ''}" onclick="openServer('${s.id}')">
                         <div class="server-info">
                             <div class="server-icon">${s.name.charAt(0).toUpperCase()}</div>
