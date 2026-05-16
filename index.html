@@ -9,7 +9,7 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #252525; /* dark gray for entire site */
+            background-color: #252525;
             color: #f0f0f0;
         }
         header {
@@ -50,6 +50,7 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
             font-size: 0.9rem;
+            cursor: pointer;
         }
         nav ul li a:hover {
             background-color: #3a3a3a;
@@ -71,12 +72,32 @@
             text-decoration: none;
         }
 
-        .content {
+        .page {
+            display: none;
+            padding: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+        .page.active {
+            display: block;
+        }
+
+        .home-content {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: calc(100vh - 80px);
             gap: 2rem;
+            text-align: center;
+        }
+        .home-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        .home-content p {
+            color: #888;
+            font-size: 1.1rem;
         }
         .role-btn {
             padding: 2rem 4rem;
@@ -105,6 +126,77 @@
         .admin-btn-nav {
             background-color: #7c3aed;
         }
+
+        .team-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            text-align: center;
+        }
+        .team-container h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        .team-container > p {
+            color: #888;
+            margin-bottom: 2rem;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .team-card {
+            background-color: #2e2e2e;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .team-card:hover {
+            transform: translateY(-3px);
+            border-color: #4a90e2;
+        }
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+        .team-card.founder .team-avatar {
+            background: linear-gradient(135deg, #4a90e2, #7c3aed);
+        }
+        .team-card.cofounder .team-avatar {
+            background: linear-gradient(135deg, #059669, #4a90e2);
+        }
+        .team-card h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1.25rem;
+            color: #fff;
+        }
+        .team-role {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .team-card.founder .team-role {
+            background-color: rgba(74, 144, 226, 0.15);
+            color: #4a90e2;
+        }
+        .team-card.cofounder .team-role {
+            background-color: rgba(5, 150, 105, 0.15);
+            color: #059669;
+        }
     </style>
 </head>
 <body>
@@ -115,25 +207,64 @@
         </div>
         <nav>
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Team</a></li>
+                <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                <li><a href="#" class="nav-link" data-page="team">Team</a></li>
                 <li><a href="#">Pricing</a></li>
                 <li><a href="#">Contact</a></li>
                 <li><a href="login.html" class="login-btn">Login</a></li>
             </ul>
         </nav>
     </header>
-    <div class="content">
-        <div id="dev-mode-banner" style="display:none;text-align:center;">
-            <h2 style="color:#ff9800;margin-bottom:1rem;">🔧 Development Mode</h2>
-            <p style="color:#888;">The website is currently in development mode. Only master admins can access at this time.</p>
-        </div>
-        <div id="normal-content">
-            <p>Login to access the CAD system</p>
+
+    <!-- Home Page -->
+    <div id="page-home" class="page">
+        <div class="home-content">
+            <h1>Welcome to Pulse CAD</h1>
+            <p>Professional CAD system for emergency services</p>
         </div>
     </div>
+        </div>
+    </div>
+
+    <!-- Team Page -->
+    <div id="page-team" class="page">
+        <div class="team-container">
+            <h1>Our Team</h1>
+            <p>The people behind Pulse CAD</p>
+            <div class="team-grid">
+                <div class="team-card founder">
+                    <div class="team-avatar">R</div>
+                    <h3>Ryan</h3>
+                    <span class="team-role">Founder</span>
+                </div>
+                <div class="team-card cofounder">
+                    <div class="team-avatar">H</div>
+                    <h3>Hunter</h3>
+                    <span class="team-role">Co-Founder</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dev-mode-banner" style="display:none;text-align:center; padding: 2rem;">
+        <h2 style="color:#ff9800;margin-bottom:1rem;">🔧 Development Mode</h2>
+        <p style="color:#888;">The website is currently in development mode. Only master admins can access at this time.</p>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.getAttribute('data-page');
+                if (!page) return;
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                document.getElementById('page-' + page).classList.add('active');
+                link.classList.add('active');
+            });
+        });
+
         (async function() {
             const supabaseUrl = 'https://sbgpcbdegyqzwkdympim.supabase.co';
             const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3BjYmRlZ3lxendrZHltcGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjc2NTQsImV4cCI6MjA5MzkwMzY1NH0.hyYZTM-w0wbJAzZzygsDcgMjj8oMt5oP1ait3O0MxT8';
@@ -146,7 +277,8 @@
                     if (profile && profile.role === 'master_admin') return;
                 }
                 document.getElementById('dev-mode-banner').style.display = 'block';
-                document.getElementById('normal-content').style.display = 'none';
+                document.querySelector('header').style.display = 'none';
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             }
         })();
     </script>

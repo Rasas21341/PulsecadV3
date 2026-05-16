@@ -301,9 +301,11 @@
             <hr style="border-color: #2a2a2a; margin: 1rem 0;">
             <h3 style="color: #fff; font-size: 0.9rem; margin-bottom: 0.75rem;">ERLC Integration</h3>
             <div class="form-group">
-                <label>ERLC Server ID</label>
-                <input type="text" id="edit-erlc-id-input" class="modal-input" placeholder="e.g. ABCD-1234">
+                <label>ERLC API</label>
+                <input type="text" id="edit-erlc-id-input" class="modal-input" placeholder="e.g. pWotWbRQsfgldLdBGrHi-EgmlwLxbKQJ...">
             </div>
+            <button class="admin-btn" id="btn-test-erlc" style="margin-bottom: 1rem; width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ff9800; background-color: transparent; color: #ff9800; font-size: 0.85rem; cursor: pointer; font-weight: bold;" onclick="testERLCConnection()">Test ERLC API</button>
+            <div id="erlc-test-message" class="modal-message"></div>
             <button class="modal-btn primary" id="btn-save-edit">Save Changes</button>
             <button class="modal-btn secondary" style="background-color: #ff4444; color: white; margin-top: 0.5rem;" id="btn-delete-server-modal">Delete Server</button>
             <button class="modal-btn secondary" id="btn-cancel-edit">Cancel</button>
@@ -480,6 +482,43 @@
                 await supabaseClient.from('servers').delete().eq('id', serverId);
                 window.location.href = 'dashboard.html';
             });
+
+            window.testERLCConnection = async function() {
+                const erlcId = document.getElementById('edit-erlc-id-input').value.trim();
+                const msgEl = document.getElementById('erlc-test-message');
+                
+                if (!erlcId) {
+                    msgEl.textContent = 'Enter an ERLC API key first.';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+
+                msgEl.textContent = 'Testing...';
+                msgEl.className = 'modal-message';
+                msgEl.style.display = 'block';
+
+                try {
+                    const response = await fetch('https://api.erlc.gg/v2/server', {
+                        headers: { 'Server-Key': erlcId }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.currentPlayers !== undefined) {
+                        msgEl.textContent = `Success! ${data.currentPlayers} players online.`;
+                        msgEl.className = 'modal-message success';
+                        msgEl.style.display = 'block';
+                    } else {
+                        msgEl.textContent = `Failed: ${JSON.stringify(data).substring(0, 100)}`;
+                        msgEl.className = 'modal-message error';
+                        msgEl.style.display = 'block';
+                    }
+                } catch (err) {
+                    msgEl.textContent = `Error: ${err.message}`;
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                }
+            };
 
             // ERLC Map
             let erlcMap = null;
