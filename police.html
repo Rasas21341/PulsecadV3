@@ -605,18 +605,26 @@
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
         let currentUser = null;
-
         let currentUserId = null;
         let currentUserToken = null;
 
         async function getCurrentUser() {
-            if (!currentUser) {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) {
-                    currentUser = session.user;
-                    currentUserId = session.user.id;
-                    currentUserToken = session.access_token;
+            if (currentUser) return currentUser;
+            
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                currentUserId = session.user.id;
+                currentUserToken = session.access_token;
+            } else {
+                const localSession = JSON.parse(localStorage.getItem('pulse_session') || 'null');
+                if (localSession) {
+                    currentUser = { id: localSession.user_id, email: localSession.email };
+                    currentUserId = localSession.user_id;
                 }
+            }
+            return currentUser;
+        }
             }
             return currentUser;
         }
