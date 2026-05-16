@@ -318,10 +318,6 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11a2 2 0 002 2z"/></svg>
             Lookup
         </a>
-        <a href="#" class="sidebar-item" data-page="dispatch">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            Dispatch
-        </a>
     </nav>
 
     <div class="main-content">
@@ -355,16 +351,12 @@
             <!-- Dashboard Page -->
             <div id="page-dashboard" class="page active">
                 <div class="section">
-                    <div class="section-header">
-                        <div>
-                            <h2>Active Units</h2>
-                            <p>Officers currently on duty</p>
-                        </div>
-                        <button class="btn btn-success btn-sm" id="btn-clock-in" onclick="openClockInModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Clock In
-                        </button>
+                <div class="section-header">
+                    <div>
+                        <h2>Active Units</h2>
+                        <p>Officers currently on duty</p>
                     </div>
+                </div>
                     <div class="dispatch-grid" id="dashboard-units-grid">
                         <div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>
                     </div>
@@ -456,25 +448,7 @@
                 </div>
             </div>
 
-            <!-- Dispatch Page -->
-            <div id="page-dispatch" class="page">
-                <div class="section">
-                    <div class="section-header">
-                        <div>
-                            <h2>Active Units</h2>
-                            <p>Officers currently on duty</p>
-                        </div>
-                        <button class="btn btn-success" onclick="openNewUnitModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Add Unit
-                        </button>
-                    </div>
-                    <div class="dispatch-grid" id="units-grid">
-                        <div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
     </div>
 
     <!-- New Incident Modal -->
@@ -545,76 +519,6 @@
             <div class="modal-actions">
                 <button class="modal-btn secondary" onclick="closeModal('bolo-modal')">Cancel</button>
                 <button class="modal-btn primary" onclick="createBolo()">Issue BOLO</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- New Unit Modal -->
-    <div id="unit-modal" class="modal-overlay">
-        <div class="modal">
-            <h2>Add Unit</h2>
-            <div class="form-group">
-                <label>Officer Name</label>
-                <input type="text" id="unit-name-input" class="modal-input" placeholder="e.g. Officer J. Smith">
-            </div>
-            <div class="form-group">
-                <label>Badge Number</label>
-                <input type="text" id="unit-badge-input" class="modal-input" placeholder="e.g. 1042">
-            </div>
-            <div class="form-group">
-                <label>Rank</label>
-                <select id="unit-rank-input">
-                    <option value="Cadet">Cadet</option>
-                    <option value="Officer">Officer</option>
-                    <option value="Senior Officer">Senior Officer</option>
-                    <option value="Corporal">Corporal</option>
-                    <option value="Sergeant">Sergeant</option>
-                    <option value="Lieutenant">Lieutenant</option>
-                    <option value="Captain">Captain</option>
-                    <option value="Commander">Commander</option>
-                    <option value="Chief">Chief</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Unit Number</label>
-                <input type="text" id="unit-number-input" class="modal-input" placeholder="e.g. A-12">
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn secondary" onclick="closeModal('unit-modal')">Cancel</button>
-                <button class="modal-btn primary" onclick="createUnit()">Add Unit</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Clock In Modal -->
-    <div id="clockin-modal" class="modal-overlay">
-        <div class="modal">
-            <h2>Clock In</h2>
-            <div class="form-group">
-                <label>Your Name</label>
-                <input type="text" id="clockin-name-input" class="modal-input" placeholder="e.g. Officer J. Smith">
-            </div>
-            <div class="form-group">
-                <label>Rank</label>
-                <select id="clockin-rank-input" class="modal-input">
-                    <option value="Cadet">Cadet</option>
-                    <option value="Officer">Officer</option>
-                    <option value="Senior Officer">Senior Officer</option>
-                    <option value="Corporal">Corporal</option>
-                    <option value="Sergeant">Sergeant</option>
-                    <option value="Lieutenant">Lieutenant</option>
-                    <option value="Captain">Captain</option>
-                    <option value="Commander">Commander</option>
-                    <option value="Chief">Chief</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Callsign / Unit Number</label>
-                <input type="text" id="clockin-callsign-input" class="modal-input" placeholder="e.g. A-12">
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn secondary" onclick="closeModal('clockin-modal')">Cancel</button>
-                <button class="modal-btn primary" onclick="clockIn()">Clock In</button>
             </div>
         </div>
     </div>
@@ -702,10 +606,17 @@
 
         let currentUser = null;
 
+        let currentUserId = null;
+        let currentUserToken = null;
+
         async function getCurrentUser() {
             if (!currentUser) {
                 const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) currentUser = session.user;
+                if (session) {
+                    currentUser = session.user;
+                    currentUserId = session.user.id;
+                    currentUserToken = session.access_token;
+                }
             }
             return currentUser;
         }
@@ -722,8 +633,15 @@
                 user = { id: localSession.user_id, email: localSession.email };
             }
 
-            const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
-            const { data: settings } = await supabaseClient.from('site_settings').select('*').limit(1).single();
+            const isLocalUser = user.id.startsWith('local_');
+            let profile = null;
+            let settings = null;
+
+            if (!isLocalUser) {
+                try { profile = (await supabaseClient.from('profiles').select('role').eq('id', user.id).single()).data; } catch(e) {}
+                try { settings = (await supabaseClient.from('site_settings').select('*').limit(1).single()).data; } catch(e) {}
+            }
+
             if (settings && settings.dev_mode && (!profile || profile.role !== 'master_admin')) {
                 document.querySelector('.panel-content').innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;"><div style="text-align:center;"><h2 style="color:#ff9800;margin-bottom:1rem;">🔧 Development Mode</h2><p style="color:#888;">The website is currently in development mode. Only master admins can access at this time.</p></div></div>';
                 return;
@@ -740,11 +658,38 @@
             const entryName = params.get('name');
             const entryRank = params.get('rank');
             const entryCallsign = params.get('callsign');
+            const autoClockIn = params.get('autoclockin');
 
-            // Auto-populate clock in modal if coming from server.html
-            if (entryName) document.getElementById('clockin-name-input').value = entryName;
-            if (entryRank) document.getElementById('clockin-rank-input').value = entryRank;
-            if (entryCallsign) document.getElementById('clockin-callsign-input').value = entryCallsign;
+            if (autoClockIn && entryName && entryCallsign) {
+                (async () => {
+                    const user = await getCurrentUser();
+                    if (user) {
+                        const { data: existingUnit } = await supabaseClient
+                            .from('units')
+                            .select('*')
+                            .eq('created_by', user.id)
+                            .eq('on_duty', true)
+                            .maybeSingle();
+
+                        if (!existingUnit) {
+                            try {
+                                await supabaseClient.from('units').insert({
+                                    officer_name: entryName,
+                                    rank: entryRank || 'Officer',
+                                    unit_number: entryCallsign,
+                                    on_duty: true,
+                                    status: 'available',
+                                    created_by: user.id,
+                                    server_id: currentServerId
+                                });
+                            } catch(e) {}
+                        }
+
+                        const cleanUrl = window.location.pathname + window.location.search.replace(/&autoclockin=true/, '').replace(/autoclockin=true&?/, '');
+                        window.history.replaceState({}, '', cleanUrl);
+                    }
+                })();
+            }
 
             const userDropdown = document.getElementById('user-dropdown');
             document.getElementById('user-profile-trigger').addEventListener('click', (e) => {
@@ -771,8 +716,7 @@
                 dashboard: { title: 'Police Dashboard', desc: 'Manage incidents, warrants, and dispatch' },
                 incidents: { title: 'Incidents', desc: 'View and manage all incidents' },
                 bolos: { title: 'BOLOs', desc: 'Be On the Lookout alerts' },
-                lookup: { title: 'Lookup', desc: 'Name and vehicle lookups' },
-                dispatch: { title: 'Dispatch', desc: 'Active units and assignments' }
+                lookup: { title: 'Lookup', desc: 'Name and vehicle lookups' }
             };
 
             document.querySelectorAll('.sidebar-item[data-page]').forEach(item => {
@@ -814,45 +758,35 @@
             const { data: units } = await supabaseClient
                 .from('units')
                 .select('*')
-                .eq('on_duty', true);
+                .eq('created_by', user.id)
+                .eq('on_duty', true)
+                .order('created_at', { ascending: false });
+
+            if (units && units.length > 1) {
+                for (let i = 1; i < units.length; i++) {
+                    await supabaseClient.from('units').delete().eq('id', units[i].id);
+                }
+            }
+
+            const myUnit = units && units.length > 0 ? [units[0]] : [];
 
             const urgentCount = incidents ? incidents.filter(i => i.priority === 'urgent').length : 0;
             const activeCount = incidents ? incidents.filter(i => i.status === 'active').length : 0;
 
-            // Check if user is clocked in
-            const { data: myUnit } = await supabaseClient
-                .from('units')
-                .select('*')
-                .eq('created_by', user.id)
-                .eq('on_duty', true)
-                .maybeSingle();
-
-            const clockInBtn = document.getElementById('btn-clock-in');
-            if (myUnit) {
-                clockInBtn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Clock Out`;
-                clockInBtn.className = 'btn btn-danger btn-sm';
-                clockInBtn.onclick = () => clockOut(myUnit.id);
-            } else {
-                clockInBtn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Clock In`;
-                clockInBtn.className = 'btn btn-success btn-sm';
-                clockInBtn.onclick = () => openClockInModal();
-            }
-
             // Load units on dashboard
             const unitsGrid = document.getElementById('dashboard-units-grid');
-            if (!units || units.length === 0) {
+            if (!myUnit || myUnit.length === 0) {
                 unitsGrid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>';
             } else {
-                unitsGrid.innerHTML = units.map(u => {
+                unitsGrid.innerHTML = myUnit.map(u => {
                     const statusClass = u.on_duty ? (u.status === 'available' ? 'available' : u.status === 'busy' ? 'busy' : 'en-route') : 'off-duty';
                     const statusLabel = u.on_duty ? (u.status || 'Available') : 'Off Duty';
                     return `
                         <div class="unit-card ${statusClass}">
                             <div class="unit-name">Unit ${u.unit_number}</div>
                             <div class="unit-officer">${u.officer_name} • ${u.rank}</div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; justify-content: flex-end; align-items: center;">
                                 <span class="unit-status" style="background: ${u.on_duty ? 'rgba(76,175,80,0.15); color: #4caf50;' : 'rgba(102,102,102,0.15); color: #666;'}">${statusLabel}</span>
-                                <button class="btn btn-sm btn-secondary" onclick="toggleUnitDuty('${u.id}', ${u.on_duty})">${u.on_duty ? 'Off Duty' : 'On Duty'}</button>
                             </div>
                         </div>
                     `;
@@ -875,53 +809,32 @@
             }
         }
 
-        function openClockInModal() {
-            document.getElementById('clockin-modal').classList.add('active');
-            document.getElementById('clockin-callsign-input').focus();
-        }
-
-        async function clockIn() {
+        async function clockOutOnClose() {
             const user = await getCurrentUser();
             if (!user) return;
 
-            const officerName = document.getElementById('clockin-name-input').value.trim() || user.email.split('@')[0];
-            const rank = document.getElementById('clockin-rank-input').value;
-            const callsign = document.getElementById('clockin-callsign-input').value.trim();
-
-            if (!callsign) { alert('Callsign is required'); return; }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('units')
-                    .insert({
-                        officer_name: officerName,
-                        rank,
-                        unit_number: callsign,
-                        on_duty: true,
-                        status: 'available',
-                        created_by: user.id,
-                        server_id: currentServerId
-                    });
-
-                if (error) throw error;
-
-                closeModal('clockin-modal');
-                document.getElementById('clockin-callsign-input').value = '';
-                loadDashboard();
-                loadUnits();
-            } catch (err) {
-                alert('Error clocking in: ' + err.message);
-            }
-        }
-
-        async function clockOut(unitId) {
             await supabaseClient
                 .from('units')
                 .update({ on_duty: false })
-                .eq('id', unitId);
+                .eq('created_by', user.id)
+                .eq('on_duty', true);
+        }
 
-            loadDashboard();
-            loadUnits();
+        window.addEventListener('beforeunload', function() {
+            navigator.sendBeacon(
+                `https://sbgpcbdegyqzwkdympim.supabase.co/rest/v1/units?created_by=eq.${getCurrentUser().then(u => u.id)}&on_duty=eq.true`,
+                JSON.stringify([{ on_duty: false }])
+            );
+        });
+
+        function openNewIncidentModal() {
+            document.getElementById('incident-modal').classList.add('active');
+            document.getElementById('incident-title-input').focus();
+        }
+
+        function openNewBoloModal() {
+            document.getElementById('bolo-modal').classList.add('active');
+            document.getElementById('bolo-subject-input').focus();
         }
 
         async function loadIncidents() {
@@ -980,51 +893,6 @@
                     </div>
                 `).join('');
             }
-        }
-
-        async function loadUnits() {
-            const user = await getCurrentUser();
-            if (!user) return;
-
-            const { data: units } = await supabaseClient
-                .from('units')
-                .select('*')
-                .order('unit_number');
-
-            const container = document.getElementById('units-grid');
-            if (!units || units.length === 0) {
-                container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>';
-            } else {
-                container.innerHTML = units.map(u => {
-                    const statusClass = u.on_duty ? (u.status === 'available' ? 'available' : u.status === 'busy' ? 'busy' : 'en-route') : 'off-duty';
-                    const statusLabel = u.on_duty ? (u.status || 'Available') : 'Off Duty';
-                    return `
-                        <div class="unit-card ${statusClass}">
-                            <div class="unit-name">Unit ${u.unit_number}</div>
-                            <div class="unit-officer">${u.officer_name} • ${u.rank}</div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span class="unit-status" style="background: ${u.on_duty ? 'rgba(76,175,80,0.15); color: #4caf50;' : 'rgba(102,102,102,0.15); color: #666;'}">${statusLabel}</span>
-                                <button class="btn btn-sm btn-secondary" onclick="toggleUnitDuty('${u.id}', ${u.on_duty})">${u.on_duty ? 'Off Duty' : 'On Duty'}</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-
-        function openNewIncidentModal() {
-            document.getElementById('incident-modal').classList.add('active');
-            document.getElementById('incident-title-input').focus();
-        }
-
-        function openNewBoloModal() {
-            document.getElementById('bolo-modal').classList.add('active');
-            document.getElementById('bolo-subject-input').focus();
-        }
-
-        function openNewUnitModal() {
-            document.getElementById('unit-modal').classList.add('active');
-            document.getElementById('unit-name-input').focus();
         }
 
         function closeModal(id) {
@@ -1101,42 +969,6 @@
             }
         }
 
-        async function createUnit() {
-            const user = await getCurrentUser();
-            if (!user) return;
-
-            const name = document.getElementById('unit-name-input').value.trim();
-            const badge = document.getElementById('unit-badge-input').value.trim();
-            const rank = document.getElementById('unit-rank-input').value;
-            const unitNum = document.getElementById('unit-number-input').value.trim();
-
-            if (!name || !unitNum) { alert('Officer name and unit number are required'); return; }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('units')
-                    .insert({
-                        officer_name: name,
-                        badge_number: badge,
-                        rank,
-                        unit_number: unitNum,
-                        on_duty: true,
-                        status: 'available',
-                        created_by: user.id
-                    });
-
-                if (error) throw error;
-
-                closeModal('unit-modal');
-                document.getElementById('unit-name-input').value = '';
-                document.getElementById('unit-badge-input').value = '';
-                document.getElementById('unit-number-input').value = '';
-                loadUnits();
-            } catch (err) {
-                alert('Error creating unit: ' + err.message);
-            }
-        }
-
         async function updateIncidentStatus(id) {
             const { data: incident } = await supabaseClient
                 .from('police_incidents')
@@ -1161,14 +993,6 @@
                 .update({ status: 'expired' })
                 .eq('id', id);
             loadBolos();
-        }
-
-        async function toggleUnitDuty(id, currentlyOnDuty) {
-            await supabaseClient
-                .from('units')
-                .update({ on_duty: !currentlyOnDuty })
-                .eq('id', id);
-            loadUnits();
         }
 
         async function lookupName() {
@@ -1399,6 +1223,9 @@
 
             if (!title) { alert('Title is required'); return; }
 
+            const isLocalUser = user.id.startsWith('local_');
+            const createdBy = isLocalUser ? null : user.id;
+
             const { error } = await supabaseClient
                 .from('police_tickets')
                 .insert({
@@ -1410,7 +1237,7 @@
                     violation,
                     fine_amount: fine ? parseFloat(fine) : 0,
                     court_date: courtDate || null,
-                    created_by: user.id,
+                    created_by: createdBy,
                     officer_name: user.email.split('@')[0]
                 });
 
@@ -1456,22 +1283,17 @@
         window.openNewIncidentModal = openNewIncidentModal;
         window.openNewBoloModal = openNewBoloModal;
         window.expireBolo = expireBolo;
-        window.toggleUnitDuty = toggleUnitDuty;
         window.lookupName = lookupName;
         window.lookupVehicle = lookupVehicle;
         window.loadDashboard = loadDashboard;
         window.loadIncidents = loadIncidents;
         window.loadBolos = loadBolos;
-        window.loadUnits = loadUnits;
         window.openCivilianModal = openCivilianModal;
         window.saveCivilianNotes = saveCivilianNotes;
         window.loadCivilianWarrants = loadCivilianWarrants;
         window.openNewTicketModal = openNewTicketModal;
         window.createTicket = createTicket;
         window.updateTicketStatus = updateTicketStatus;
-        window.clockIn = clockIn;
-        window.clockOut = clockOut;
-        window.openClockInModal = openClockInModal;
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -1481,7 +1303,6 @@
                         case 'dashboard': loadDashboard(); break;
                         case 'incidents': loadIncidents(); break;
                         case 'bolos': loadBolos(); break;
-                        case 'dispatch': loadUnits(); break;
                     }
                 }
             });

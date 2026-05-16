@@ -641,7 +641,7 @@
                 }
 
                 const serverId = new URLSearchParams(window.location.search).get('id');
-                window.location.href = `police.html?server=${serverId}&name=${encodeURIComponent(name)}&rank=${encodeURIComponent(rank)}&callsign=${encodeURIComponent(callsign)}`;
+                window.location.href = `police.html?server=${serverId}&name=${encodeURIComponent(name)}&rank=${encodeURIComponent(rank)}&callsign=${encodeURIComponent(callsign)}&autoclockin=true`;
             });
 
             // Allow Enter key to submit police entry
