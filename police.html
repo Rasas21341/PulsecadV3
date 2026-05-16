@@ -755,30 +755,37 @@
                 .select('*')
                 .eq('status', 'active');
 
-            const { data: units } = await supabaseClient
+            const { data: allUnits } = await supabaseClient
                 .from('units')
                 .select('*')
-                .eq('created_by', user.id)
                 .eq('on_duty', true)
                 .order('created_at', { ascending: false });
 
-            if (units && units.length > 1) {
-                for (let i = 1; i < units.length; i++) {
-                    await supabaseClient.from('units').delete().eq('id', units[i].id);
+            const grouped = {};
+            (allUnits || []).forEach(u => {
+                if (!grouped[u.created_by] || new Date(u.created_at) > new Date(grouped[u.created_by].created_at)) {
+                    grouped[u.created_by] = u;
+                }
+            });
+
+            const units = Object.values(grouped);
+
+            for (const uid of Object.keys(grouped)) {
+                const userUnits = (allUnits || []).filter(u => u.created_by === uid);
+                for (let i = 1; i < userUnits.length; i++) {
+                    await supabaseClient.from('units').delete().eq('id', userUnits[i].id);
                 }
             }
-
-            const myUnit = units && units.length > 0 ? [units[0]] : [];
 
             const urgentCount = incidents ? incidents.filter(i => i.priority === 'urgent').length : 0;
             const activeCount = incidents ? incidents.filter(i => i.status === 'active').length : 0;
 
             // Load units on dashboard
             const unitsGrid = document.getElementById('dashboard-units-grid');
-            if (!myUnit || myUnit.length === 0) {
+            if (!units || units.length === 0) {
                 unitsGrid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No units on duty.</div>';
             } else {
-                unitsGrid.innerHTML = myUnit.map(u => {
+                unitsGrid.innerHTML = units.map(u => {
                     const statusClass = u.on_duty ? (u.status === 'available' ? 'available' : u.status === 'busy' ? 'busy' : 'en-route') : 'off-duty';
                     const statusLabel = u.on_duty ? (u.status || 'Available') : 'Off Duty';
                     return `
