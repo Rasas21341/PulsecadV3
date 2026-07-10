@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f7fa;
+            background: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,7 +45,9 @@
         }
 
         .status {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             padding: 10px 20px;
             border-radius: 8px;
             font-size: 14px;
@@ -54,13 +56,98 @@
             color: #166534;
             border: 1px solid #bbf7d0;
         }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .topbar {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px 6px 6px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .pill img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .changelogs-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2563eb;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .changelogs-btn:hover {
+            background: #dbeafe;
+        }
+
+        .login-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            background: #2563eb;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
 <body>
+    <div class="topbar">
+        <span class="pill">
+            <img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1024" alt="PulseCAD">
+            <a href="/changelogs" class="changelogs-btn">Changelogs</a>
+            <a href="/login" class="login-btn">Login</a>
+        </span>
+    </div>
     <div class="container">
         <h1>PulseCAD Revamp</h1>
         <p>We are actively working on the PulseCAD Revamp. Updates are in progress.</p>
-        <span class="status">In Progress</span>
+        <span class="status"><span class="status-dot"></span>In Progress</span>
     </div>
 </body>
 </html>
