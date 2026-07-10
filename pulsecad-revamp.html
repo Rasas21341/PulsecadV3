@@ -78,6 +78,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            z-index: 600;
         }
 
         .pill {
@@ -127,12 +128,383 @@
             color: #ffffff;
             background: #2563eb;
             border: none;
-            text-decoration: none;
             cursor: pointer;
         }
 
         .login-btn:hover {
             background: #1d4ed8;
+        }
+
+        .topbar-right {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 600;
+        }
+
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-email {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 999px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            cursor: pointer;
+            user-select: none;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 110%;
+            min-width: 180px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            overflow: hidden;
+            z-index: 700;
+        }
+
+        .dropdown-menu.open {
+            display: block;
+        }
+
+        .dropdown-item {
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .dropdown-item:hover {
+            background: #f8fafc;
+        }
+
+        .dropdown-item.danger {
+            color: #dc2626;
+        }
+
+        .dropdown-item.danger:hover {
+            background: #fef2f2;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .modal-close {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 999px;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .auth {
+            max-width: 440px;
+            margin: 0 auto 24px auto;
+            text-align: left;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-tab.active {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+        }
+
+        .auth-tab:disabled, .auth-tab.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .auth-form {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+        }
+
+        .auth-form.visible {
+            display: block;
+        }
+
+        .auth-field {
+            margin-bottom: 14px;
+        }
+
+        .auth-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .auth-field input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .auth-field input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .auth-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .auth-submit:active {
+            transform: translateY(1px);
+        }
+
+        .auth-error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+            display: none;
+        }
+
+        .auth-success, .auth-account {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-size: 14px;
+            display: none;
+        }
+
+        .auth-account {
+            background: #ffffff;
+            color: #334155;
+            border-color: #e2e8f0;
+        }
+
+        .auth-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .logged-in-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            z-index: 500;
+        }
+
+        .logged-in-screen.open {
+            display: block;
+        }
+
+        .settings-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            z-index: 500;
+            padding: 80px 24px 24px 24px;
+            overflow-y: auto;
+        }
+
+        .settings-screen.open {
+            display: block;
+        }
+
+        .settings-card {
+            max-width: 540px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .settings-close {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 999px;
+        }
+
+        .settings-close:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+            padding-top: 2px;
+        }
+
+        .settings-value {
+            font-size: 14px;
+            color: #475569;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-purple {
+            background: #f3e8ff;
+            color: #7e22ce;
+            border: 1px solid #e9d5ff;
         }
     </style>
 </head>
@@ -141,13 +513,396 @@
         <span class="pill">
             <img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1024" alt="PulseCAD">
             <a href="/changelogs" class="changelogs-btn">Changelogs</a>
-            <a href="/login" class="login-btn">Login</a>
+            <button type="button" class="login-btn" id="topbarLoginBtn">Login</button>
         </span>
+    </div>
+    <div class="topbar-right">
+        <div class="user-dropdown" id="userDropdown" style="display:none;">
+            <div class="user-email" id="userEmailDisplay"></div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <button type="button" class="dropdown-item danger" id="dropdownLogoutBtn">Logout</button>
+                <button type="button" class="dropdown-item" id="dropdownSettingsBtn">Settings</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">PulseCAD Account</div>
+                <button class="modal-close" id="modalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="auth" id="auth">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="loginTab" data-tab="login" type="button" onclick="window.switchTab('login')">Login</button>
+                    <button class="auth-tab disabled" id="signupTab" data-tab="signup" type="button" disabled onclick="window.switchTab('signup')">Create Account</button>
+                </div>
+
+                <form class="auth-form visible" id="loginForm" autocomplete="email">
+                    <div class="auth-field">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com" required />
+                    </div>
+                    <div class="auth-field">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Your password" required minlength="6" />
+                    </div>
+                    <button type="submit" class="auth-submit">Login</button>
+                    <div class="auth-error" id="loginError"></div>
+                    <div class="auth-success" id="loginSuccess"></div>
+                    <div class="auth-account" id="loginAccount"></div>
+                </form>
+
+                <form class="auth-form" id="signupForm" autocomplete="email">
+                    <div class="auth-field">
+                        <label for="signupEmail">Email</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com" required />
+                    </div>
+                    <div class="auth-field">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" placeholder="Create a password" required minlength="6" />
+                    </div>
+                    <div class="auth-field">
+                        <label for="signupConfirm">Confirm Password</label>
+                        <input type="password" id="signupConfirm" placeholder="Repeat your password" required minlength="6" />
+                    </div>
+                    <button type="submit" class="auth-submit">Create Account</button>
+                    <div class="auth-error" id="signupError"></div>
+                    <div class="auth-success" id="signupSuccess"></div>
+                    <div class="auth-account" id="signupAccount"></div>
+                </form>
+            </div>
+        </div>
     </div>
     <div class="container">
         <h1>PulseCAD Revamp</h1>
         <p>We are actively working on the PulseCAD Revamp. Updates are in progress.</p>
         <span class="status"><span class="status-dot"></span>In Progress</span>
     </div>
+    <div class="settings-screen" id="settingsScreen">
+        <div class="settings-card">
+            <div class="settings-header">
+                <div class="settings-title">Settings</div>
+                <button class="settings-close" id="settingsClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="settings-row">
+                <div class="settings-label">Email</div>
+                <div class="settings-value" id="settingsEmail">oceanviewrp1@gmail.com</div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-label">Joined</div>
+                <div class="settings-value" id="settingsJoined">--</div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-label">Roles</div>
+                <div class="settings-value">
+                    <span class="badge badge-blue">PulseCAD Supporter</span>
+                    <span class="badge badge-purple">PulseCAD Management</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+        let localSupabase = null;
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        function enableCreateAccount() {
+            const signupTab = document.getElementById("signupTab");
+            if (signupTab) {
+                signupTab.disabled = false;
+                signupTab.classList.remove("disabled");
+            }
+        }
+
+        window.switchTab = function(tab) {
+            const loginTab = document.getElementById("loginTab");
+            const signupTab = document.getElementById("signupTab");
+            const loginForm = document.getElementById("loginForm");
+            const signupForm = document.getElementById("signupForm");
+
+            if (tab === "signup") {
+                if (signupTab && signupTab.disabled) {
+                    return;
+                }
+            }
+
+            if (tab === "login") {
+                if (loginTab) loginTab.classList.add("active");
+                if (signupTab) signupTab.classList.remove("active");
+                if (loginForm) loginForm.style.display = "block";
+                if (signupForm) signupForm.style.display = "none";
+            } else {
+                if (signupTab) signupTab.classList.add("active");
+                if (loginTab) loginTab.classList.remove("active");
+                if (signupForm) signupForm.style.display = "block";
+                if (loginForm) loginForm.style.display = "none";
+            }
+        };
+        window.switchTab("login");
+
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+
+        if (loginForm) {
+            loginForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const loginError = document.getElementById("loginError");
+                const loginSuccess = document.getElementById("loginSuccess");
+                const loginAccount = document.getElementById("loginAccount");
+                if (loginError) { loginError.textContent = ""; loginError.style.display = "none"; }
+                if (loginSuccess) loginSuccess.style.display = "none";
+                if (loginAccount) loginAccount.style.display = "none";
+
+                const emailInput = document.getElementById("loginEmail");
+                const passwordInput = document.getElementById("loginPassword");
+                const email = emailInput ? emailInput.value.trim() : "";
+                const password = passwordInput ? passwordInput.value : "";
+
+                if (!email || !password) {
+                    if (loginError) { loginError.textContent = "Please enter both email and password."; loginError.style.display = "block"; }
+                    return;
+                }
+
+                if (!localSupabase) {
+                    if (loginError) { loginError.textContent = "Authentication service unavailable."; loginError.style.display = "block"; }
+                    return;
+                }
+
+                try {
+                    const { data, error } = await localSupabase.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        if (loginError) { loginError.textContent = error.message || "Login failed."; loginError.style.display = "block"; }
+                        return;
+                    }
+                    if (loginSuccess) { loginSuccess.textContent = "You are now logged in."; loginSuccess.style.display = "block"; }
+                    const topbarLoginBtn = document.getElementById("topbarLoginBtn");
+                    if (topbarLoginBtn) topbarLoginBtn.style.display = "none";
+                    const userEmailDisplay = document.getElementById("userEmailDisplay");
+                    const userDropdown = document.getElementById("userDropdown");
+                    if (userEmailDisplay && email) {
+                        userEmailDisplay.textContent = email;
+                    }
+                    if (userDropdown) userDropdown.style.display = "inline-block";
+                    if (loginAccount) { loginAccount.style.display = "block"; loginAccount.textContent = "Session active. You can close this tab safely."; }
+                    loginForm.reset();
+
+                    const loggedInScreen = document.getElementById("loggedInScreen");
+                    const container = document.querySelector(".container");
+                    const authModal = document.getElementById("authModal");
+                    if (loggedInScreen) loggedInScreen.classList.add("open");
+                    if (container) container.style.display = "none";
+                    if (authModal) authModal.classList.remove("open");
+                } catch (err) {
+                    if (loginError) { loginError.textContent = "An unexpected error occurred."; loginError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        if (signupForm) {
+            signupForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const signupError = document.getElementById("signupError");
+                const signupSuccess = document.getElementById("signupSuccess");
+                const signupAccount = document.getElementById("signupAccount");
+                if (signupError) { signupError.textContent = ""; signupError.style.display = "none"; }
+                if (signupSuccess) signupSuccess.style.display = "none";
+                if (signupAccount) signupAccount.style.display = "none";
+
+                const emailInput = document.getElementById("signupEmail");
+                const passwordInput = document.getElementById("signupPassword");
+                const confirmInput = document.getElementById("signupConfirm");
+                const email = emailInput ? emailInput.value.trim() : "";
+                const password = passwordInput ? passwordInput.value : "";
+                const confirm = confirmInput ? confirmInput.value : "";
+
+                if (!email || !password) {
+                    if (signupError) { signupError.textContent = "Please fill all fields."; signupError.style.display = "block"; }
+                    return;
+                }
+                if (password !== confirm) {
+                    if (signupError) { signupError.textContent = "Passwords do not match."; signupError.style.display = "block"; }
+                    return;
+                }
+                if (password.length < 6) {
+                    if (signupError) { signupError.textContent = "Password must be at least 6 characters."; signupError.style.display = "block"; }
+                    return;
+                }
+
+                if (!localSupabase) {
+                    if (signupError) { signupError.textContent = "Authentication service unavailable."; signupError.style.display = "block"; }
+                    return;
+                }
+
+                try {
+                    const { data, error } = await localSupabase.auth.signUp({ email, password });
+                    if (error) {
+                        if (signupError) { signupError.textContent = error.message || "Failed to create account."; signupError.style.display = "block"; }
+                        return;
+                    }
+
+                    if (data.session) {
+                    if (signupSuccess) { signupSuccess.textContent = "Account created. You are now logged in."; signupSuccess.style.display = "block"; }
+                    const topbarLoginBtn = document.getElementById("topbarLoginBtn");
+                    if (topbarLoginBtn) topbarLoginBtn.style.display = "none";
+                    const userEmailDisplay = document.getElementById("userEmailDisplay");
+                    const userDropdown = document.getElementById("userDropdown");
+                    if (userEmailDisplay && email) {
+                        userEmailDisplay.textContent = email;
+                    }
+                    if (userDropdown) userDropdown.style.display = "inline-block";
+                    if (signupAccount) { signupAccount.style.display = "block"; signupAccount.textContent = "Session active. You can close this tab safely."; }
+                    signupForm.reset();
+                    enableCreateAccount();
+
+                        const loggedInScreen = document.getElementById("loggedInScreen");
+                        const container = document.querySelector(".container");
+                        const authModal = document.getElementById("authModal");
+                        if (loggedInScreen) loggedInScreen.classList.add("open");
+                        if (container) container.style.display = "none";
+                        if (authModal) authModal.classList.remove("open");
+                        return;
+                    }
+
+                    if (signupSuccess) { signupSuccess.textContent = "Check your email to confirm your account, then log in."; signupSuccess.style.display = "block"; }
+                    if (signupAccount) { signupAccount.style.display = "block"; signupAccount.textContent = "Once confirmed, switch to Login above."; }
+                    signupForm.reset();
+                    window.switchTab("login");
+                } catch (err) {
+                    if (signupError) { signupError.textContent = "An unexpected error occurred."; signupError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        document.getElementById("topbarLoginBtn").addEventListener("click", async (e) => {
+            e.preventDefault();
+            if (localSupabase) {
+                try {
+                    const { data } = await localSupabase.auth.getSession();
+                    if (data?.session) {
+                        await localSupabase.auth.signOut();
+                        const loginSuccess = document.getElementById("loginSuccess");
+                        if (loginSuccess) { loginSuccess.textContent = "You have been logged out."; loginSuccess.style.display = "block"; }
+                        const topbarLoginBtn = document.getElementById("topbarLoginBtn");
+                        if (topbarLoginBtn) topbarLoginBtn.style.display = "inline-block";
+                        const userDropdown = document.getElementById("userDropdown");
+                        const container = document.querySelector(".container");
+                        const loggedInScreen = document.getElementById("loggedInScreen");
+                        if (userDropdown) userDropdown.style.display = "none";
+                        if (loggedInScreen) loggedInScreen.classList.remove("open");
+                        if (container) container.style.display = "block";
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Supabase session check failed:", err);
+                }
+            }
+            const modal = document.getElementById("authModal");
+            if (modal) modal.classList.add("open");
+            window.switchTab("login");
+        });
+
+        const modalClose = document.getElementById("modalClose");
+        const authModal = document.getElementById("authModal");
+
+        if (modalClose) {
+            modalClose.addEventListener("click", () => {
+                if (authModal) authModal.classList.remove("open");
+            });
+        }
+
+        if (authModal) {
+            authModal.addEventListener("click", (e) => {
+                if (e.target === authModal) {
+                    authModal.classList.remove("open");
+                }
+            });
+        }
+
+        const userEmailDisplay = document.getElementById("userEmailDisplay");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        if (userEmailDisplay) {
+            userEmailDisplay.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (dropdownMenu) dropdownMenu.classList.toggle("open");
+            });
+        }
+
+        if (dropdownMenu) {
+            dropdownMenu.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        document.addEventListener("click", () => {
+            if (dropdownMenu) dropdownMenu.classList.remove("open");
+        });
+
+        const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+        const dropdownSettingsBtn = document.getElementById("dropdownSettingsBtn");
+
+        if (dropdownSettingsBtn) {
+            dropdownSettingsBtn.addEventListener("click", () => {
+                if (dropdownMenu) dropdownMenu.classList.remove("open");
+                const settingsScreen = document.getElementById("settingsScreen");
+                const settingsJoined = document.getElementById("settingsJoined");
+                const joinedDate = localStorage.getItem("pulsecad_joined") || new Date().toLocaleDateString();
+                localStorage.setItem("pulsecad_joined", joinedDate);
+                if (settingsJoined) settingsJoined.textContent = joinedDate;
+                if (settingsScreen) settingsScreen.classList.add("open");
+            });
+        }
+
+        const settingsClose = document.getElementById("settingsClose");
+        const settingsScreen = document.getElementById("settingsScreen");
+
+        if (settingsClose) {
+            settingsClose.addEventListener("click", () => {
+                if (settingsScreen) settingsScreen.classList.remove("open");
+            });
+        }
+
+        if (settingsScreen) {
+            settingsScreen.addEventListener("click", (e) => {
+                if (e.target === settingsScreen) {
+                    settingsScreen.classList.remove("open");
+                }
+            });
+        }
+
+        if (dropdownLogoutBtn) {
+            dropdownLogoutBtn.addEventListener("click", async () => {
+                if (localSupabase) {
+                    try {
+                        await localSupabase.auth.signOut();
+                    } catch (err) {
+                        console.error("Logout failed:", err);
+                    }
+                }
+                const topbarLoginBtn = document.getElementById("topbarLoginBtn");
+                const userDropdown = document.getElementById("userDropdown");
+                const container = document.querySelector(".container");
+                const loggedInScreen = document.getElementById("loggedInScreen");
+                const loginSuccess = document.getElementById("loginSuccess");
+                if (loginSuccess) { loginSuccess.textContent = "You have been logged out."; loginSuccess.style.display = "block"; }
+                if (topbarLoginBtn) topbarLoginBtn.style.display = "inline-block";
+                if (userDropdown) userDropdown.style.display = "none";
+                if (dropdownMenu) dropdownMenu.classList.remove("open");
+                if (loggedInScreen) loggedInScreen.classList.remove("open");
+                if (settingsScreen) settingsScreen.classList.remove("open");
+                if (container) container.style.display = "block";
+            });
+        }
+    </script>
 </body>
 </html>
