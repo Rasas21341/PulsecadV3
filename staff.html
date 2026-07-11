@@ -177,6 +177,56 @@
             background: #f1f5f9;
         }
 
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 4px;
+            padding: 8px 16px;
+            width: 320px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            background: #2563eb;
+        }
+
+        .status-pill svg {
+            flex-shrink: 0;
+        }
+
+        .app-head {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+
+        .app-form {
+            max-width: 560px;
+        }
+
+        .app-form label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin: 16px 0 6px;
+        }
+
+        .app-form input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #1a202c;
+        }
+
+        .app-form .verified-btn {
+            margin-top: 20px;
+        }
+
         .verified-yes {
             background: #166534;
             color: #ffffff;
@@ -246,11 +296,27 @@
             }
             try {
                 const { data: { user } } = await localSupabase.auth.getUser();
-                if (!user || user.email !== "oceanviewrp1@gmail.com") {
+                if (!user) {
                     showStatus("Access denied. Staff only.", "error");
                     return false;
                 }
-                return true;
+                if (user.email === "oceanviewrp1@gmail.com") {
+                    return true;
+                }
+                const { data, error } = await localSupabase
+                    .from("users")
+                    .select("department")
+                    .eq("email", user.email)
+                    .maybeSingle();
+                if (error) {
+                    showStatus("Access denied. Staff only.", "error");
+                    return false;
+                }
+                if (data && data.department === "Management") {
+                    return true;
+                }
+                showStatus("Access denied. Staff only.", "error");
+                return false;
             } catch (err) {
                 showStatus("An unexpected error occurred.", "error");
                 console.error(err);
@@ -279,15 +345,35 @@
                     return;
                 }
 
-                let html = `<table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Actions</th></tr>`;
+                let html = `<table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Status</th><th>Actions</th></tr>`;
                 data.forEach((row) => {
                     const name = (row.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const owner = (row.creator_email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
-                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td><button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button></td></tr>`;
+                    const suspended = !!row.suspended;
+                    const statusCell = suspended
+                        ? `<span class="status-pill" style="background:#dc2626;width:auto;">Suspended</span>`
+                        : `<span class="status-pill" style="background:#16a34a;width:auto;">Active</span>`;
+                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td><button class="verified-btn suspend-server-btn" data-id="${row.id}" data-suspended="${suspended}">${suspended ? "Unsuspend" : "Suspend"}</button> <button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button></td></tr>`;
                 });
                 html += "</table>";
                 contentEl.innerHTML = html;
+
+                contentEl.querySelectorAll(".suspend-server-btn").forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const id = btn.getAttribute("data-id");
+                        const currently = btn.getAttribute("data-suspended") === "true";
+                        const { error } = await localSupabase
+                            .from("communities")
+                            .update({ suspended: !currently })
+                            .eq("id", id);
+                        if (error) {
+                            alert("Failed to suspend server: " + error.message);
+                            return;
+                        }
+                        loadServers();
+                    });
+                });
 
                 contentEl.querySelectorAll(".delete-server-btn").forEach((btn) => {
                     btn.addEventListener("click", async () => {
@@ -312,33 +398,13 @@
         async function loadStaffUsers() {
             if (!(await ensureStaff())) return;
             pageTitle.textContent = "Users";
-            contentEl.innerHTML = `
-                <select class="department-select" id="departmentFilter">
-                    <option value="">All Departments</option>
-                    <option value="Management">Management</option>
-                    <option value="Support Team">Support Team</option>
-                    <option value="Development Team">Development Team</option>
-                </select>
-                <div class="empty">Loading users...</div>
-            `;
-
-            const departmentFilter = document.getElementById("departmentFilter");
-            if (departmentFilter) {
-                departmentFilter.addEventListener("change", () => loadStaffUsers());
-            }
+            contentEl.innerHTML = '<div class="empty">Loading users...</div>';
 
             try {
-                let query = localSupabase
+                const { data, error } = await localSupabase
                     .from("users")
                     .select("id, email, created_at, department")
                     .order("created_at", { ascending: false });
-
-                const selectedDepartment = departmentFilter ? departmentFilter.value : "";
-                if (selectedDepartment) {
-                    query = query.eq("department", selectedDepartment);
-                }
-
-                const { data, error } = await query;
 
                 if (error) {
                     contentEl.innerHTML = `<div class="empty">Failed to load users: ${error.message}</div>`;
@@ -354,7 +420,7 @@
                 data.forEach((row) => {
                     const email = (row.email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
-                    const currentDept = row.department || "Unassigned";
+                    const currentDept = row.department || "";
                     html += `<tr><td>${email}</td><td>${created}</td><td><select class="department-select" data-user-id="${row.id}"><option value="">Unassigned</option><option value="Management" ${currentDept === 'Management' ? 'selected' : ''}>Management</option><option value="Support Team" ${currentDept === 'Support Team' ? 'selected' : ''}>Support Team</option><option value="Development Team" ${currentDept === 'Development Team' ? 'selected' : ''}>Development Team</option></select></td></tr>`;
                 });
                 html += "</table>";
@@ -379,125 +445,80 @@
             }
         }
 
-        async function loadApplications(filterType) {
-            if (!(await ensureStaff())) return;
-            pageTitle.textContent = "Applications";
-            contentEl.innerHTML = `
-                <div style="margin-bottom: 16px;">
-                    <button class="verified-btn" id="addAppBtn">Add Application</button>
-                </div>
-                <div class="empty">Loading applications...</div>
-            `;
-
-            const pencilIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
-            const eyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-
-            function buildRowHtml(row) {
-                const name = (row.type || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                return `<td>${name}</td><td><button class="icon-btn edit-app-btn" data-id="${row.id}" data-name="${name}" title="Edit">${pencilIcon}</button><button class="icon-btn view-app-btn" data-id="${row.id}" data-name="${name}" title="View">${eyeIcon}</button></td>`;
-            }
-
-            function wireRow(rowEl) {
-                const editBtn = rowEl.querySelector(".edit-app-btn");
-                if (editBtn) {
-                    editBtn.addEventListener("click", async () => {
-                        const id = editBtn.getAttribute("data-id");
-                        const current = editBtn.getAttribute("data-name");
-                        const newName = prompt("Edit name:", current);
-                        if (!newName) return;
-                        const { error } = await localSupabase
-                            .from("applications")
-                            .update({ type: newName.trim() })
-                            .eq("id", id);
-                        if (error) {
-                            alert("Failed to update application: " + error.message);
-                            return;
-                        }
-                        loadApplications(filterType);
-                    });
-                }
-                const viewBtn = rowEl.querySelector(".view-app-btn");
-                if (viewBtn) {
-                    viewBtn.addEventListener("click", () => {
-                        alert("Application: " + viewBtn.getAttribute("data-name"));
-                    });
-                }
-            }
-
-            const addAppBtn = document.getElementById("addAppBtn");
-            if (addAppBtn) {
-                addAppBtn.addEventListener("click", async () => {
-                    const { data, error } = await localSupabase
-                        .from("applications")
-                        .insert([{ type: "Customer Support Team Application", status: "Pending", email: "pending@pulsecad.app" }])
-                        .select("id, type");
-                    if (error) {
-                        showStatus("Failed to add application: " + error.message, "error");
-                        return;
-                    }
-                    showStatus("Application added.", "success");
-                    const row = data && data[0];
-                    if (!row) {
-                        loadApplications("Customer Support Team Application");
-                        return;
-                    }
-                    let table = contentEl.querySelector("table");
-                    if (!table) {
-                        contentEl.innerHTML = `<table><tr><th>Name</th><th>Actions</th></tr></table>`;
-                        table = contentEl.querySelector("table");
-                    }
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = buildRowHtml(row);
-                    wireRow(tr);
-                    table.appendChild(tr);
-                });
-            }
-
-            try {
-                let query = localSupabase
-                    .from("applications")
-                    .select("id, email, status, created_at, type")                    .order("created_at", { ascending: false });
-
-                if (filterType) {
-                    query = query.eq("type", filterType);
-                }
-
-                const { data, error } = await query;
-
-                if (error) {
-                    contentEl.innerHTML = `<div class="empty">Failed to load applications: ${error.message}</div>`;
-                    return;
-                }
-
-                if (!Array.isArray(data) || data.length === 0) {
-                    contentEl.innerHTML = `<table><tr><th>Name</th><th>Actions</th></tr></table>`;
-                    return;
-                }
-
-                let html = `<table><tr><th>Name</th><th>Actions</th></tr>`;
-                data.forEach((row) => {
-                    html += `<tr>${buildRowHtml(row)}</tr>`;
-                });
-                html += "</table>";
-                contentEl.innerHTML = html;
-
-                contentEl.querySelectorAll("tr").forEach((tr) => {
-                    if (tr.querySelector(".edit-app-btn") || tr.querySelector(".view-app-btn")) {
-                        wireRow(tr);
-                    }
-                });
-            } catch (err) {
-                contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
-                console.error(err);
-            }
-        }
-
         if (serversBtn) {
             serversBtn.addEventListener("click", loadServers);
         }
 
         if (staffUsersBtn) {
             staffUsersBtn.addEventListener("click", loadStaffUsers);
+        }
+
+        async function loadApplications() {
+            if (!(await ensureStaff())) return;
+            pageTitle.textContent = "Applications";
+            contentEl.innerHTML = `
+                <table>
+                    <tr>
+                        <td>
+                            
+                            <div class="status-pill">
+                                Customer Support Team Application
+                                <button type="button" class="icon-btn" id="openAppBtn" title="Open application"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                                <button type="button" class="icon-btn" id="viewAppBtn" title="View application"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                                <button type="button" class="icon-btn" id="viewSubsBtn" title="View submissions"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            `;
+
+            const openAppBtn = document.getElementById("openAppBtn");
+            if (openAppBtn) {
+                openAppBtn.addEventListener("click", showApplicationForm);
+            }
+
+            const viewAppBtn = document.getElementById("viewAppBtn");
+            if (viewAppBtn) {
+                viewAppBtn.addEventListener("click", () => {
+                    window.open("application.html", "_blank");
+                });
+            }
+
+            const viewSubsBtn = document.getElementById("viewSubsBtn");
+            if (viewSubsBtn) {
+                viewSubsBtn.addEventListener("click", () => {
+                    window.open("submissions.html", "_blank");
+                });
+            }
+        }
+
+        function showApplicationForm() {
+            pageTitle.textContent = "Customer Support Application";
+            contentEl.innerHTML = `
+                <form class="app-form">
+                    <label>What is your Discord username and ID?</label>
+                    <input type="text" />
+
+                    <label>How old are you?</label>
+                    <input type="text" />
+
+                    <label>What time zone are you in?</label>
+                    <input type="text" />
+
+                    <label>How active can you be each week?</label>
+                    <input type="text" />
+
+                    <label>Have you been a member of our community before? If so, for how long?</label>
+                    <input type="text" />
+
+                    <button type="button" class="verified-btn" id="backAppBtn">Back</button>
+                </form>
+            `;
+
+            const backAppBtn = document.getElementById("backAppBtn");
+            if (backAppBtn) {
+                backAppBtn.addEventListener("click", loadApplications);
+            }
         }
 
         if (applicationsBtn) {
