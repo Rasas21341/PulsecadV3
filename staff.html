@@ -292,16 +292,16 @@
         async function ensureStaff() {
             if (!localSupabase) {
                 showStatus("Authentication service unavailable.", "error");
-                return false;
+                return { allowed: false };
             }
             try {
                 const { data: { user } } = await localSupabase.auth.getUser();
                 if (!user) {
                     showStatus("Access denied. Staff only.", "error");
-                    return false;
+                    return { allowed: false };
                 }
                 if (user.email === "oceanviewrp1@gmail.com") {
-                    return true;
+                    return { allowed: true, department: "Management" };
                 }
                 const { data, error } = await localSupabase
                     .from("users")
@@ -310,22 +310,43 @@
                     .maybeSingle();
                 if (error) {
                     showStatus("Access denied. Staff only.", "error");
-                    return false;
+                    return { allowed: false };
                 }
-                if (data && data.department === "Management") {
-                    return true;
+                const department = data?.department || "";
+                if (department === "Management" || department === "Support Team") {
+                    return { allowed: true, department };
                 }
                 showStatus("Access denied. Staff only.", "error");
-                return false;
+                return { allowed: false };
             } catch (err) {
                 showStatus("An unexpected error occurred.", "error");
                 console.error(err);
-                return false;
+                return { allowed: false };
+            }
+        }
+
+        async function getUserDepartment() {
+            if (!localSupabase) return "";
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user) return "";
+                if (user.email === "oceanviewrp1@gmail.com") return "Management";
+                const { data } = await localSupabase
+                    .from("users")
+                    .select("department")
+                    .eq("email", user.email)
+                    .maybeSingle();
+                return data?.department || "";
+            } catch (err) {
+                console.error("Failed to get department:", err);
+                return "";
             }
         }
 
         async function loadServers() {
-            if (!(await ensureStaff())) return;
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
+            const userDepartment = staff.department || await getUserDepartment();
             pageTitle.textContent = "Servers";
             contentEl.innerHTML = '<div class="empty">Loading servers...</div>';
 
@@ -346,6 +367,7 @@
                 }
 
                 let html = `<table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Status</th><th>Actions</th></tr>`;
+                const canSuspend = userDepartment !== "Support Team";
                 data.forEach((row) => {
                     const name = (row.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const owner = (row.creator_email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -354,13 +376,21 @@
                     const statusCell = suspended
                         ? `<span class="status-pill" style="background:#dc2626;width:auto;">Suspended</span>`
                         : `<span class="status-pill" style="background:#16a34a;width:auto;">Active</span>`;
-                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td><button class="verified-btn suspend-server-btn" data-id="${row.id}" data-suspended="${suspended}">${suspended ? "Unsuspend" : "Suspend"}</button> <button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button></td></tr>`;
+                    const suspendBtn = canSuspend
+                        ? `<button class="verified-btn suspend-server-btn" data-id="${row.id}" data-suspended="${suspended}">${suspended ? "Unsuspend" : "Suspend"}</button>`
+                        : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
+                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td>${suspendBtn} <button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button></td></tr>`;
                 });
                 html += "</table>";
                 contentEl.innerHTML = html;
 
                 contentEl.querySelectorAll(".suspend-server-btn").forEach((btn) => {
                     btn.addEventListener("click", async () => {
+                        const dept = await getUserDepartment();
+                        if (dept === "Support Team") {
+                            alert("Access denied. Support Team cannot suspend servers.");
+                            return;
+                        }
                         const id = btn.getAttribute("data-id");
                         const currently = btn.getAttribute("data-suspended") === "true";
                         const { error } = await localSupabase
@@ -396,7 +426,8 @@
         }
 
         async function loadStaffUsers() {
-            if (!(await ensureStaff())) return;
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
             pageTitle.textContent = "Users";
             contentEl.innerHTML = '<div class="empty">Loading users...</div>';
 
@@ -454,7 +485,8 @@
         }
 
         async function loadApplications() {
-            if (!(await ensureStaff())) return;
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
             pageTitle.textContent = "Applications";
             contentEl.innerHTML = `
                 <table>
