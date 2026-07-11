@@ -533,6 +533,17 @@
             white-space: nowrap;
         }
 
+        .community-list-suspended {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            background: #dc2626;
+            border: 1px solid #dc2626;
+            white-space: nowrap;
+        }
+
         .community-list-badges {
             display: flex;
             gap: 6px;
@@ -710,7 +721,7 @@
             <div class="auth" id="auth">
                 <div class="auth-tabs">
                     <button class="auth-tab active" id="loginTab" data-tab="login" type="button" onclick="window.switchTab('login')">Login</button>
-                    <button class="auth-tab disabled" id="signupTab" data-tab="signup" type="button" disabled onclick="window.switchTab('signup')">Create Account</button>
+                    <button class="auth-tab" id="signupTab" data-tab="signup" type="button" onclick="window.switchTab('signup')">Create Account</button>
                 </div>
 
                 <form class="auth-form visible" id="loginForm" autocomplete="email">
@@ -939,6 +950,15 @@
                         return;
                     }
 
+                    if (data.user) {
+                        const { error: insertError } = await localSupabase
+                            .from("users")
+                            .insert([{ id: data.user.id, email: email, department: "Unassigned", created_at: new Date().toISOString() }]);
+                        if (insertError) {
+                            console.error("Failed to add user to users table:", insertError);
+                        }
+                    }
+
                     if (data.session) {
                     if (signupSuccess) { signupSuccess.textContent = "Account created. You are now logged in."; signupSuccess.style.display = "block"; }
                     const topbarLoginBtn = document.getElementById("topbarLoginBtn");
@@ -1137,7 +1157,7 @@
                         }
                         if (Array.isArray(data)) {
                             data.forEach((row) => {
-                                addCommunityCard(row.name, row.description || "Community", !!row.joined, row.id, row.creator_email, !!row.verification_requested);
+                                addCommunityCard(row.name, row.description || "Community", !!row.joined, row.id, row.creator_email, !!row.verification_requested, !!row.suspended);
                             });
                         }
                     })
@@ -1196,7 +1216,7 @@
                 .catch((err) => alert("Failed to join community: " + (err.message || err)));
         }
 
-        function addCommunityCard(name, meta, joined, id, creatorEmail, verified) {
+        function addCommunityCard(name, meta, joined, id, creatorEmail, verified, suspended) {
             if (!loggedInCommunities) return;
             if (id && loggedInCommunities.querySelector(`[data-id="${id}"]`)) {
                 return;
@@ -1208,16 +1228,18 @@
             const isJoined = !!joined;
             const isCreator = !!creatorEmail;
             const isVerified = !!verified;
+            const isSuspended = !!suspended;
             const communityId = id ? ` data-id="${id}"` : "";
             const creatorText = isCreator ? `<div class="community-list-meta">Created by ${escapedMeta}</div>` : "";
             const badges = [];
-            if (isJoined) badges.push('<span class="community-list-joined">Joined</span>');
             if (isVerified) badges.push('<span class="community-list-verified">Verified</span>');
+            if (isSuspended) badges.push('<span class="community-list-suspended">Suspended</span>');
+            if (isJoined) badges.push('<span class="community-list-joined">Joined</span>');
             const badgesHtml = badges.length ? `<div class="community-list-badges">${badges.join("")}</div>` : "";
-            card.innerHTML = `<div class="community-list-info"${communityId}><div class="community-list-name">${escapedName}</div>${creatorText}<div class="community-list-meta">${isJoined ? "" : ""}</div></div>${badgesHtml}${(!isJoined && !isCreator) ? '<button type="button" class="community-list-join">Join</button>' : ""}`;
+            card.innerHTML = `<div class="community-list-info"${communityId}><div class="community-list-name">${escapedName}</div>${creatorText}${isSuspended ? '<div class="community-list-meta" style="color:#dc2626;font-weight:700;">This community has been suspended.</div>' : ''}<div class="community-list-meta">${isJoined ? "" : ""}</div></div>${badgesHtml}${(!isJoined && !isCreator && !isSuspended) ? '<button type="button" class="community-list-join">Join</button>' : ""}`;
             loggedInCommunities.appendChild(card);
 
-            if (!isJoined && !isCreator) {
+            if (!isJoined && !isCreator && !isSuspended) {
                 const joinBtn = card.querySelector(".community-list-join");
                 if (joinBtn) {
                     joinBtn.addEventListener("click", () => {
@@ -1260,7 +1282,20 @@
             staffDashboardBtn.addEventListener("click", async () => {
                 if (!localSupabase) return;
                 const { data: { user } } = await localSupabase.auth.getUser();
-                if (!user || user.email !== "oceanviewrp1@gmail.com") {
+                if (!user) {
+                    alert("Access denied. Staff only.");
+                    return;
+                }
+                if (user.email === "oceanviewrp1@gmail.com") {
+                    window.open("staff.html", "_blank");
+                    return;
+                }
+                const { data, error } = await localSupabase
+                    .from("users")
+                    .select("department")
+                    .eq("email", user.email)
+                    .maybeSingle();
+                if (error || !data || data.department !== "Management") {
                     alert("Access denied. Staff only.");
                     return;
                 }
