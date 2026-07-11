@@ -70,16 +70,34 @@
             font-size: 14px;
             padding: 20px 0;
         }
+
+        .back-btn {
+            margin-bottom: 20px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <button class="back-btn" id="backBtn">← Back</button>
         <h1>Application Submissions</h1>
         <div id="content"><div class="empty">Loading submissions...</div></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        document.getElementById("backBtn").addEventListener("click", () => window.close());
         const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
 
@@ -103,14 +121,31 @@
                     return;
                 }
 
-                let html = `<table><tr><th>Discord</th><th>Age</th><th>Time Zone</th><th>Active / Week</th><th>Prior Member</th><th>Submitted</th></tr>`;
+                let html = `<table><tr><th>Email</th><th>Discord</th><th>Age</th><th>Time Zone</th><th>Active / Week</th><th>Prior Member</th><th>Copy / Paste</th><th>Submitted</th><th>Actions</th></tr>`;
                 data.forEach((row) => {
                     const esc = (v) => (v == null ? "" : String(v).replace(/</g, "&lt;").replace(/>/g, "&gt;"));
                     const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
-                    html += `<tr><td>${esc(row.discord)}</td><td>${esc(row.age)}</td><td>${esc(row.timezone)}</td><td>${esc(row.active)}</td><td>${esc(row.member)}</td><td>${created}</td></tr>`;
+                    const cp = row.copy_paste_detected ? '<span style="color:#dc2626;font-weight:700;">Yes</span>' : '<span style="color:#166534;font-weight:700;">No</span>';
+                    html += `<tr><td>${esc(row.email)}</td><td>${esc(row.discord)}</td><td>${esc(row.age)}</td><td>${esc(row.timezone)}</td><td>${esc(row.active)}</td><td>${esc(row.member)}</td><td>${cp}</td><td>${created}</td><td><button class="delete-btn" data-id="${row.id}">Delete</button></td></tr>`;
                 });
                 html += "</table>";
                 contentEl.innerHTML = html;
+
+                contentEl.querySelectorAll(".delete-btn").forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const id = btn.getAttribute("data-id");
+                        if (!confirm("Delete this submission?")) return;
+                        const { error } = await localSupabase
+                            .from("application_submissions")
+                            .delete()
+                            .eq("id", id);
+                        if (error) {
+                            alert("Failed to delete: " + error.message);
+                            return;
+                        }
+                        loadSubmissions();
+                    });
+                });
             } catch (err) {
                 contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
                 console.error(err);
