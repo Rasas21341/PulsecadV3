@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1a202c;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 24px 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .department-select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 40px 24px;
+            flex: 1;
+            width: calc(100% - 220px);
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td {
+            color: #334155;
+            word-break: break-word;
+        }
+
+        .empty {
+            color: #64748b;
+            font-size: 14px;
+            padding: 20px 0;
+        }
+
+        .verified-btn {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            color: #ffffff;
+            background: #2563eb;
+        }
+
+        .verified-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .verified-yes {
+            background: #166534;
+            color: #ffffff;
+        }
+
+        .verified-yes:hover {
+            background: #15803d;
+        }
+
+        .department-select {
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-title">Staff Dashboard</div>
+        <button class="sidebar-btn" id="serversBtn">Servers</button>
+        <button class="sidebar-btn" id="staffUsersBtn">Users</button>
+    </div>
+    <div class="main">
+        <div class="container">
+            <h1 id="pageTitle">Servers</h1>
+            <div id="status"></div>
+            <div id="content"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        const statusEl = document.getElementById("status");
+        const contentEl = document.getElementById("content");
+        const pageTitle = document.getElementById("pageTitle");
+        const serversBtn = document.getElementById("serversBtn");
+        const staffUsersBtn = document.getElementById("staffUsersBtn");
+
+        let localSupabase = null;
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        function showStatus(message, type) {
+            if (!statusEl) return;
+            statusEl.className = "status " + (type || "");
+            statusEl.textContent = message;
+        }
+
+        async function ensureStaff() {
+            if (!localSupabase) {
+                showStatus("Authentication service unavailable.", "error");
+                return false;
+            }
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user || user.email !== "oceanviewrp1@gmail.com") {
+                    showStatus("Access denied. Staff only.", "error");
+                    return false;
+                }
+                return true;
+            } catch (err) {
+                showStatus("An unexpected error occurred.", "error");
+                console.error(err);
+                return false;
+            }
+        }
+
+        async function loadServers() {
+            if (!(await ensureStaff())) return;
+            pageTitle.textContent = "Servers";
+            contentEl.innerHTML = '<div class="empty">Loading servers...</div>';
+
+            try {
+                const { data, error } = await localSupabase
+                    .from("communities")
+                    .select("*")
+                    .order("created_at", { ascending: false });
+
+                if (error) {
+                    contentEl.innerHTML = `<div class="empty">Failed to load servers: ${error.message}</div>`;
+                    return;
+                }
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    contentEl.innerHTML = `<div class="empty">No servers found.</div>`;
+                    return;
+                }
+
+                let html = `<table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Actions</th></tr>`;
+                data.forEach((row) => {
+                    const name = (row.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    const owner = (row.creator_email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
+                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td><button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button></td></tr>`;
+                });
+                html += "</table>";
+                contentEl.innerHTML = html;
+
+                contentEl.querySelectorAll(".delete-server-btn").forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const id = btn.getAttribute("data-id");
+                        const { error } = await localSupabase
+                            .from("communities")
+                            .delete()
+                            .eq("id", id);
+                        if (error) {
+                            alert("Failed to delete server: " + error.message);
+                            return;
+                        }
+                        loadServers();
+                    });
+                });
+            } catch (err) {
+                contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
+                console.error(err);
+            }
+        }
+
+        async function loadStaffUsers() {
+            if (!(await ensureStaff())) return;
+            pageTitle.textContent = "Users";
+            contentEl.innerHTML = `
+                <select class="department-select" id="departmentFilter">
+                    <option value="">All Departments</option>
+                    <option value="Management">Management</option>
+                    <option value="Support Team">Support Team</option>
+                    <option value="Development Team">Development Team</option>
+                </select>
+                <div class="empty">Loading users...</div>
+            `;
+
+            const departmentFilter = document.getElementById("departmentFilter");
+            if (departmentFilter) {
+                departmentFilter.addEventListener("change", () => loadStaffUsers());
+            }
+
+            try {
+                let query = localSupabase
+                    .from("users")
+                    .select("id, email, created_at, department")
+                    .order("created_at", { ascending: false });
+
+                const selectedDepartment = departmentFilter ? departmentFilter.value : "";
+                if (selectedDepartment) {
+                    query = query.eq("department", selectedDepartment);
+                }
+
+                const { data, error } = await query;
+
+                if (error) {
+                    contentEl.innerHTML = `<div class="empty">Failed to load users: ${error.message}</div>`;
+                    return;
+                }
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    contentEl.innerHTML = `<div class="empty">No users found.</div>`;
+                    return;
+                }
+
+                let html = `<table><tr><th>Email</th><th>Created</th><th>Department</th></tr>`;
+                data.forEach((row) => {
+                    const email = (row.email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
+                    const currentDept = row.department || "Unassigned";
+                    html += `<tr><td>${email}</td><td>${created}</td><td><select class="department-select" data-user-id="${row.id}"><option value="">Unassigned</option><option value="Management" ${currentDept === 'Management' ? 'selected' : ''}>Management</option><option value="Support Team" ${currentDept === 'Support Team' ? 'selected' : ''}>Support Team</option><option value="Development Team" ${currentDept === 'Development Team' ? 'selected' : ''}>Development Team</option></select></td></tr>`;
+                });
+                html += "</table>";
+                contentEl.innerHTML = html;
+
+                contentEl.querySelectorAll(".department-select").forEach((select) => {
+                    select.addEventListener("change", async () => {
+                        const userId = select.getAttribute("data-user-id");
+                        const newDepartment = select.value;
+                        const { error } = await localSupabase
+                            .from("users")
+                            .update({ department: newDepartment })
+                            .eq("id", userId);
+                        if (error) {
+                            alert("Failed to update department: " + error.message);
+                        }
+                    });
+                });
+            } catch (err) {
+                contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
+                console.error(err);
+            }
+        }
+
+        if (serversBtn) {
+            serversBtn.addEventListener("click", loadServers);
+        }
+
+        if (staffUsersBtn) {
+            staffUsersBtn.addEventListener("click", loadStaffUsers);
+        }
+
+        loadServers();
+    </script>
+</body>
+</html>
