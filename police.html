@@ -1,1 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1a202c;
+            min-height: 100vh;
+            padding: 24px;
+            padding-bottom: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 14px;
+            margin: 0;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 24px;
+        }
+
+        .lookup-btn {
+            width: 220px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .lookup-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .modal-close {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 999px;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .lookup-field {
+            margin-bottom: 14px;
+        }
+
+        .lookup-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .lookup-field input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .lookup-field input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .lookup-submit {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .lookup-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .lookup-submit:active {
+            transform: translateY(1px);
+        }
+
+        .lookup-error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+            display: none;
+        }
+
+        .lookup-result {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-size: 14px;
+            display: none;
+            word-break: break-word;
+        }
+
+        .report-field {
+            margin-bottom: 14px;
+        }
+
+        .report-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .report-field input,
+        .report-field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+            font-family: inherit;
+            background: #ffffff;
+        }
+
+        .report-field input:focus,
+        .report-field textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .report-field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .report-submit {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .report-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .report-submit:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="button-row">
+        <button type="button" class="lookup-btn" id="lookupPlateBtn">Lookup plate</button>
+        <button type="button" class="lookup-btn" id="lookupCivilianBtn">Lookup Civlain</button>
+    </div>
+
+    <div class="modal-overlay" id="plateModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Lookup Plate</div>
+                <button class="modal-close" id="plateModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="lookup-field">
+                <label for="plateInput">Plate number</label>
+                <input type="text" id="plateInput" placeholder="e.g. ABC 123" />
+            </div>
+            <button type="button" class="lookup-submit" id="plateSubmitBtn">Search</button>
+            <div class="lookup-error" id="plateError"></div>
+            <div class="lookup-result" id="plateResult"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="civilianModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Lookup Civlian</div>
+                <button class="modal-close" id="civilianModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="lookup-field">
+                <label for="civilianInput">Name or ID</label>
+                <input type="text" id="civilianInput" placeholder="e.g. John Doe" />
+            </div>
+            <button type="button" class="lookup-submit" id="civilianSubmitBtn">Search</button>
+            <div class="lookup-error" id="civilianError"></div>
+            <div class="lookup-result" id="civilianResult"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="trafficStopModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Traffic Stop Report</div>
+                <button class="modal-close" id="trafficStopModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="report-field">
+                <label for="tsCivilianId">Civilian ID</label>
+                <input type="text" id="tsCivilianId" readonly />
+            </div>
+            <div class="report-field">
+                <label for="tsCivilianName">Civilian Name</label>
+                <input type="text" id="tsCivilianName" readonly />
+            </div>
+            <div class="report-field">
+                <label for="tsReason">Reason for Stop</label>
+                <input type="text" id="tsReason" placeholder="e.g. Speeding" />
+            </div>
+            <div class="report-field">
+                <label for="tsLocation">Location</label>
+                <input type="text" id="tsLocation" placeholder="e.g. Highway 1" />
+            </div>
+            <div class="report-field">
+                <label for="tsNotes">Notes</label>
+                <textarea id="tsNotes" placeholder="Any details..."></textarea>
+            </div>
+            <button type="button" class="report-submit" id="tsSubmitBtn">Submit Report</button>
+            <div class="lookup-error" id="tsError"></div>
+            <div class="lookup-result" id="tsSuccess"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        let localSupabase = null;
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        document.getElementById("backBtn").addEventListener("click", () => window.close());
+
+        const plateModal = document.getElementById("plateModal");
+        const plateModalClose = document.getElementById("plateModalClose");
+        const plateInput = document.getElementById("plateInput");
+        const plateSubmitBtn = document.getElementById("plateSubmitBtn");
+        const plateError = document.getElementById("plateError");
+        const plateResult = document.getElementById("plateResult");
+
+        if (plateModalClose) {
+            plateModalClose.addEventListener("click", () => {
+                if (plateModal) plateModal.classList.remove("open");
+            });
+        }
+
+        if (plateModal) {
+            plateModal.addEventListener("click", (e) => {
+                if (e.target === plateModal) {
+                    plateModal.classList.remove("open");
+                }
+            });
+        }
+
+        document.getElementById("lookupPlateBtn").addEventListener("click", async () => {
+            if (!plateModal) return;
+            if (plateInput) plateInput.value = "";
+            if (plateError) { plateError.textContent = ""; plateError.style.display = "none"; }
+            if (plateResult) { plateResult.textContent = ""; plateResult.style.display = "none"; }
+            plateModal.classList.add("open");
+            if (plateInput) plateInput.focus();
+        });
+
+        if (plateSubmitBtn) {
+            plateSubmitBtn.addEventListener("click", async () => {
+                const query = plateInput ? plateInput.value.trim() : "";
+                if (!query) {
+                    if (plateError) { plateError.textContent = "Enter a plate number."; plateError.style.display = "block"; }
+                    return;
+                }
+                if (!localSupabase) {
+                    if (plateError) { plateError.textContent = "Database unavailable."; plateError.style.display = "block"; }
+                    return;
+                }
+                if (plateError) { plateError.textContent = ""; plateError.style.display = "none"; }
+                if (plateResult) { plateResult.textContent = ""; plateResult.style.display = "none"; }
+
+                try {
+                    const { data, error } = await localSupabase
+                        .from("plates")
+                        .select("*")
+                        .ilike("plate", query)
+                        .limit(5);
+
+                    if (error) {
+                        if (plateResult) {
+                            plateResult.style.display = "block";
+                            plateResult.textContent = "Result not found.";
+                        }
+                        return;
+                    }
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        if (plateResult) {
+                            plateResult.style.display = "block";
+                            plateResult.textContent = "No records found.";
+                        }
+                        return;
+                    }
+
+                    const rows = data.map((row) => {
+                        const info = [row.plate, row.owner, row.vehicle, row.status, row.notes].filter(Boolean).join(" | ");
+                        return info || "Record";
+                    });
+
+                    if (plateResult) {
+                        plateResult.style.display = "block";
+                        plateResult.textContent = rows.join("\n");
+                    }
+                } catch (err) {
+                    if (plateError) { plateError.textContent = "Lookup failed."; plateError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        const civilianModal = document.getElementById("civilianModal");
+        const civilianModalClose = document.getElementById("civilianModalClose");
+        const civilianInput = document.getElementById("civilianInput");
+        const civilianSubmitBtn = document.getElementById("civilianSubmitBtn");
+        const civilianError = document.getElementById("civilianError");
+        const civilianResult = document.getElementById("civilianResult");
+
+        if (civilianModalClose) {
+            civilianModalClose.addEventListener("click", () => {
+                if (civilianModal) civilianModal.classList.remove("open");
+            });
+        }
+
+        if (civilianModal) {
+            civilianModal.addEventListener("click", (e) => {
+                if (e.target === civilianModal) {
+                    civilianModal.classList.remove("open");
+                }
+            });
+        }
+
+        document.getElementById("lookupCivilianBtn").addEventListener("click", async () => {
+            if (!civilianModal) return;
+            if (civilianInput) civilianInput.value = "";
+            if (civilianError) { civilianError.textContent = ""; civilianError.style.display = "none"; }
+            if (civilianResult) { civilianResult.textContent = ""; civilianResult.style.display = "none"; }
+            civilianModal.classList.add("open");
+            if (civilianInput) civilianInput.focus();
+        });
+
+        if (civilianSubmitBtn) {
+            civilianSubmitBtn.addEventListener("click", async () => {
+                const query = civilianInput ? civilianInput.value.trim() : "";
+                if (!query) {
+                    if (civilianError) { civilianError.textContent = "Enter a name or ID."; civilianError.style.display = "block"; }
+                    return;
+                }
+                if (!localSupabase) {
+                    if (civilianError) { civilianError.textContent = "Database unavailable."; civilianError.style.display = "block"; }
+                    return;
+                }
+                if (civilianError) { civilianError.textContent = ""; civilianError.style.display = "none"; }
+                if (civilianResult) { civilianResult.textContent = ""; civilianResult.style.display = "none"; }
+
+                try {
+                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(query);
+                    let data = [];
+                    let error = null;
+
+                    if (isUUID) {
+                        const res = await localSupabase
+                            .from("civilians")
+                            .select("*")
+                            .eq("id", query)
+                            .limit(1);
+                        data = res.data;
+                        error = res.error;
+                    } else {
+                        const res = await localSupabase
+                            .from("civilians")
+                            .select("*")
+                            .ilike("name", `%${query}%`)
+                            .limit(5);
+                        data = res.data;
+                        error = res.error;
+                    }
+
+                    if (error) {
+                        if (civilianResult) {
+                            civilianResult.style.display = "block";
+                            civilianResult.textContent = "Result not found.";
+                        }
+                        return;
+                    }
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        if (civilianResult) {
+                            civilianResult.style.display = "block";
+                            civilianResult.textContent = "No records found.";
+                        }
+                        return;
+                    }
+
+                    const rows = data.map((row) => {
+                        const info = [row.id, row.name, row.age, row.gender, row.address, row.notes].filter(Boolean).join(" | ");
+                        const reportBtn = `<br><button type=\"button\" class=\"lookup-submit civilian-report-btn\" data-id=\"${row.id}\" data-name=\"${(row.name || '').replace(/"/g, '&quot;')}\" style=\"margin-top:8px;\">Traffic Stop</button>`;
+                        return info + reportBtn;
+                    });
+
+                    if (civilianResult) {
+                        civilianResult.style.display = "block";
+                        civilianResult.innerHTML = rows.join("<br><br>");
+                    }
+
+                    civilianResult.querySelectorAll(".civilian-report-btn").forEach((btn) => {
+                        btn.addEventListener("click", () => {
+                            const id = btn.getAttribute("data-id");
+                            const name = btn.getAttribute("data-name");
+                            const tsCivilianId = document.getElementById("tsCivilianId");
+                            const tsCivilianName = document.getElementById("tsCivilianName");
+                            const tsReason = document.getElementById("tsReason");
+                            const tsLocation = document.getElementById("tsLocation");
+                            const tsNotes = document.getElementById("tsNotes");
+                            const tsError = document.getElementById("tsError");
+                            const tsSuccess = document.getElementById("tsSuccess");
+                            if (tsCivilianId) tsCivilianId.value = id;
+                            if (tsCivilianName) tsCivilianName.value = name;
+                            if (tsReason) tsReason.value = "";
+                            if (tsLocation) tsLocation.value = "";
+                            if (tsNotes) tsNotes.value = "";
+                            if (tsError) { tsError.textContent = ""; tsError.style.display = "none"; }
+                            if (tsSuccess) { tsSuccess.textContent = ""; tsSuccess.style.display = "none"; }
+                            if (trafficStopModal) trafficStopModal.classList.add("open");
+                        });
+                    });
+                } catch (err) {
+                    if (civilianError) { civilianError.textContent = "Lookup failed."; civilianError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+        const trafficStopModal = document.getElementById("trafficStopModal");
+        const trafficStopModalClose = document.getElementById("trafficStopModalClose");
+        const tsSubmitBtn = document.getElementById("tsSubmitBtn");
+
+        if (trafficStopModalClose) {
+            trafficStopModalClose.addEventListener("click", () => {
+                if (trafficStopModal) trafficStopModal.classList.remove("open");
+            });
+        }
+
+        if (trafficStopModal) {
+            trafficStopModal.addEventListener("click", (e) => {
+                if (e.target === trafficStopModal) {
+                    trafficStopModal.classList.remove("open");
+                }
+            });
+        }
+
+        if (tsSubmitBtn) {
+            tsSubmitBtn.addEventListener("click", async () => {
+                const civilianId = document.getElementById("tsCivilianId")?.value.trim() || "";
+                const civilianName = document.getElementById("tsCivilianName")?.value.trim() || "";
+                const reason = document.getElementById("tsReason")?.value.trim() || "";
+                const location = document.getElementById("tsLocation")?.value.trim() || "";
+                const notes = document.getElementById("tsNotes")?.value.trim() || "";
+                const tsError = document.getElementById("tsError");
+                const tsSuccess = document.getElementById("tsSuccess");
+
+                if (!reason || !location) {
+                    if (tsError) { tsError.textContent = "Reason and location are required."; tsError.style.display = "block"; }
+                    return;
+                }
+
+                if (!localSupabase) {
+                    if (tsError) { tsError.textContent = "Database unavailable."; tsError.style.display = "block"; }
+                    return;
+                }
+
+                if (tsError) { tsError.textContent = ""; tsError.style.display = "none"; }
+                if (tsSuccess) { tsSuccess.textContent = ""; tsSuccess.style.display = "none"; }
+
+                try {
+                    const { error } = await localSupabase
+                        .from("traffic_stops")
+                        .insert([{
+                            civilian_id: civilianId || null,
+                            civilian_name: civilianName || null,
+                            reason,
+                            location,
+                            notes: notes || null,
+                            created_at: new Date().toISOString()
+                        }]);
+
+                    if (error) {
+                        if (tsError) { tsError.textContent = error.message || "Failed to save report."; tsError.style.display = "block"; }
+                        console.error("Insert failed:", error);
+                        return;
+                    }
+
+                    if (tsSuccess) {
+                        tsSuccess.textContent = "Traffic stop report submitted.";
+                        tsSuccess.style.display = "block";
+                    }
+                } catch (err) {
+                    if (tsError) { tsError.textContent = "Failed to submit report."; tsError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
