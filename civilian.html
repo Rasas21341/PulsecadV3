@@ -1,1 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Civilian - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1a202c;
+            padding: 40px 24px;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            margin-bottom: 20px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+
+        .create-form {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        .form-field {
+            margin-bottom: 16px;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+            font-family: inherit;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .form-field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .form-error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+            display: none;
+        }
+
+        .form-success {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" id="backBtn">← Back</button>
+        <div class="page-title">Create Civilian</div>
+        <form class="create-form" id="createCivilianForm">
+            <div class="form-field">
+                <label for="civilianName">Full Name</label>
+                <input type="text" id="civilianName" placeholder="John Doe" required />
+            </div>
+            <div class="form-field">
+                <label for="civilianAge">Age</label>
+                <input type="number" id="civilianAge" placeholder="25" min="0" max="120" />
+            </div>
+            <div class="form-field">
+                <label for="civilianGender">Gender</label>
+                <select id="civilianGender">
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="civilianAddress">Address</label>
+                <input type="text" id="civilianAddress" placeholder="123 Main St" />
+            </div>
+            <div class="form-field">
+                <label for="civilianNotes">Notes</label>
+                <textarea id="civilianNotes" placeholder="Any relevant details..."></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Create Civilian</button>
+            <div class="form-error" id="formError"></div>
+            <div class="form-success" id="formSuccess"></div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        let localSupabase = null;
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        document.getElementById("backBtn").addEventListener("click", () => history.back());
+
+        const form = document.getElementById("createCivilianForm");
+        const formError = document.getElementById("formError");
+        const formSuccess = document.getElementById("formSuccess");
+
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (formError) { formError.textContent = ""; formError.style.display = "none"; }
+                if (formSuccess) { formSuccess.textContent = ""; formSuccess.style.display = "none"; }
+
+                const name = document.getElementById("civilianName")?.value.trim() || "";
+                const age = document.getElementById("civilianAge")?.value.trim() || "";
+                const gender = document.getElementById("civilianGender")?.value || "";
+                const address = document.getElementById("civilianAddress")?.value.trim() || "";
+                const notes = document.getElementById("civilianNotes")?.value.trim() || "";
+
+                if (!name) {
+                    if (formError) { formError.textContent = "Name is required."; formError.style.display = "block"; }
+                    return;
+                }
+
+                if (!localSupabase) {
+                    if (formError) { formError.textContent = "Database unavailable."; formError.style.display = "block"; }
+                    return;
+                }
+
+                try {
+                    const { error } = await localSupabase
+                        .from("civilians")
+                        .insert([{
+                            name,
+                            age: age ? parseInt(age, 10) : null,
+                            gender: gender || null,
+                            address: address || null,
+                            notes: notes || null,
+                            created_at: new Date().toISOString()
+                        }]);
+
+                    if (error) {
+                        if (formError) {
+                            formError.textContent = error.message || "Failed to save civilian.";
+                            formError.style.display = "block";
+                        }
+                        console.error("Insert failed:", error);
+                        return;
+                    }
+
+                    if (formSuccess) {
+                        formSuccess.textContent = "Civilian created successfully.";
+                        formSuccess.style.display = "block";
+                    }
+                    form.reset();
+                } catch (err) {
+                    if (formError) { formError.textContent = "Failed to create civilian."; formError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
