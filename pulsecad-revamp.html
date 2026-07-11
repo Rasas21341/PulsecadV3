@@ -856,6 +856,7 @@
                 const loginError = document.getElementById("loginError");
                 const loginSuccess = document.getElementById("loginSuccess");
                 const loginAccount = document.getElementById("loginAccount");
+                const loginBtn = document.getElementById("topbarLoginBtn");
                 if (loginError) { loginError.textContent = ""; loginError.style.display = "none"; }
                 if (loginSuccess) loginSuccess.style.display = "none";
                 if (loginAccount) loginAccount.style.display = "none";
@@ -875,17 +876,19 @@
                     return;
                 }
 
+                if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = "Logging in..."; }
+
                 try {
                     const { data, error } = await localSupabase.auth.signInWithPassword({ email, password });
                     if (error) {
                         if (loginError) { loginError.textContent = error.message || "Login failed."; loginError.style.display = "block"; }
+                        if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = "Login"; }
                         return;
                     }
                      if (loginSuccess) { loginSuccess.textContent = "You are now logged in."; loginSuccess.style.display = "block"; }
                     const topbar = document.getElementById("topbar");
                     if (topbar) topbar.style.display = "none";
-                     const topbarLoginBtn = document.getElementById("topbarLoginBtn");
-                     if (topbarLoginBtn) topbarLoginBtn.textContent = "Logout";
+                     if (loginBtn) loginBtn.textContent = "Logout";
                      const userEmailDisplay = document.getElementById("userEmailDisplay");
                     const userDropdown = document.getElementById("userDropdown");
                     if (userEmailDisplay && email) {
@@ -904,6 +907,8 @@
                 } catch (err) {
                     if (loginError) { loginError.textContent = "An unexpected error occurred."; loginError.style.display = "block"; }
                     console.error(err);
+                } finally {
+                    if (loginBtn) { loginBtn.disabled = false; }
                 }
             });
         }
