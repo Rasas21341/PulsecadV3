@@ -406,6 +406,181 @@
             display: block;
         }
 
+        .create-community-centered-btn {
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            background: #2563eb;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .create-community-centered-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .join-community-centered-btn {
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #2563eb;
+            background: #ffffff;
+            border: 1px solid #2563eb;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
+
+        .join-community-centered-btn:hover {
+            background: #eff6ff;
+        }
+
+        .logged-in-actions {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 12px;
+            z-index: 510;
+        }
+
+        .logged-in-communities {
+            position: fixed;
+            top: calc(50% + 70px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 720px;
+            max-height: 60vh;
+            overflow-y: auto;
+            z-index: 510;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .community-list-card {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .community-list-info {
+            min-width: 0;
+        }
+
+        .community-list-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .community-list-meta {
+            font-size: 12px;
+            color: #64748b;
+            word-break: break-word;
+        }
+
+        .community-list-join {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563eb;
+            background: #ffffff;
+            border: 1px solid #2563eb;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .community-list-join:hover {
+            background: #eff6ff;
+        }
+
+        .community-list-joined {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #166534;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            white-space: nowrap;
+        }
+
+        .community-list-verified {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            white-space: nowrap;
+        }
+
+        .community-list-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .staff-dashboard-card {
+            max-width: 720px;
+            margin: 24px auto 0 auto;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            display: none;
+        }
+
+        .staff-dashboard-card.open {
+            display: block;
+        }
+
+        .staff-dashboard-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .staff-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .staff-table th,
+        .staff-table td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .staff-table th {
+            color: #64748b;
+            font-weight: 600;
+        }
+
         .settings-screen {
             display: none;
             position: fixed;
@@ -509,7 +684,7 @@
     </style>
 </head>
 <body>
-    <div class="topbar">
+    <div class="topbar" id="topbar">
         <span class="pill">
             <img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1024" alt="PulseCAD">
             <a href="/changelogs" class="changelogs-btn">Changelogs</a>
@@ -520,8 +695,9 @@
         <div class="user-dropdown" id="userDropdown" style="display:none;">
             <div class="user-email" id="userEmailDisplay"></div>
             <div class="dropdown-menu" id="dropdownMenu">
-                <button type="button" class="dropdown-item danger" id="dropdownLogoutBtn">Logout</button>
                 <button type="button" class="dropdown-item" id="dropdownSettingsBtn">Settings</button>
+                <button type="button" class="dropdown-item" id="dropdownJoinCommunityBtn">Join Community</button>
+                <button type="button" class="dropdown-item danger" id="dropdownLogoutBtn">Logout</button>
             </div>
         </div>
     </div>
@@ -577,6 +753,18 @@
         <h1>PulseCAD Revamp</h1>
         <p>We are actively working on the PulseCAD Revamp. Updates are in progress.</p>
         <span class="status"><span class="status-dot"></span>In Progress</span>
+    </div>
+    <div class="logged-in-screen" id="loggedInScreen">
+        <div class="logged-in-actions">
+            <button type="button" class="create-community-centered-btn" id="createCommunityCenteredBtn">Create Community</button>
+            <button type="button" class="join-community-centered-btn" id="joinCommunityCenteredBtn">Join Community</button>
+            <button type="button" class="join-community-centered-btn" id="staffDashboardBtn">Staff Dashboard</button>
+        </div>
+        <div class="logged-in-communities" id="loggedInCommunities"></div>
+        <div class="staff-dashboard-card" id="staffDashboardCard">
+            <div class="staff-dashboard-title">Staff Dashboard</div>
+            <div id="staffDashboardContent"></div>
+        </div>
     </div>
     <div class="settings-screen" id="settingsScreen">
         <div class="settings-card">
@@ -682,10 +870,12 @@
                         if (loginError) { loginError.textContent = error.message || "Login failed."; loginError.style.display = "block"; }
                         return;
                     }
-                    if (loginSuccess) { loginSuccess.textContent = "You are now logged in."; loginSuccess.style.display = "block"; }
-                    const topbarLoginBtn = document.getElementById("topbarLoginBtn");
-                    if (topbarLoginBtn) topbarLoginBtn.style.display = "none";
-                    const userEmailDisplay = document.getElementById("userEmailDisplay");
+                     if (loginSuccess) { loginSuccess.textContent = "You are now logged in."; loginSuccess.style.display = "block"; }
+                    const topbar = document.getElementById("topbar");
+                    if (topbar) topbar.style.display = "none";
+                     const topbarLoginBtn = document.getElementById("topbarLoginBtn");
+                     if (topbarLoginBtn) topbarLoginBtn.textContent = "Logout";
+                     const userEmailDisplay = document.getElementById("userEmailDisplay");
                     const userDropdown = document.getElementById("userDropdown");
                     if (userEmailDisplay && email) {
                         userEmailDisplay.textContent = email;
@@ -752,16 +942,18 @@
                     if (data.session) {
                     if (signupSuccess) { signupSuccess.textContent = "Account created. You are now logged in."; signupSuccess.style.display = "block"; }
                     const topbarLoginBtn = document.getElementById("topbarLoginBtn");
-                    if (topbarLoginBtn) topbarLoginBtn.style.display = "none";
-                    const userEmailDisplay = document.getElementById("userEmailDisplay");
-                    const userDropdown = document.getElementById("userDropdown");
-                    if (userEmailDisplay && email) {
-                        userEmailDisplay.textContent = email;
-                    }
-                    if (userDropdown) userDropdown.style.display = "inline-block";
-                    if (signupAccount) { signupAccount.style.display = "block"; signupAccount.textContent = "Session active. You can close this tab safely."; }
-                    signupForm.reset();
-                    enableCreateAccount();
+                     if (topbarLoginBtn) topbarLoginBtn.textContent = "Logout";
+                     const topbar = document.getElementById("topbar");
+                     if (topbar) topbar.style.display = "none";
+                     const userEmailDisplay = document.getElementById("userEmailDisplay");
+                     const userDropdown = document.getElementById("userDropdown");
+                     if (userEmailDisplay && email) {
+                         userEmailDisplay.textContent = email;
+                     }
+                     if (userDropdown) userDropdown.style.display = "inline-block";
+                     if (signupAccount) { signupAccount.style.display = "block"; signupAccount.textContent = "Session active. You can close this tab safely."; }
+                     signupForm.reset();
+                     enableCreateAccount();
 
                         const loggedInScreen = document.getElementById("loggedInScreen");
                         const container = document.querySelector(".container");
@@ -794,6 +986,8 @@
                         if (loginSuccess) { loginSuccess.textContent = "You have been logged out."; loginSuccess.style.display = "block"; }
                         const topbarLoginBtn = document.getElementById("topbarLoginBtn");
                         if (topbarLoginBtn) topbarLoginBtn.style.display = "inline-block";
+                        const topbar = document.querySelector(".topbar");
+                        if (topbar) topbar.style.display = "block";
                         const userDropdown = document.getElementById("userDropdown");
                         const container = document.querySelector(".container");
                         const loggedInScreen = document.getElementById("loggedInScreen");
@@ -895,12 +1089,182 @@
                 const loggedInScreen = document.getElementById("loggedInScreen");
                 const loginSuccess = document.getElementById("loginSuccess");
                 if (loginSuccess) { loginSuccess.textContent = "You have been logged out."; loginSuccess.style.display = "block"; }
-                if (topbarLoginBtn) topbarLoginBtn.style.display = "inline-block";
+                if (topbarLoginBtn) topbarLoginBtn.textContent = "Login";
+                const topbar = document.getElementById("topbar");
+                if (topbar) topbar.style.display = "block";
                 if (userDropdown) userDropdown.style.display = "none";
                 if (dropdownMenu) dropdownMenu.classList.remove("open");
                 if (loggedInScreen) loggedInScreen.classList.remove("open");
                 if (settingsScreen) settingsScreen.classList.remove("open");
                 if (container) container.style.display = "block";
+            });
+        }
+
+        const dropdownJoinCommunityBtn = document.getElementById("dropdownJoinCommunityBtn");
+
+        if (dropdownJoinCommunityBtn) {
+            dropdownJoinCommunityBtn.addEventListener("click", () => {
+                if (dropdownMenu) dropdownMenu.classList.remove("open");
+                const code = prompt("Enter community join code or name:");
+                if (code && code.trim()) {
+                    addCommunityCard(code.trim(), "Joined community", false, null, null, false);
+                }
+            });
+        }
+
+        const createCommunityCenteredBtn = document.getElementById("createCommunityCenteredBtn");
+        const joinCommunityCenteredBtn = document.getElementById("joinCommunityCenteredBtn");
+        const loggedInCommunities = document.getElementById("loggedInCommunities");
+
+        function loadCommunities() {
+            if (!loggedInCommunities || !localSupabase) return;
+            loggedInCommunities.innerHTML = "";
+            localSupabase.auth.getUser().then(({ data }) => {
+                const userId = data?.user?.id;
+                if (!userId) {
+                    loggedInCommunities.innerHTML = "";
+                    return;
+                }
+                localSupabase
+                    .from("communities")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .order("created_at", { ascending: false })
+                    .then(({ data, error }) => {
+                        if (error) {
+                            alert("Failed to load communities: " + error.message);
+                            return;
+                        }
+                        if (Array.isArray(data)) {
+                            data.forEach((row) => {
+                                addCommunityCard(row.name, row.description || "Community", !!row.joined, row.id, row.creator_email, !!row.verification_requested);
+                            });
+                        }
+                    })
+                    .catch((err) => alert("Failed to load communities: " + (err.message || err)));
+            }).catch((err) => {
+                console.error("Auth error in loadCommunities:", err);
+            });
+        }
+
+        if (localSupabase) {
+            localSupabase.auth.onAuthStateChange(() => {
+                loadCommunities();
+            });
+        }
+
+        function saveCommunity(name, meta, joined) {
+            if (!localSupabase) return;
+            localSupabase.auth.getUser().then(({ data }) => {
+                const payload = {
+                    user_id: data?.user?.id,
+                    creator_email: data?.user?.email || "",
+                    name,
+                    description: meta || "",
+                    joined: !!joined,
+                    verification_requested: false,
+                };
+                localSupabase
+                    .from("communities")
+                    .insert([payload])
+                    .then(({ data: insertData, error }) => {
+                        if (error) {
+                            alert("Failed to save community: " + error.message);
+                            return;
+                        }
+                        if (Array.isArray(insertData) && insertData[0]) {
+                                addCommunityCard(name, insertData[0].description || "Community", !!joined, insertData[0].id, insertData[0].creator_email, !!insertData[0].verification_requested);
+                        }
+                    })
+                    .catch((err) => alert("Failed to save community: " + (err.message || err)));
+            }).catch(() => {
+                alert("You must be logged in to save a community.");
+            });
+        }
+
+        function markJoined(id) {
+            if (!localSupabase || !id) return;
+            localSupabase
+                .from("communities")
+                .update({ joined: true })
+                .eq("id", id)
+                .then(({ error }) => {
+                    if (error) {
+                        alert("Failed to join community: " + error.message);
+                    }
+                })
+                .catch((err) => alert("Failed to join community: " + (err.message || err)));
+        }
+
+        function addCommunityCard(name, meta, joined, id, creatorEmail, verified) {
+            if (!loggedInCommunities) return;
+            if (id && loggedInCommunities.querySelector(`[data-id="${id}"]`)) {
+                return;
+            }
+            const card = document.createElement("div");
+            card.className = "community-list-card";
+            const escapedName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const escapedMeta = (meta || "").replace(/</g, "&lt;").replace(/>/g, "&gt;") || "Community";
+            const isJoined = !!joined;
+            const isCreator = !!creatorEmail;
+            const isVerified = !!verified;
+            const communityId = id ? ` data-id="${id}"` : "";
+            const creatorText = isCreator ? `<div class="community-list-meta">Created by ${escapedMeta}</div>` : "";
+            const badges = [];
+            if (isJoined) badges.push('<span class="community-list-joined">Joined</span>');
+            if (isVerified) badges.push('<span class="community-list-verified">Verified</span>');
+            const badgesHtml = badges.length ? `<div class="community-list-badges">${badges.join("")}</div>` : "";
+            card.innerHTML = `<div class="community-list-info"${communityId}><div class="community-list-name">${escapedName}</div>${creatorText}<div class="community-list-meta">${isJoined ? "" : ""}</div></div>${badgesHtml}${(!isJoined && !isCreator) ? '<button type="button" class="community-list-join">Join</button>' : ""}`;
+            loggedInCommunities.appendChild(card);
+
+            if (!isJoined && !isCreator) {
+                const joinBtn = card.querySelector(".community-list-join");
+                if (joinBtn) {
+                    joinBtn.addEventListener("click", () => {
+                        const rowId = card.querySelector(".community-list-info")?.getAttribute("data-id");
+                        markJoined(rowId);
+                        const span = document.createElement("span");
+                        span.className = "community-list-joined";
+                        span.textContent = "Joined";
+                        joinBtn.replaceWith(span);
+                    });
+                }
+            }
+        }
+
+        loadCommunities();
+
+        if (createCommunityCenteredBtn) {
+            createCommunityCenteredBtn.addEventListener("click", () => {
+                const name = prompt("Enter community name:");
+                if (name && name.trim()) {
+                    saveCommunity(name.trim(), "", false);
+                }
+            });
+        }
+
+        if (joinCommunityCenteredBtn) {
+            joinCommunityCenteredBtn.addEventListener("click", () => {
+                const code = prompt("Enter community join code or name:");
+                if (code && code.trim()) {
+                    addCommunityCard(code.trim(), "Joined community", false, null, null, false);
+                }
+            });
+        }
+
+        const staffDashboardBtn = document.getElementById("staffDashboardBtn");
+        const staffDashboardCard = document.getElementById("staffDashboardCard");
+        const staffDashboardContent = document.getElementById("staffDashboardContent");
+
+        if (staffDashboardBtn) {
+            staffDashboardBtn.addEventListener("click", async () => {
+                if (!localSupabase) return;
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user || user.email !== "oceanviewrp1@gmail.com") {
+                    alert("Access denied. Staff only.");
+                    return;
+                }
+                window.open("staff.html", "_blank");
             });
         }
     </script>
