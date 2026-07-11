@@ -1239,6 +1239,16 @@
             card.innerHTML = `<div class="community-list-info"${communityId}><div class="community-list-name">${escapedName}</div>${creatorText}${isSuspended ? '<div class="community-list-meta" style="color:#dc2626;font-weight:700;">This community has been suspended.</div>' : ''}<div class="community-list-meta">${isJoined ? "" : ""}</div></div>${badgesHtml}${(!isJoined && !isCreator && !isSuspended) ? '<button type="button" class="community-list-join">Join</button>' : ""}`;
             loggedInCommunities.appendChild(card);
 
+            card.style.cursor = isSuspended ? "default" : "pointer";
+            card.addEventListener("click", (e) => {
+                if (e.target.closest(".community-list-join")) return;
+                if (isSuspended) return;
+                const rowId = card.querySelector(".community-list-info")?.getAttribute("data-id");
+                if (rowId) {
+                    window.open("community.html?id=" + encodeURIComponent(rowId), "_blank");
+                }
+            });
+
             if (!isJoined && !isCreator && !isSuspended) {
                 const joinBtn = card.querySelector(".community-list-join");
                 if (joinBtn) {
