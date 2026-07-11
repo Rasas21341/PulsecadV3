@@ -163,6 +163,20 @@
             background: #1d4ed8;
         }
 
+        .icon-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .icon-btn:hover {
+            background: #f1f5f9;
+        }
+
         .verified-yes {
             background: #166534;
             color: #ffffff;
@@ -189,6 +203,7 @@
         <div class="sidebar-title">Staff Dashboard</div>
         <button class="sidebar-btn" id="serversBtn">Servers</button>
         <button class="sidebar-btn" id="staffUsersBtn">Users</button>
+        <button class="sidebar-btn" id="applicationsBtn">Applications</button>
     </div>
     <div class="main">
         <div class="container">
@@ -207,6 +222,7 @@
         const pageTitle = document.getElementById("pageTitle");
         const serversBtn = document.getElementById("serversBtn");
         const staffUsersBtn = document.getElementById("staffUsersBtn");
+        const applicationsBtn = document.getElementById("applicationsBtn");
 
         let localSupabase = null;
         try {
@@ -363,12 +379,129 @@
             }
         }
 
+        async function loadApplications(filterType) {
+            if (!(await ensureStaff())) return;
+            pageTitle.textContent = "Applications";
+            contentEl.innerHTML = `
+                <div style="margin-bottom: 16px;">
+                    <button class="verified-btn" id="addAppBtn">Add Application</button>
+                </div>
+                <div class="empty">Loading applications...</div>
+            `;
+
+            const pencilIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+            const eyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+
+            function buildRowHtml(row) {
+                const name = (row.type || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                return `<td>${name}</td><td><button class="icon-btn edit-app-btn" data-id="${row.id}" data-name="${name}" title="Edit">${pencilIcon}</button><button class="icon-btn view-app-btn" data-id="${row.id}" data-name="${name}" title="View">${eyeIcon}</button></td>`;
+            }
+
+            function wireRow(rowEl) {
+                const editBtn = rowEl.querySelector(".edit-app-btn");
+                if (editBtn) {
+                    editBtn.addEventListener("click", async () => {
+                        const id = editBtn.getAttribute("data-id");
+                        const current = editBtn.getAttribute("data-name");
+                        const newName = prompt("Edit name:", current);
+                        if (!newName) return;
+                        const { error } = await localSupabase
+                            .from("applications")
+                            .update({ type: newName.trim() })
+                            .eq("id", id);
+                        if (error) {
+                            alert("Failed to update application: " + error.message);
+                            return;
+                        }
+                        loadApplications(filterType);
+                    });
+                }
+                const viewBtn = rowEl.querySelector(".view-app-btn");
+                if (viewBtn) {
+                    viewBtn.addEventListener("click", () => {
+                        alert("Application: " + viewBtn.getAttribute("data-name"));
+                    });
+                }
+            }
+
+            const addAppBtn = document.getElementById("addAppBtn");
+            if (addAppBtn) {
+                addAppBtn.addEventListener("click", async () => {
+                    const { data, error } = await localSupabase
+                        .from("applications")
+                        .insert([{ type: "Customer Support Team Application", status: "Pending", email: "pending@pulsecad.app" }])
+                        .select("id, type");
+                    if (error) {
+                        showStatus("Failed to add application: " + error.message, "error");
+                        return;
+                    }
+                    showStatus("Application added.", "success");
+                    const row = data && data[0];
+                    if (!row) {
+                        loadApplications("Customer Support Team Application");
+                        return;
+                    }
+                    let table = contentEl.querySelector("table");
+                    if (!table) {
+                        contentEl.innerHTML = `<table><tr><th>Name</th><th>Actions</th></tr></table>`;
+                        table = contentEl.querySelector("table");
+                    }
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = buildRowHtml(row);
+                    wireRow(tr);
+                    table.appendChild(tr);
+                });
+            }
+
+            try {
+                let query = localSupabase
+                    .from("applications")
+                    .select("id, email, status, created_at, type")                    .order("created_at", { ascending: false });
+
+                if (filterType) {
+                    query = query.eq("type", filterType);
+                }
+
+                const { data, error } = await query;
+
+                if (error) {
+                    contentEl.innerHTML = `<div class="empty">Failed to load applications: ${error.message}</div>`;
+                    return;
+                }
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    contentEl.innerHTML = `<table><tr><th>Name</th><th>Actions</th></tr></table>`;
+                    return;
+                }
+
+                let html = `<table><tr><th>Name</th><th>Actions</th></tr>`;
+                data.forEach((row) => {
+                    html += `<tr>${buildRowHtml(row)}</tr>`;
+                });
+                html += "</table>";
+                contentEl.innerHTML = html;
+
+                contentEl.querySelectorAll("tr").forEach((tr) => {
+                    if (tr.querySelector(".edit-app-btn") || tr.querySelector(".view-app-btn")) {
+                        wireRow(tr);
+                    }
+                });
+            } catch (err) {
+                contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
+                console.error(err);
+            }
+        }
+
         if (serversBtn) {
             serversBtn.addEventListener("click", loadServers);
         }
 
         if (staffUsersBtn) {
             staffUsersBtn.addEventListener("click", loadStaffUsers);
+        }
+
+        if (applicationsBtn) {
+            applicationsBtn.addEventListener("click", loadApplications);
         }
 
         loadServers();
