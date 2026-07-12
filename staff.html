@@ -246,6 +246,90 @@
             font-weight: 600;
             cursor: pointer;
         }
+
+        .master-actions {
+            margin-top: 28px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #ffffff;
+        }
+
+        .master-actions h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .master-actions p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .master-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .master-row-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .master-row-sub {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #cbd5e1;
+            border-radius: 999px;
+            transition: background .15s ease;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            top: 3px;
+            background: #ffffff;
+            border-radius: 50%;
+            transition: transform .15s ease;
+        }
+
+        .switch input:checked + .slider {
+            background: #2563eb;
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 <body>
@@ -254,6 +338,7 @@
         <button class="sidebar-btn" id="serversBtn">Servers</button>
         <button class="sidebar-btn" id="staffUsersBtn">Users</button>
         <button class="sidebar-btn" id="applicationsBtn">Applications</button>
+        <button class="sidebar-btn" id="masterActionsBtn" style="display:none;">Master Actions</button>
     </div>
     <div class="main">
         <div class="container">
@@ -273,6 +358,7 @@
         const serversBtn = document.getElementById("serversBtn");
         const staffUsersBtn = document.getElementById("staffUsersBtn");
         const applicationsBtn = document.getElementById("applicationsBtn");
+        const masterActionsBtn = document.getElementById("masterActionsBtn");
 
         let localSupabase = null;
         try {
@@ -368,6 +454,7 @@
 
                 let html = `<table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Status</th><th>Actions</th></tr>`;
                 const canSuspend = userDepartment !== "Support Team";
+                const canDelete = userDepartment !== "Support Team";
                 data.forEach((row) => {
                     const name = (row.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const owner = (row.creator_email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -379,7 +466,10 @@
                     const suspendBtn = canSuspend
                         ? `<button class="verified-btn suspend-server-btn" data-id="${row.id}" data-suspended="${suspended}">${suspended ? "Unsuspend" : "Suspend"}</button>`
                         : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
-                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td>${suspendBtn} <button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button></td></tr>`;
+                    const deleteBtn = canDelete
+                        ? `<button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button>`
+                        : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
+                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td>${suspendBtn} ${deleteBtn}</td></tr>`;
                 });
                 html += "</table>";
                 contentEl.innerHTML = html;
@@ -407,6 +497,11 @@
 
                 contentEl.querySelectorAll(".delete-server-btn").forEach((btn) => {
                     btn.addEventListener("click", async () => {
+                        const dept = await getUserDepartment();
+                        if (dept === "Support Team") {
+                            alert("Access denied. Support Team cannot delete servers.");
+                            return;
+                        }
                         const id = btn.getAttribute("data-id");
                         const { error } = await localSupabase
                             .from("communities")
@@ -476,6 +571,16 @@
             }
         }
 
+        async function initSidebar() {
+            const dept = await getUserDepartment();
+            if (applicationsBtn && dept === "Support Team") {
+                applicationsBtn.style.display = "none";
+            }
+            if (masterActionsBtn && dept === "Management") {
+                masterActionsBtn.style.display = "block";
+            }
+        }
+
         if (serversBtn) {
             serversBtn.addEventListener("click", loadServers);
         }
@@ -484,9 +589,23 @@
             staffUsersBtn.addEventListener("click", loadStaffUsers);
         }
 
+        if (applicationsBtn) {
+            applicationsBtn.addEventListener("click", loadApplications);
+        }
+
+        if (masterActionsBtn) {
+            masterActionsBtn.addEventListener("click", loadMasterActions);
+        }
+
+        initSidebar();
+
         async function loadApplications() {
             const staff = await ensureStaff();
             if (!staff.allowed) return;
+            if (staff.department === "Support Team") {
+                showStatus("Access denied. Support Team cannot access Applications.", "error");
+                return;
+            }
             pageTitle.textContent = "Applications";
             contentEl.innerHTML = `
                 <table>
@@ -520,6 +639,59 @@
             if (viewSubsBtn) {
                 viewSubsBtn.addEventListener("click", () => {
                     window.open("submissions.html", "_blank");
+                });
+            }
+        }
+
+        async function loadMasterActions() {
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
+            if (staff.department !== "Management") {
+                showStatus("Access denied. Management only.", "error");
+                return;
+            }
+            pageTitle.textContent = "Master Actions";
+            contentEl.innerHTML = `
+                <div class="master-actions">
+                    <h2>Master Actions</h2>
+                    <p>Global controls for the PulseCAD website. Management only.</p>
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">Development Mode</div>
+                            <div class="master-row-sub">Enables development features across the website.</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="devModeToggle" />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            const devToggle = document.getElementById("devModeToggle");
+            if (devToggle && localSupabase) {
+                try {
+                    const { data } = await localSupabase
+                        .from("site_settings")
+                        .select("value")
+                        .eq("key", "dev_mode")
+                        .maybeSingle();
+                    devToggle.checked = !!(data && data.value === true);
+                } catch (err) {
+                    console.error("Could not load dev mode:", err);
+                }
+                devToggle.addEventListener("change", async () => {
+                    try {
+                        const { error } = await localSupabase
+                            .from("site_settings")
+                            .upsert({ key: "dev_mode", value: devToggle.checked }, { onConflict: "key" });
+                        if (error) {
+                            alert("Failed to update development mode: " + error.message);
+                            devToggle.checked = !devToggle.checked;
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
                 });
             }
         }

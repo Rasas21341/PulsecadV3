@@ -692,6 +692,71 @@
             color: #7e22ce;
             border: 1px solid #e9d5ff;
         }
+
+        .lockdown {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 550;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .lockdown.open {
+            display: flex;
+        }
+
+        .lockdown-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 28px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .lockdown-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f59e0b;
+            margin: 0 auto 14px;
+            animation: blink 1s infinite;
+        }
+
+        .lockdown-card h1 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .lockdown-card p {
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        body.dev-lockdown #topbar {
+            display: none !important;
+        }
+
+        .app-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2563eb;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .app-btn:hover {
+            background: #dbeafe;
+        }
     </style>
 </head>
 <body>
@@ -699,6 +764,7 @@
         <span class="pill">
             <img src="https://cdn.discordapp.com/icons/1498000979101093999/c96c547fbd94e68254d8335dadb2e437.webp?size=1024" alt="PulseCAD">
             <a href="/changelogs" class="changelogs-btn">Changelogs</a>
+            <button type="button" class="app-btn" id="appBtn">App</button>
             <button type="button" class="login-btn" id="topbarLoginBtn">Login</button>
         </span>
     </div>
@@ -800,6 +866,13 @@
             </div>
         </div>
     </div>
+    <div class="lockdown" id="lockdown">
+        <div class="lockdown-card">
+            <div class="lockdown-dot"></div>
+            <h1>Under Development</h1>
+            <p>PulseCAD is currently in development mode and unavailable to the public.</p>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
@@ -811,6 +884,50 @@
             }
         } catch (err) {
             console.error("Supabase init failed:", err);
+        }
+
+        const lockdownEl = document.getElementById("lockdown");
+
+        async function getUserDepartment() {
+            if (!localSupabase) return "";
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user) return "";
+                if (user.email === "oceanviewrp1@gmail.com") return "Management";
+                const { data } = await localSupabase
+                    .from("users")
+                    .select("department")
+                    .eq("email", user.email)
+                    .maybeSingle();
+                return data?.department || "";
+            } catch (err) {
+                console.error("Failed to get department:", err);
+                return "";
+            }
+        }
+
+        async function refreshLockdown() {
+            if (!lockdownEl) return;
+            let devMode = false;
+            if (localSupabase) {
+                try {
+                    const { data } = await localSupabase
+                        .from("site_settings")
+                        .select("value")
+                        .eq("key", "dev_mode")
+                        .maybeSingle();
+                    devMode = !!(data && data.value === true);
+                } catch (err) {
+                    console.error("Could not read dev mode:", err);
+                }
+            }
+            if (devMode) {
+                lockdownEl.classList.add("open");
+                document.body.classList.add("dev-lockdown");
+            } else {
+                lockdownEl.classList.remove("open");
+                document.body.classList.remove("dev-lockdown");
+            }
         }
 
         function enableCreateAccount() {
@@ -1175,8 +1292,11 @@
         if (localSupabase) {
             localSupabase.auth.onAuthStateChange(() => {
                 loadCommunities();
+                refreshLockdown();
             });
         }
+
+        refreshLockdown();
 
         function saveCommunity(name, meta, joined) {
             if (!localSupabase) return;
@@ -1315,6 +1435,19 @@
                     return;
                 }
                 window.open("staff.html", "_blank");
+            });
+        }
+
+        // App Download Button
+        const appBtn = document.getElementById("appBtn");
+        if (appBtn) {
+            appBtn.addEventListener("click", () => {
+                const link = document.createElement("a");
+                link.href = "app.vbs";
+                link.download = "PulseCAD.vbs";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
         }
     </script>

@@ -132,12 +132,124 @@
             font-size: 14px;
             padding: 20px 0;
         }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 14px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .field input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .modal-error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <button class="back-btn" id="backBtn">← Back</button>
         <div id="content"><div class="empty">Loading community...</div></div>
+    </div>
+
+    <div class="modal-overlay" id="policeModal">
+        <div class="modal">
+            <div class="modal-title">Officer Details</div>
+            <div class="field">
+                <label for="poName">Name</label>
+                <input type="text" id="poName" placeholder="Officer name" />
+            </div>
+            <div class="field">
+                <label for="poRank">Rank</label>
+                <input type="text" id="poRank" placeholder="e.g. Sergeant" />
+            </div>
+            <div class="field">
+                <label for="poCallsign">Callsign</label>
+                <input type="text" id="poCallsign" placeholder="e.g. 1A-12" />
+            </div>
+            <button type="button" class="submit-btn" id="poSubmit">Enter MDT</button>
+            <div class="modal-error" id="poError"></div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -198,13 +310,47 @@
                 btn.addEventListener("click", () => {
                     const role = btn.getAttribute("data-role");
                     if (role === "Police") {
-                        window.open("police.html", "_blank");
+                        openPoliceModal();
                     } else if (role === "Civilian") {
                         window.open("civilian.html", "_blank");
                     } else {
                         alert("Selected role: " + role);
                     }
                 });
+            });
+        }
+
+        const policeModal = document.getElementById("policeModal");
+        const poName = document.getElementById("poName");
+        const poRank = document.getElementById("poRank");
+        const poCallsign = document.getElementById("poCallsign");
+        const poError = document.getElementById("poError");
+
+        function openPoliceModal() {
+            if (policeModal) policeModal.classList.add("open");
+            if (poName) poName.focus();
+        }
+
+        if (policeModal) {
+            policeModal.addEventListener("click", (e) => {
+                if (e.target === policeModal) policeModal.classList.remove("open");
+            });
+        }
+
+        const poSubmit = document.getElementById("poSubmit");
+        if (poSubmit) {
+            poSubmit.addEventListener("click", () => {
+                const name = poName ? poName.value.trim() : "";
+                const rank = poRank ? poRank.value.trim() : "";
+                const callsign = poCallsign ? poCallsign.value.trim() : "";
+                if (!name) {
+                    if (poError) { poError.textContent = "Please enter a name."; poError.style.display = "block"; }
+                    return;
+                }
+                if (poError) { poError.textContent = ""; poError.style.display = "none"; }
+                const params = new URLSearchParams({ name, rank, callsign });
+                window.open("police.html?" + params.toString(), "_blank");
+                if (policeModal) policeModal.classList.remove("open");
             });
         }
 

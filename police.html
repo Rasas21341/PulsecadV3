@@ -17,22 +17,26 @@
             color: #1a202c;
             min-height: 100vh;
             padding: 24px;
+            padding-top: 200px;
             padding-bottom: 48px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
             gap: 14px;
             margin: 0;
         }
 
         .button-row {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 14px;
             justify-content: center;
             width: 100%;
             max-width: 480px;
-            margin-bottom: 24px;
         }
 
         .lookup-btn {
@@ -67,6 +71,121 @@
 
         .back-btn:hover {
             background: #f1f5f9;
+        }
+
+        .status-bar {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .duty-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .duty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .duty-dot.offline {
+            background: #94a3b8;
+        }
+
+        .officer-info {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .officer-info .officer-callsign {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .status-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .status-current {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .status-dot.available {
+            background: #22c55e;
+        }
+
+        .status-dot.unavailable {
+            background: #ef4444;
+        }
+
+        .status-dot.busy {
+            background: #f59e0b;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .status-btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease;
+        }
+
+        .status-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .status-btn.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
         }
 
         .modal-overlay {
@@ -258,7 +377,22 @@
     <button class="back-btn" id="backBtn">← Back</button>
     <div class="button-row">
         <button type="button" class="lookup-btn" id="lookupPlateBtn">Lookup plate</button>
-        <button type="button" class="lookup-btn" id="lookupCivilianBtn">Lookup Civlain</button>
+        <button type="button" class="lookup-btn" id="lookupCivilianBtn">Lookup Civilian</button>
+    </div>
+
+    <div class="status-bar">
+        <div class="duty-pill"><span class="duty-dot" id="dutyDot"></span><span id="dutyText">Officers on Duty: 1</span></div>
+        <div class="officer-info" id="officerInfo"></div>
+        <div class="status-label">Your Status</div>
+        <div class="status-current">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Available</span>
+        </div>
+        <div class="status-buttons">
+            <button type="button" class="status-btn" id="statusAvailable" data-status="available">Available</button>
+            <button type="button" class="status-btn" id="statusUnavailable" data-status="unavailable">Unavailable</button>
+            <button type="button" class="status-btn" id="statusBusy" data-status="busy">Busy</button>
+        </div>
     </div>
 
     <div class="modal-overlay" id="plateModal">
@@ -280,7 +414,7 @@
     <div class="modal-overlay" id="civilianModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">Lookup Civlian</div>
+                <div class="modal-title">Lookup Civilian</div>
                 <button class="modal-close" id="civilianModalClose" type="button" aria-label="Close">×</button>
             </div>
             <div class="lookup-field">
@@ -340,6 +474,147 @@
         }
 
         document.getElementById("backBtn").addEventListener("click", () => window.close());
+
+        let officerId = "officer-" + Math.random().toString(36).slice(2, 10);
+        try {
+            const stored = localStorage.getItem("policeOfficerId");
+            if (stored) officerId = stored;
+            else localStorage.setItem("policeOfficerId", officerId);
+        } catch (err) {
+            console.error("Could not read officer id:", err);
+        }
+
+        let officerName = "Officer";
+        let officerRank = "";
+        let officerCallsign = "";
+
+        (function loadOfficerDetails() {
+            const officerInfo = document.getElementById("officerInfo");
+            const params = new URLSearchParams(window.location.search);
+            const pName = params.get("name");
+            const pRank = params.get("rank");
+            const pCallsign = params.get("callsign");
+            if (pName) {
+                officerName = pName;
+                officerRank = pRank || "";
+                officerCallsign = pCallsign || "";
+                try {
+                    localStorage.setItem("policeOfficerName", officerName);
+                    localStorage.setItem("policeOfficerRank", officerRank);
+                    localStorage.setItem("policeOfficerCallsign", officerCallsign);
+                } catch (err) {
+                    console.error("Could not save officer details:", err);
+                }
+            } else {
+                try {
+                    officerName = localStorage.getItem("policeOfficerName") || "Officer";
+                    officerRank = localStorage.getItem("policeOfficerRank") || "";
+                    officerCallsign = localStorage.getItem("policeOfficerCallsign") || "";
+                } catch (err) {
+                    console.error("Could not read officer details:", err);
+                }
+            }
+            if (officerInfo) {
+                const display = (officerRank ? officerRank + " " : "") + officerName;
+                officerInfo.innerHTML = display + (officerCallsign ? `<br><span class="officer-callsign">Callsign: ${officerCallsign.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>` : "");
+            }
+        })();
+
+        const dutyDot = document.getElementById("dutyDot");
+        const dutyText = document.getElementById("dutyText");
+
+        async function broadcastOfficerStatus(status) {
+            if (!localSupabase) return;
+            try {
+                await localSupabase
+                    .from("officer_status")
+                    .upsert({
+                        officer_id: officerId,
+                        officer_name: officerName,
+                        status,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: "officer_id" });
+            } catch (err) {
+                console.error("Could not broadcast status:", err);
+            }
+        }
+
+        async function refreshDutyCount() {
+            if (!localSupabase || !dutyText) return;
+            try {
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+                const { count, error } = await localSupabase
+                    .from("officer_status")
+                    .select("*", { count: "exact", head: true })
+                    .gte("updated_at", fiveMinutesAgo);
+                if (error) {
+                    if (dutyDot) dutyDot.classList.add("offline");
+                    return;
+                }
+                const total = count || 0;
+                dutyText.textContent = "Officers on Duty: " + total;
+                if (dutyDot) dutyDot.classList.toggle("offline", total === 0);
+            } catch (err) {
+                console.error("Could not load duty count:", err);
+                if (dutyDot) dutyDot.classList.add("offline");
+            }
+        }
+
+        setInterval(() => {
+            const current = (typeof getCurrentStatus === "function") ? getCurrentStatus() : "available";
+            broadcastOfficerStatus(current);
+        }, 30000);
+
+        setInterval(refreshDutyCount, 15000);
+        refreshDutyCount();
+
+        const STATUS_LABELS = {
+            available: "Available",
+            unavailable: "Unavailable",
+            busy: "Busy"
+        };
+
+        const statusDot = document.getElementById("statusDot");
+        const statusText = document.getElementById("statusText");
+        const statusButtons = document.querySelectorAll(".status-btn");
+
+        let currentStatus = "available";
+
+        function getCurrentStatus() {
+            return currentStatus;
+        }
+
+        function setStatus(status) {
+            if (!STATUS_LABELS[status]) status = "available";
+            currentStatus = status;
+            if (statusText) statusText.textContent = STATUS_LABELS[status];
+            if (statusDot) {
+                statusDot.className = "status-dot " + status;
+            }
+            statusButtons.forEach((btn) => {
+                btn.classList.toggle("active", btn.getAttribute("data-status") === status);
+            });
+            try {
+                localStorage.setItem("policeStatus", status);
+            } catch (err) {
+                console.error("Could not save status:", err);
+            }
+            broadcastOfficerStatus(status);
+        }
+
+        statusButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                setStatus(btn.getAttribute("data-status"));
+            });
+        });
+
+        let savedStatus = "available";
+        try {
+            savedStatus = localStorage.getItem("policeStatus") || "available";
+        } catch (err) {
+            console.error("Could not read status:", err);
+        }
+        setStatus(savedStatus);
 
         const plateModal = document.getElementById("plateModal");
         const plateModalClose = document.getElementById("plateModalClose");
