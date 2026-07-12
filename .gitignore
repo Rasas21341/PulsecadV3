@@ -1,12 +1,1 @@
-node_modules/
-dist/
-*.log
-.DS_Store
-Thumbs.db
-out/
-*.asar
-*.exe
-*.dmg
-*.zip
-.env
-.env.local
+
