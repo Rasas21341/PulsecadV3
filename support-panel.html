@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Panel - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1a202c;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .topbar h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px 24px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            background: #ffffff;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+        }
+
+        .panel {
+            padding: 24px;
+        }
+
+        .status {
+            margin: 16px 24px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .status.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+
+        /* Tickets */
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .tickets-table th,
+        .tickets-table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tickets-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-open { background: #fef9c3; color: #854d0e; }
+        .badge-in-progress { background: #dbeafe; color: #1e40af; }
+        .badge-closed { background: #e2e8f0; color: #475569; }
+
+        .open-ticket-btn {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .open-ticket-btn:hover { background: #1d4ed8; }
+
+        .empty {
+            padding: 24px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        /* Thread */
+        .thread-back {
+            background: none;
+            border: none;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .thread-header {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .thread-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 360px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .msg {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .msg-user {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .msg-staff {
+            align-self: flex-end;
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .msg-sender {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.85;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .reply-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .reply-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .reply-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+        }
+
+        .reply-send {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .reply-send:hover { background: #1d4ed8; }
+
+        /* Staff Chat */
+        .chat-wrap {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .chat-msg {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            align-self: flex-start;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-msg-mine {
+            align-self: flex-end;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+        }
+
+        .chat-sender {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .chat-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Support Panel</h1>
+        <div class="topbar-actions">
+            <button class="open-ticket-btn" id="backToStaffBtn" style="background:#64748b;">Back to Staff</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" id="tabTickets" data-tab="tickets">Tickets</button>
+        <button class="tab-btn" id="tabStaffChat" data-tab="staffchat">Staff Chat</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="panel" id="panel"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        const statusEl = document.getElementById("status");
+        const panelEl = document.getElementById("panel");
+        const tabTickets = document.getElementById("tabTickets");
+        const tabStaffChat = document.getElementById("tabStaffChat");
+        const backToStaffBtn = document.getElementById("backToStaffBtn");
+
+        let localSupabase = null;
+        let currentUser = null;
+        let currentTicket = null;
+        let ticketLive = null;
+        let chatLive = null;
+        let chatLastSig = "";
+
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        function showStatus(message, type) {
+            if (!statusEl) return;
+            statusEl.className = "status " + (type || "");
+            statusEl.textContent = message;
+        }
+
+        function escapeHtml(str) {
+            return String(str == null ? "" : str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function switchTab(tab) {
+            tabTickets.classList.toggle("active", tab === "tickets");
+            tabStaffChat.classList.toggle("active", tab === "staffchat");
+            if (tab === "tickets") showTickets();
+            else showStaffChat();
+        }
+
+        tabTickets.addEventListener("click", () => switchTab("tickets"));
+        tabStaffChat.addEventListener("click", () => switchTab("staffchat"));
+
+        backToStaffBtn.addEventListener("click", () => {
+            if (window.opener) window.close();
+            else window.location.href = "staff.html";
+        });
+
+        async function init() {
+            if (!localSupabase) {
+                showStatus("Authentication service unavailable.", "error");
+                return;
+            }
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user) {
+                    showStatus("Access denied. Please log in to continue.", "error");
+                    return;
+                }
+                currentUser = user;
+                const initial = window.location.hash === "#staffchat" ? "staffchat" : "tickets";
+                switchTab(initial);
+            } catch (err) {
+                showStatus("Access denied. Please log in to continue.", "error");
+            }
+        }
+
+         async function getStaffProfile() {
+             const { data: staffData } = await localSupabase
+                 .from("staff")
+                 .select("department, name")
+                 .eq("user_id", currentUser.id)
+                 .maybeSingle();
+             if (staffData && staffData.department) return staffData;
+             const { data: userData } = await localSupabase
+                 .from("users")
+                 .select("department, email")
+                 .eq("id", currentUser.id)
+                 .maybeSingle();
+             if (userData && userData.department) {
+                 return { department: userData.department, name: userData.email || "" };
+             }
+             return {};
+         }
+
+        function statusBadge(status) {
+            const s = (status || "open").toLowerCase().replace(/\s+/g, "-");
+            return `<span class="badge badge-${escapeHtml(s)}">${escapeHtml(status || "open")}</span>`;
+        }
+
+        async function showTickets() {
+            stopChatLive();
+            if (ticketLive) { localSupabase.removeChannel(ticketLive); ticketLive = null; }
+            currentTicket = null;
+            showStatus("");
+            const allowedDepts = ["management", "supportteam", "supportteamlead", "support"];
+            let profile = {};
+            try { profile = await getStaffProfile(); } catch (e) {}
+            const deptLower = (profile.department || "").toLowerCase();
+            if (!allowedDepts.includes(deptLower)) {
+                showStatus("Access denied. Management or Support only.", "error");
+                return;
+            }
+
+            panelEl.innerHTML = `
+                <table class="tickets-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>From</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsBody">
+                        <tr><td colspan="6"><div class="empty">Loading tickets...</div></td></tr>
+                    </tbody>
+                </table>
+            `;
+
+            await loadTickets();
+        }
+
+        async function loadTickets() {
+            const body = document.getElementById("ticketsBody");
+            if (!body) return;
+            try {
+                const { data, error } = await localSupabase
+                    .from("support_tickets")
+                    .select("*")
+                    .order("created_at", { ascending: false });
+                if (error) {
+                    body.innerHTML = `<tr><td colspan="6"><div class="empty">Failed to load tickets.</div></td></tr>`;
+                    return;
+                }
+                if (!Array.isArray(data) || data.length === 0) {
+                    body.innerHTML = `<tr><td colspan="6"><div class="empty">No support tickets yet.</div></td></tr>`;
+                    return;
+                }
+                body.innerHTML = data.map((t) => {
+                    const created = t.created_at ? new Date(t.created_at).toLocaleString() : "";
+                    return `
+                        <tr>
+                            <td>${escapeHtml(t.report_type || "Regular Support")}</td>
+                            <td>${escapeHtml(t.email || "")}</td>
+                            <td>${escapeHtml((t.description || "").slice(0, 80))}</td>
+                            <td>${statusBadge(t.status)}</td>
+                            <td>${escapeHtml(created)}</td>
+                            <td><button class="open-ticket-btn" data-id="${escapeHtml(t.id)}">Open</button></td>
+                        </tr>
+                    `;
+                }).join("");
+
+                body.querySelectorAll(".open-ticket-btn").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        const ticket = data.find((t) => String(t.id) === btn.getAttribute("data-id"));
+                        if (ticket) openTicket(ticket);
+                    });
+                });
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="6"><div class="empty">Failed to load tickets.</div></td></tr>`;
+            }
+        }
+
+        function openTicket(ticket) {
+            currentTicket = ticket;
+            panelEl.innerHTML = `
+                <button class="thread-back" id="threadBack">&larr; Back to tickets</button>
+                <div class="thread-header">
+                    <strong>${escapeHtml(ticket.report_type || "Regular Support")}</strong> &middot; ${statusBadge(ticket.status)}
+                    <br><span style="color:#94a3b8;">From: ${escapeHtml(ticket.email || "")}</span>
+                    <br>${escapeHtml(ticket.description || "")}
+                </div>
+                <div class="thread-messages" id="threadMessages">
+                    <div class="empty">Loading messages...</div>
+                </div>
+                <form class="reply-form" id="replyForm">
+                    <input class="reply-input" id="replyInput" placeholder="Reply to the user..." autocomplete="off" />
+                    <button class="reply-send" type="submit">Send</button>
+                </form>
+            `;
+
+            document.getElementById("threadBack").addEventListener("click", () => {
+                if (ticketLive) { localSupabase.removeChannel(ticketLive); ticketLive = null; }
+                showTickets();
+            });
+
+             document.getElementById("replyForm").addEventListener("submit", async (e) => {
+                 e.preventDefault();
+                 const input = document.getElementById("replyInput");
+                 const message = input.value.trim();
+                 if (!message || !currentTicket) return;
+                 let senderEmail = "";
+                 try {
+                     const { data: { user } } = await localSupabase.auth.getUser();
+                     senderEmail = user?.email || "";
+                 } catch (_) {}
+                 const { error } = await localSupabase
+                     .from("support_messages")
+                     .insert({
+                         ticket_id: currentTicket.id,
+                         message: message,
+                         sender_role: "staff",
+                         sender_email: senderEmail || null
+                     });
+                if (error) {
+                    showStatus("Failed to send reply: " + error.message, "error");
+                    return;
+                }
+                input.value = "";
+            });
+
+            loadThreadMessages(ticket.id);
+            startTicketLive(ticket.id);
+        }
+
+        async function loadThreadMessages(ticketId) {
+            const box = document.getElementById("threadMessages");
+            if (!box) return;
+            try {
+                const { data, error } = await localSupabase
+                    .from("support_messages")
+                    .select("*")
+                    .eq("ticket_id", ticketId)
+                    .order("created_at", { ascending: true });
+                if (error) {
+                    box.innerHTML = `<div class="empty">Failed to load messages.</div>`;
+                    return;
+                }
+                if (!Array.isArray(data) || data.length === 0) {
+                    box.innerHTML = `<div class="empty">No messages yet.</div>`;
+                    return;
+                }
+                box.innerHTML = data.map((m) => {
+                    const role = m.sender_role === "staff" ? "staff" : "user";
+                    const time = m.created_at ? new Date(m.created_at).toLocaleString() : "";
+                    const sender = role === "staff" ? "Support Team" : "User";
+                    return `
+                        <div class="msg msg-${role}">
+                            <div class="msg-sender">${escapeHtml(sender)}</div>
+                            <div>${escapeHtml(m.message || "")}</div>
+                            <div class="msg-time">${escapeHtml(time)}</div>
+                        </div>
+                    `;
+                }).join("");
+                box.scrollTop = box.scrollHeight;
+            } catch (err) {
+                box.innerHTML = `<div class="empty">Failed to load messages.</div>`;
+            }
+        }
+
+        function startTicketLive(ticketId) {
+            ticketLive = localSupabase
+                .channel("support-ticket-" + ticketId)
+                .on("postgres_changes", {
+                    event: "*",
+                    schema: "public",
+                    table: "support_messages",
+                    filter: "ticket_id=eq." + ticketId
+                }, () => loadThreadMessages(ticketId))
+                .subscribe();
+        }
+
+        async function showStaffChat() {
+            if (ticketLive) { localSupabase.removeChannel(ticketLive); ticketLive = null; }
+            currentTicket = null;
+            showStatus("");
+            panelEl.innerHTML = `
+                <div class="chat-wrap">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="empty">Loading messages...</div>
+                    </div>
+                    <form class="reply-form" id="chatForm">
+                        <input class="reply-input" id="chatInput" placeholder="Message staff..." autocomplete="off" />
+                        <button class="reply-send" type="submit">Send</button>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById("chatForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const input = document.getElementById("chatInput");
+                const message = input.value.trim();
+                if (!message) return;
+                const { error } = await localSupabase
+                    .from("staff_chat")
+                    .insert({
+                        sender_id: currentUser.id,
+                        sender_name: currentUser.email || "Staff",
+                        message: message
+                    });
+                if (error) {
+                    showStatus("Failed to send message: " + error.message, "error");
+                    return;
+                }
+                input.value = "";
+            });
+
+            await loadChatMessages();
+            startChatLive();
+        }
+
+        async function loadChatMessages() {
+            const box = document.getElementById("chatMessages");
+            if (!box) return;
+            try {
+                const { data, error } = await localSupabase
+                    .from("staff_chat")
+                    .select("*")
+                    .order("created_at", { ascending: true })
+                    .limit(200);
+                if (error) {
+                    box.innerHTML = `<div class="empty">Failed to load staff chat.</div>`;
+                    return;
+                }
+                if (!Array.isArray(data) || data.length === 0) {
+                    box.innerHTML = `<div class="empty">No messages yet. Start the conversation.</div>`;
+                    return;
+                }
+                const sig = data.length + "|" + (data[data.length - 1].id || "");
+                if (sig === chatLastSig) return;
+                chatLastSig = sig;
+                box.innerHTML = data.map((m) => {
+                    const mine = String(m.sender_id) === String(currentUser.id);
+                    const time = m.created_at ? new Date(m.created_at).toLocaleTimeString() : "";
+                    return `
+                        <div class="chat-msg ${mine ? "chat-msg-mine" : ""}">
+                            <div class="chat-sender">${escapeHtml(m.sender_name || "Staff")}</div>
+                            <div>${escapeHtml(m.message || "")}</div>
+                            <div class="chat-time">${escapeHtml(time)}</div>
+                        </div>
+                    `;
+                }).join("");
+                box.scrollTop = box.scrollHeight;
+            } catch (err) {
+                box.innerHTML = `<div class="empty">Failed to load staff chat.</div>`;
+            }
+        }
+
+        function startChatLive() {
+            chatLive = localSupabase
+                .channel("staff-chat-global")
+                .on("postgres_changes", {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "staff_chat"
+                }, () => loadChatMessages())
+                .subscribe();
+        }
+
+        function stopChatLive() {
+            if (chatLive) { localSupabase.removeChannel(chatLive); chatLive = null; }
+            chatLastSig = "";
+        }
+
+        init();
+    </script>
+</body>
+</html>

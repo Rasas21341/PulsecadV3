@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            min-height: 100vh;
+        }
+
+        .doc-status {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        .doc-status.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .doc-status.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+
+        .doc-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .doc-sidebar {
+            width: 280px;
+            flex: 0 0 280px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+        }
+
+        .doc-sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .doc-sidebar-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .doc-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .doc-nav-section {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #64748b;
+            padding: 14px 8px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .doc-nav-page {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .doc-nav-page:hover {
+            background: #f1f5f9;
+        }
+
+        .doc-nav-page.active {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .doc-nav-page-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .doc-nav-del {
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 15px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 6px;
+            flex: 0 0 auto;
+            display: none;
+        }
+
+        .doc-nav-page:hover .doc-nav-del,
+        .doc-nav-section:hover .doc-nav-del {
+            display: inline-block;
+        }
+
+        .doc-nav-del:hover {
+            color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .doc-add-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .doc-add-btn {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px dashed #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .doc-add-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        /* Main */
+        .doc-main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px 40px 60px;
+        }
+
+        .doc-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .doc-toolbar-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn:hover { background: #f1f5f9; }
+
+        .btn.primary { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+        .btn.primary:hover { background: #1d4ed8; }
+
+        .btn.success { background: #16a34a; color: #ffffff; border-color: #16a34a; }
+        .btn.success:hover { background: #15803d; }
+
+        .doc-card {
+            position: relative;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            min-height: 500px;
+            max-width: 820px;
+        }
+
+        .doc-page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+            word-break: break-word;
+        }
+
+        .doc-content {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #334155;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .doc-empty-body {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .doc-title-input {
+            width: 100%;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .doc-title-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .doc-content-input {
+            width: 100%;
+            min-height: 420px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 14px;
+            outline: none;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .doc-content-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .doc-empty-state {
+            font-size: 15px;
+            color: #64748b;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .doc-fullscreen-msg {
+            max-width: 600px;
+            margin: 80px auto;
+            text-align: center;
+            font-size: 16px;
+            color: #475569;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 760px) {
+            .doc-layout { flex-direction: column; }
+            .doc-sidebar {
+                width: 100%;
+                flex: 1 1 auto;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .doc-main { padding: 20px; }
+            .doc-card { padding: 24px; }
+            .doc-theme-panel { right: 12px; left: 12px; width: auto; }
+        }
+
+        /* Theme / color customizer */
+        .doc-theme-panel {
+            position: fixed;
+            top: 72px;
+            right: 20px;
+            width: 280px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            padding: 18px;
+            z-index: 1200;
+            display: none;
+        }
+
+        .doc-theme-panel.open { display: block; }
+
+        .doc-theme-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .doc-theme-head h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .doc-theme-close {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 4px;
+            border-radius: 6px;
+        }
+
+        .doc-theme-close:hover { color: #0f172a; background: #f1f5f9; }
+
+        .doc-theme-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .doc-theme-preset {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+        }
+
+        .doc-theme-preset:hover { border-color: #94a3b8; }
+
+        .doc-theme-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .doc-theme-row label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .doc-theme-row input[type="color"] {
+            width: 44px;
+            height: 30px;
+            border: 1px solid #cbd5e1;
+            background: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 2px;
+        }
+
+        .doc-theme-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .doc-theme-actions .btn { flex: 1; }
+
+.doc-theme-hint {
+             font-size: 11px;
+             color: #94a3b8;
+             margin-top: 10px;
+             line-height: 1.4;
+         }
+
+         .doc-theme-section-label {
+             font-size: 11px;
+             font-weight: 700;
+             color: #94a3b8;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+             margin-top: 14px;
+             margin-bottom: 4px;
+             padding-bottom: 4px;
+             border-bottom: 1px solid #f1f5f9;
+         }
+
+        /* Copy protection + watermark */
+        .doc-protected .doc-page-title,
+        .doc-protected .doc-content {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .doc-watermark {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+            display: none;
+        }
+
+        .doc-watermark.active {
+            display: block;
+        }
+
+        #viewMode,
+        #editMode {
+            position: relative;
+            z-index: 2;
+        }
+
+        .doc-theme-field {
+            margin-top: 12px;
+        }
+
+        .doc-theme-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .doc-theme-field input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            color: #0f172a;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .doc-theme-field input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .doc-watermark span {
+            position: absolute;
+            transform: rotate(-28deg);
+            font-size: 22px;
+            font-weight: 700;
+            color: rgba(15, 23, 42, 0.08);
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="doc-status" id="docStatus"></div>
+
+    <div id="fullscreenMsg" class="doc-fullscreen-msg" style="display:none;"></div>
+
+    <div class="doc-layout" id="docLayout" style="display:none;">
+        <div class="doc-sidebar">
+            <div class="doc-sidebar-title" id="sidebarTitle">Document</div>
+            <div class="doc-sidebar-sub" id="sidebarSub"></div>
+            <div class="doc-nav" id="docNav"></div>
+            <div class="doc-add-btns" id="addBtns" style="display:none;">
+                <button type="button" class="doc-add-btn" id="addPageBtn">+ Page</button>
+                <button type="button" class="doc-add-btn" id="addSectionBtn">+ Section</button>
+            </div>
+        </div>
+
+        <div class="doc-main">
+            <div class="doc-toolbar">
+                <button type="button" class="btn" id="backBtn">← Back</button>
+                <div class="doc-toolbar-actions">
+                    <button type="button" class="btn" id="themeBtn" title="Customize page colors">Colors</button>
+                    <button type="button" class="btn" id="copyLinkBtn">Copy Link</button>
+                    <button type="button" class="btn primary" id="editBtn" style="display:none;">Edit</button>
+                    <button type="button" class="btn success" id="saveBtn" style="display:none;">Save</button>
+                    <button type="button" class="btn" id="cancelBtn" style="display:none;">Cancel</button>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-watermark" id="docWatermark"></div>
+                <div id="viewMode">
+                    <div class="doc-page-title" id="viewTitle"></div>
+                    <div class="doc-content" id="viewContent"></div>
+                    <div id="emptyState" class="doc-empty-state" style="display:none;">Select a page from the sidebar to view it.</div>
+                </div>
+                <div id="editMode" style="display:none;">
+                    <input type="text" class="doc-title-input" id="editTitle" placeholder="Page name..." />
+                    <textarea class="doc-content-input" id="editContent" placeholder="Write the page content here..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-theme-panel" id="themePanel">
+        <div class="doc-theme-head">
+            <h3>Page Colors</h3>
+            <button type="button" class="doc-theme-close" id="themeCloseBtn" title="Close">×</button>
+        </div>
+
+        <div class="doc-theme-presets" id="themePresets"></div>
+
+        <div class="doc-theme-row">
+            <label for="themeBg">Background</label>
+            <input type="color" id="themeBg" value="#ffffff" />
+        </div>
+        <div class="doc-theme-row">
+            <label for="themeText">Text</label>
+            <input type="color" id="themeText" value="#334155" />
+        </div>
+<div class="doc-theme-row">
+             <label for="themeAccent">Accent</label>
+             <input type="color" id="themeAccent" value="#2563eb" />
+         </div>
+
+         <div class="doc-theme-section-label">Sidebar</div>
+
+         <div class="doc-theme-row">
+             <label for="themeSidebarBg">Sidebar BG</label>
+             <input type="color" id="themeSidebarBg" value="#ffffff" />
+         </div>
+         <div class="doc-theme-row">
+             <label for="themeSidebarText">Sidebar Text</label>
+             <input type="color" id="themeSidebarText" value="#334155" />
+         </div>
+         <div class="doc-theme-row">
+             <label for="themeSidebarAccent">Sidebar Accent</label>
+             <input type="color" id="themeSidebarAccent" value="#2563eb" />
+         </div>
+
+         <div class="doc-theme-field">
+            <label for="themeWatermark">Watermark text (blank = default)</label>
+            <input type="text" id="themeWatermark" placeholder="e.g. CONFIDENTIAL" maxlength="40" />
+        </div>
+
+        <div class="doc-theme-actions">
+            <button type="button" class="btn" id="themeResetBtn">Reset</button>
+            <button type="button" class="btn primary" id="themeSaveBtn">Save</button>
+        </div>
+        <div class="doc-theme-hint" id="themeHint"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        const params = new URLSearchParams(window.location.search);
+        const docId = params.get("id");
+
+        const statusEl = document.getElementById("docStatus");
+        const layoutEl = document.getElementById("docLayout");
+        const fullscreenMsg = document.getElementById("fullscreenMsg");
+        const sidebarTitle = document.getElementById("sidebarTitle");
+        const sidebarSub = document.getElementById("sidebarSub");
+        const docNav = document.getElementById("docNav");
+        const addBtns = document.getElementById("addBtns");
+        const addPageBtn = document.getElementById("addPageBtn");
+        const addSectionBtn = document.getElementById("addSectionBtn");
+
+        const viewMode = document.getElementById("viewMode");
+        const editMode = document.getElementById("editMode");
+        const viewTitle = document.getElementById("viewTitle");
+        const viewContent = document.getElementById("viewContent");
+        const emptyState = document.getElementById("emptyState");
+        const editTitle = document.getElementById("editTitle");
+        const editContent = document.getElementById("editContent");
+        const editBtn = document.getElementById("editBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const copyLinkBtn = document.getElementById("copyLinkBtn");
+        const themeBtn = document.getElementById("themeBtn");
+        const themePanel = document.getElementById("themePanel");
+        const themeCloseBtn = document.getElementById("themeCloseBtn");
+        const themePresets = document.getElementById("themePresets");
+const themeBg = document.getElementById("themeBg");
+         const themeText = document.getElementById("themeText");
+         const themeAccent = document.getElementById("themeAccent");
+         const themeSidebarBg = document.getElementById("themeSidebarBg");
+         const themeSidebarText = document.getElementById("themeSidebarText");
+         const themeSidebarAccent = document.getElementById("themeSidebarAccent");
+         const themeWatermark = document.getElementById("themeWatermark");
+         const themeSaveBtn = document.getElementById("themeSaveBtn");
+         const themeResetBtn = document.getElementById("themeResetBtn");
+         const themeHint = document.getElementById("themeHint");
+
+         let localSupabase = null;
+         let currentDoc = null;
+         let pages = [];
+         let selectedId = null;
+         let isOwner = false;
+         let editing = false;
+         let currentCommunityName = "";
+         let currentTheme = { bg: "", text: "", accent: "", sidebarBg: "", sidebarText: "", sidebarAccent: "" };
+
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        document.getElementById("backBtn").addEventListener("click", () => {
+            if (window.history.length > 1) window.history.back();
+            else window.close();
+        });
+
+        function showStatus(message, type) {
+            if (!statusEl) return;
+            statusEl.className = "doc-status " + (type || "error");
+            statusEl.textContent = message;
+            if (type === "success") {
+                setTimeout(() => { if (statusEl) statusEl.style.display = "none"; }, 2000);
+            }
+        }
+
+        function showFullscreenMessage(message) {
+            if (fullscreenMsg) {
+                fullscreenMsg.textContent = message;
+                fullscreenMsg.style.display = "block";
+            }
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return "";
+            const div = document.createElement("div");
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function genId() {
+            return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+
+        function normalizePages() {
+            let p = currentDoc.pages;
+            if (typeof p === "string") {
+                try { p = JSON.parse(p); } catch (e) { p = null; }
+            }
+            if (!Array.isArray(p) || p.length === 0) {
+                // Migrate from single content column
+                p = [{
+                    id: genId(),
+                    type: "page",
+                    title: currentDoc.title || "Page 1",
+                    content: currentDoc.content || ""
+                }];
+            }
+            pages = p;
+        }
+
+        function firstPageId() {
+            const firstPage = pages.find((e) => e.type === "page");
+            return firstPage ? firstPage.id : null;
+        }
+
+        function renderSidebar() {
+            if (!docNav) return;
+            docNav.innerHTML = "";
+            if (pages.length === 0) {
+                docNav.innerHTML = `<div class="doc-empty-state" style="padding:20px 8px; font-size:13px;">No pages yet.</div>`;
+                return;
+            }
+            pages.forEach((entry) => {
+                if (entry.type === "section") {
+                    const sec = document.createElement("div");
+                    sec.className = "doc-nav-section";
+                    sec.innerHTML = `<span>${escapeHtml(entry.title || "Section")}</span>` +
+                        (isOwner ? `<button type="button" class="doc-nav-del" title="Delete section" data-del="${escapeHtml(entry.id)}">×</button>` : "");
+                    docNav.appendChild(sec);
+                } else {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "doc-nav-page" + (entry.id === selectedId ? " active" : "");
+                    btn.innerHTML = `<span class="doc-nav-page-label">${escapeHtml(entry.title || "Untitled")}</span>` +
+                        (isOwner ? `<span class="doc-nav-del" title="Delete page" data-del="${escapeHtml(entry.id)}">×</span>` : "");
+                    btn.addEventListener("click", (e) => {
+                        if (e.target.closest("[data-del]")) return;
+                        selectPage(entry.id);
+                    });
+                    docNav.appendChild(btn);
+                }
+            });
+
+            if (isOwner) {
+                docNav.querySelectorAll("[data-del]").forEach((el) => {
+                    el.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        deleteEntry(el.getAttribute("data-del"));
+                    });
+                });
+            }
+
+            if (currentTheme.accent) {
+                const a = docNav.querySelector(".doc-nav-page.active");
+                if (a) a.style.color = currentTheme.accent;
+            }
+        }
+
+        function selectPage(id) {
+            if (editing) {
+                if (!confirm("Discard unsaved changes?")) return;
+                exitEditMode();
+            }
+            selectedId = id;
+            renderSidebar();
+            renderMainView();
+        }
+
+        function getSelected() {
+            return pages.find((e) => e.id === selectedId && e.type === "page") || null;
+        }
+
+        function getWatermarkText() {
+            if (currentTheme.watermark && currentTheme.watermark.trim()) return currentTheme.watermark.trim();
+            return (currentCommunityName || (currentDoc && currentDoc.title) || "PulseCAD").toString().trim() || "PulseCAD";
+        }
+
+        function buildWatermark(text) {
+            const wm = document.getElementById("docWatermark");
+            const card = document.querySelector(".doc-card");
+            if (!wm || !card) return;
+            wm.innerHTML = "";
+            if (!text || editing) {
+                wm.classList.remove("active");
+                return;
+            }
+            const h = Math.max(card.scrollHeight, card.clientHeight, 500);
+            const w = Math.max(card.clientWidth, 360);
+            const stepY = 120;
+            const stepX = 240;
+            for (let y = -30; y < h; y += stepY) {
+                for (let x = -50; x < w; x += stepX) {
+                    const s = document.createElement("span");
+                    s.textContent = text;
+                    s.style.top = y + "px";
+                    s.style.left = x + "px";
+                    wm.appendChild(s);
+                }
+            }
+            wm.classList.add("active");
+        }
+
+        function applyProtection() {
+            const card = document.querySelector(".doc-card");
+            if (!card) return;
+            if (editing) {
+                card.classList.remove("doc-protected");
+            } else {
+                card.classList.add("doc-protected");
+            }
+        }
+
+        function renderMainView() {
+            const page = getSelected();
+            if (!page) {
+                if (viewTitle) viewTitle.textContent = "";
+                if (viewContent) viewContent.innerHTML = "";
+                if (emptyState) emptyState.style.display = "block";
+                if (editBtn) editBtn.style.display = "none";
+                return;
+            }
+            if (emptyState) emptyState.style.display = "none";
+            if (viewTitle) viewTitle.textContent = page.title || "Untitled";
+            if (viewContent) {
+                if (page.content && page.content.trim()) {
+                    viewContent.textContent = page.content;
+                    viewContent.classList.remove("doc-empty-body");
+                } else {
+                    viewContent.textContent = "This page has no content yet.";
+                    viewContent.classList.add("doc-empty-body");
+                }
+            }
+            if (isOwner && editBtn) editBtn.style.display = "inline-block";
+            applyProtection();
+            buildWatermark(getWatermarkText());
+        }
+
+        function enterEditMode() {
+            const page = getSelected();
+            if (!page) return;
+            editing = true;
+            if (editTitle) editTitle.value = page.title || "";
+            if (editContent) editContent.value = page.content || "";
+            if (viewMode) viewMode.style.display = "none";
+            if (editMode) editMode.style.display = "block";
+            if (editBtn) editBtn.style.display = "none";
+            if (saveBtn) saveBtn.style.display = "inline-block";
+            if (cancelBtn) cancelBtn.style.display = "inline-block";
+            applyProtection();
+            buildWatermark(getWatermarkText());
+        }
+
+        function exitEditMode() {
+            editing = false;
+            if (viewMode) viewMode.style.display = "block";
+            if (editMode) editMode.style.display = "none";
+            if (saveBtn) saveBtn.style.display = "none";
+            if (cancelBtn) cancelBtn.style.display = "none";
+            renderMainView();
+        }
+
+        async function persistPages() {
+            if (!localSupabase || !currentDoc) return false;
+            const { error } = await localSupabase
+                .from("documents")
+                .update({ pages: pages })
+                .eq("id", currentDoc.id);
+            if (error) {
+                showStatus("Failed to save: " + error.message, "error");
+                return false;
+            }
+            return true;
+        }
+
+        async function savePage() {
+            const page = getSelected();
+            if (!page) return;
+            const newTitle = editTitle ? editTitle.value.trim() : "";
+            const newContent = editContent ? editContent.value : "";
+            if (!newTitle) {
+                showStatus("Page name cannot be empty.", "error");
+                return;
+            }
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Saving..."; }
+            page.title = newTitle;
+            page.content = newContent;
+            const ok = await persistPages();
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
+            if (ok) {
+                exitEditMode();
+                renderSidebar();
+                renderMainView();
+                showStatus("Saved.", "success");
+            }
+        }
+
+        async function addPage() {
+            const name = prompt("Page name:");
+            if (!name || !name.trim()) return;
+            const entry = { id: genId(), type: "page", title: name.trim(), content: "" };
+            pages.push(entry);
+            const ok = await persistPages();
+            if (ok) {
+                selectedId = entry.id;
+                renderSidebar();
+                renderMainView();
+            } else {
+                pages.pop();
+            }
+        }
+
+        async function addSection() {
+            const name = prompt("Section name:");
+            if (!name || !name.trim()) return;
+            const entry = { id: genId(), type: "section", title: name.trim() };
+            pages.push(entry);
+            const ok = await persistPages();
+            if (ok) {
+                renderSidebar();
+            } else {
+                pages.pop();
+            }
+        }
+
+        async function deleteEntry(id) {
+            const entry = pages.find((e) => e.id === id);
+            if (!entry) return;
+            const label = entry.type === "section" ? "section" : "page";
+            if (!confirm("Delete this " + label + "?")) return;
+            const idx = pages.findIndex((e) => e.id === id);
+            const removed = pages.splice(idx, 1);
+            const ok = await persistPages();
+            if (!ok) {
+                pages.splice(idx, 0, removed[0]);
+                return;
+            }
+            if (selectedId === id) {
+                selectedId = firstPageId();
+            }
+            renderSidebar();
+            renderMainView();
+        }
+
+const THEME_PRESETS = [
+             { name: "Default", bg: "#ffffff", text: "#334155", accent: "#2563eb", sidebarBg: "#ffffff", sidebarText: "#334155", sidebarAccent: "#2563eb" },
+             { name: "Midnight", bg: "#0f172a", text: "#e2e8f0", accent: "#60a5fa", sidebarBg: "#0f172a", sidebarText: "#e2e8f0", sidebarAccent: "#60a5fa" },
+             { name: "Paper", bg: "#fdf6e3", text: "#3b3b3b", accent: "#b58900", sidebarBg: "#fdf6e3", sidebarText: "#3b3b3b", sidebarAccent: "#b58900" },
+             { name: "Forest", bg: "#f0fdf4", text: "#14532d", accent: "#16a34a", sidebarBg: "#f0fdf4", sidebarText: "#14532d", sidebarAccent: "#16a34a" },
+             { name: "Rose", bg: "#fff1f2", text: "#881337", accent: "#e11d48", sidebarBg: "#fff1f2", sidebarText: "#881337", sidebarAccent: "#e11d48" },
+             { name: "Slate", bg: "#1e293b", text: "#cbd5e1", accent: "#38bdf8", sidebarBg: "#1e293b", sidebarText: "#cbd5e1", sidebarAccent: "#38bdf8" }
+         ];
+
+        function buildPresets() {
+            if (!themePresets) return;
+            themePresets.innerHTML = "";
+            THEME_PRESETS.forEach((p) => {
+                const sw = document.createElement("div");
+                sw.className = "doc-theme-preset";
+                sw.title = p.name;
+                sw.style.background = "linear-gradient(135deg, " + p.bg + " 0%, " + p.accent + " 100%)";
+sw.addEventListener("click", () => {
+                     themeBg.value = p.bg;
+                     themeText.value = p.text;
+                     themeAccent.value = p.accent;
+                     if (themeSidebarBg) themeSidebarBg.value = p.sidebarBg || p.bg;
+                     if (themeSidebarText) themeSidebarText.value = p.sidebarText || p.text;
+                     if (themeSidebarAccent) themeSidebarAccent.value = p.sidebarAccent || p.accent;
+                     applyTheme(p);
+                 });
+                themePresets.appendChild(sw);
+            });
+        }
+
+function applyTheme(t) {
+             currentTheme = {
+                 bg: t.bg || "",
+                 text: t.text || "",
+                 accent: t.accent || "",
+                 sidebarBg: t.sidebarBg || t.bg || "",
+                 sidebarText: t.sidebarText || t.text || "",
+                 sidebarAccent: t.sidebarAccent || t.accent || "",
+                 watermark: (t.watermark || "").trim()
+             };
+             const card = document.querySelector(".doc-card");
+             const sidebar = document.querySelector(".doc-sidebar");
+             if (card) {
+                 card.style.background = currentTheme.bg || "";
+                 card.style.color = currentTheme.text || "";
+                 card.style.borderColor = currentTheme.accent || "";
+             }
+             if (sidebar) {
+                 sidebar.style.background = currentTheme.sidebarBg || "";
+             }
+             if (document.body) document.body.style.background = currentTheme.bg || "";
+             if (viewTitle) viewTitle.style.color = currentTheme.accent || "";
+             if (viewContent) viewContent.style.color = currentTheme.text || "";
+             if (editTitle) editTitle.style.color = currentTheme.accent || "";
+             if (editContent) editContent.style.color = currentTheme.text || "";
+             const activeNav = document.querySelector(".doc-nav-page.active");
+             if (activeNav) activeNav.style.color = currentTheme.accent || "";
+             const sidebarTitleEl = document.querySelector(".doc-sidebar-title");
+             if (sidebarTitleEl) sidebarTitleEl.style.color = currentTheme.sidebarText || "";
+             const sidebarSubEl = document.querySelector(".doc-sidebar-sub");
+             if (sidebarSubEl) sidebarSubEl.style.color = currentTheme.sidebarText || "";
+             const navPages = document.querySelectorAll(".doc-nav-page");
+             navPages.forEach((el) => { el.style.color = currentTheme.sidebarText || ""; });
+             const navSections = document.querySelectorAll(".doc-nav-section");
+             navSections.forEach((el) => { el.style.color = currentTheme.sidebarText || ""; });
+             buildWatermark(getWatermarkText());
+         }
+
+function readThemeInputs() {
+             return {
+                 bg: themeBg ? themeBg.value : "",
+                 text: themeText ? themeText.value : "",
+                 accent: themeAccent ? themeAccent.value : "",
+                 sidebarBg: themeSidebarBg ? themeSidebarBg.value : "",
+                 sidebarText: themeSidebarText ? themeSidebarText.value : "",
+                 sidebarAccent: themeSidebarAccent ? themeSidebarAccent.value : ""
+             };
+         }
+
+         function setThemeInputs(t) {
+             if (!t) return;
+             if (themeBg) themeBg.value = t.bg || "#ffffff";
+             if (themeText) themeText.value = t.text || "#334155";
+             if (themeAccent) themeAccent.value = t.accent || "#2563eb";
+             if (themeSidebarBg) themeSidebarBg.value = t.sidebarBg || t.bg || "#ffffff";
+             if (themeSidebarText) themeSidebarText.value = t.sidebarText || t.text || "#334155";
+             if (themeSidebarAccent) themeSidebarAccent.value = t.sidebarAccent || t.accent || "#2563eb";
+         }
+
+        function loadTheme() {
+            let t = null;
+            if (currentDoc && currentDoc.theme && typeof currentDoc.theme === "object") {
+                t = currentDoc.theme;
+            } else {
+                try {
+                    const saved = localStorage.getItem("pulsecad_theme_" + docId);
+                    if (saved) t = JSON.parse(saved);
+                } catch (e) { /* ignore */ }
+            }
+            if (t) {
+                setThemeInputs(t);
+                applyTheme(t);
+            } else {
+                setThemeInputs({ bg: "#ffffff", text: "#334155", accent: "#2563eb" });
+                applyTheme({ bg: "", text: "", accent: "" });
+            }
+            if (themeHint) {
+                themeHint.textContent = "Colors are saved for everyone viewing this document.";
+            }
+        }
+
+        function saveThemeLocal(t) {
+            try {
+                if (t.bg || t.text || t.accent) {
+                    localStorage.setItem("pulsecad_theme_" + docId, JSON.stringify(t));
+                } else {
+                    localStorage.removeItem("pulsecad_theme_" + docId);
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        async function persistTheme() {
+            if (!localSupabase || !currentDoc) return false;
+            const { error } = await localSupabase
+                .from("documents")
+                .update({ theme: currentTheme })
+                .eq("id", currentDoc.id);
+            if (error) {
+                showStatus("Couldn't save theme to server: " + error.message, "error");
+                return false;
+            }
+            return true;
+        }
+
+        async function saveTheme() {
+            const t = readThemeInputs();
+            applyTheme(t);
+            saveThemeLocal(t);
+            if (themeSaveBtn) { themeSaveBtn.disabled = true; themeSaveBtn.textContent = "Saving..."; }
+            const ok = await persistTheme();
+            if (themeSaveBtn) { themeSaveBtn.disabled = false; themeSaveBtn.textContent = "Save"; }
+            if (ok) showStatus("Colors saved.", "success");
+        }
+
+        function resetTheme() {
+            const def = { bg: "", text: "", accent: "" };
+            setThemeInputs({ bg: "#ffffff", text: "#334155", accent: "#2563eb" });
+            applyTheme(def);
+            saveThemeLocal(def);
+            persistTheme().then((ok) => { if (ok) showStatus("Colors reset.", "success"); });
+        }
+
+        function openThemePanel() {
+            if (themePanel) themePanel.classList.add("open");
+        }
+
+        function closeThemePanel() {
+            if (themePanel) themePanel.classList.remove("open");
+        }
+
+        async function init() {
+            if (!docId) {
+                showFullscreenMessage("No document specified.");
+                return;
+            }
+            if (!localSupabase) {
+                showFullscreenMessage("Service unavailable.");
+                return;
+            }
+            try {
+                const { data, error } = await localSupabase
+                    .from("documents")
+                    .select("*")
+                    .eq("id", docId)
+                    .maybeSingle();
+                if (error || !data) {
+                    showFullscreenMessage("Document not found or you don't have access to it.");
+                    return;
+                }
+                currentDoc = data;
+
+                try {
+                    const { data: { user } } = await localSupabase.auth.getUser();
+                    if (user) {
+                        const { data: community } = await localSupabase
+                            .from("communities")
+                            .select("creator_email, name")
+                            .eq("id", data.community_id)
+                            .maybeSingle();
+                        isOwner = !!(community && community.creator_email === user.email);
+                        currentCommunityName = (community && community.name) || "";
+                    }
+                } catch (err) {
+                    console.error("Owner check failed:", err);
+                }
+
+                normalizePages();
+                selectedId = firstPageId();
+
+                document.title = (currentDoc.title || "Document") + " - PulseCAD";
+                if (sidebarTitle) sidebarTitle.textContent = currentDoc.title || "Document";
+                if (sidebarSub) {
+                    const depts = Array.isArray(currentDoc.departments) ? currentDoc.departments : [];
+                    sidebarSub.textContent = depts.length ? depts.join(", ") : "";
+                }
+                if (layoutEl) layoutEl.style.display = "flex";
+                if (addBtns) addBtns.style.display = isOwner ? "flex" : "none";
+                if (copyLinkBtn) copyLinkBtn.style.display = "inline-block";
+
+                buildPresets();
+                renderSidebar();
+                renderMainView();
+                loadTheme();
+            } catch (err) {
+                console.error("Init failed:", err);
+                showFullscreenMessage("Failed to load document.");
+            }
+        }
+
+        if (editBtn) editBtn.addEventListener("click", enterEditMode);
+        if (cancelBtn) cancelBtn.addEventListener("click", () => { editing = false; exitEditMode(); });
+        if (saveBtn) saveBtn.addEventListener("click", savePage);
+        if (addPageBtn) addPageBtn.addEventListener("click", addPage);
+        if (addSectionBtn) addSectionBtn.addEventListener("click", addSection);
+        if (copyLinkBtn) {
+            copyLinkBtn.addEventListener("click", () => {
+                const link = window.location.href;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(link)
+                        .then(() => showStatus("Link copied to clipboard.", "success"))
+                        .catch(() => prompt("Copy this link:", link));
+                } else {
+                    prompt("Copy this link:", link);
+                }
+            });
+        }
+
+        if (themeBtn) themeBtn.addEventListener("click", () => {
+            if (themePanel && themePanel.classList.contains("open")) closeThemePanel();
+            else openThemePanel();
+        });
+        if (themeCloseBtn) themeCloseBtn.addEventListener("click", closeThemePanel);
+        if (themeBg) themeBg.addEventListener("input", () => applyTheme(readThemeInputs()));
+        if (themeText) themeText.addEventListener("input", () => applyTheme(readThemeInputs()));
+        if (themeAccent) themeAccent.addEventListener("input", () => applyTheme(readThemeInputs()));
+        if (themeSaveBtn) themeSaveBtn.addEventListener("click", saveTheme);
+        if (themeResetBtn) themeResetBtn.addEventListener("click", resetTheme);
+        document.addEventListener("click", (e) => {
+            if (themePanel && themePanel.classList.contains("open")
+                && !themePanel.contains(e.target) && e.target !== themeBtn && !themeBtn.contains(e.target)) {
+                closeThemePanel();
+            }
+        });
+
+        // Copy protection on the document card (disabled while editing)
+        const docCard = document.querySelector(".doc-card");
+        if (docCard) {
+            ["copy", "cut", "contextmenu", "selectstart", "dragstart"].forEach((evt) => {
+                docCard.addEventListener(evt, (e) => {
+                    if (editing) return;
+                    if (editMode && editMode.style.display !== "none" && editMode.contains(e.target)) return;
+                    e.preventDefault();
+                });
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

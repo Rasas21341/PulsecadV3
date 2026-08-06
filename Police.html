@@ -1,0 +1,2788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1E293B;
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 24px;
+            padding-top: 200px;
+            padding-bottom: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 14px;
+            margin: 0;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #1E293B;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 700;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+        }
+
+
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .officer-info {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1E293B;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .status-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .status-current {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1E293B;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .status-dot.available {
+            background: #22c55e;
+        }
+
+        .status-dot.unavailable {
+            background: #ef4444;
+        }
+
+        .status-dot.busy {
+            background: #f59e0b;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .status-btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1E293B;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease;
+        }
+
+        .status-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .status-btn.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1E293B;
+        }
+
+        .modal-close {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 999px;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #1E293B;
+        }
+
+        .lookup-field {
+            margin-bottom: 14px;
+        }
+
+        .lookup-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .lookup-field input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #1E293B;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .lookup-field input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .lookup-submit {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .lookup-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .lookup-submit:active {
+            transform: translateY(1px);
+        }
+
+        .lookup-error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+            display: none;
+        }
+
+        .lookup-result {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-size: 14px;
+            display: none;
+            word-break: break-word;
+        }
+
+        .report-field {
+            margin-bottom: 14px;
+        }
+
+        .report-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .report-field input,
+        .report-field textarea,
+        .report-field select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #1E293B;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+            font-family: inherit;
+            background: #ffffff;
+        }
+
+        .report-field input:focus,
+        .report-field textarea:focus,
+        .report-field select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .report-field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .report-submit {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .report-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .report-submit:active {
+            transform: translateY(1px);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1E293B;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #eff6ff;
+            border-color: #2563eb;
+            color: #1d4ed8;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .record-item {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .record-item strong {
+            display: block;
+            color: #1E293B;
+            margin-bottom: 4px;
+        }
+
+        .license-revoke-btn {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #dc2626;
+            background: #ffffff;
+            border: 1px solid #dc2626;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .license-revoke-btn:hover {
+            background: #fef2f2;
+        }
+
+        .license-revoked-badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #991b1b;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            margin-left: 8px;
+        }
+
+        .record-item span {
+            color: #475569;
+            font-size: 13px;
+        }
+
+        .record-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .record-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .record-action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1E293B;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .record-action-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .record-action-btn.citation {
+            background: #fef9c3;
+            border-color: #fde68a;
+            color: #854d0e;
+        }
+
+        .record-action-btn.arrest {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .record-delete-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+        }
+
+        .record-delete-btn:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .plate-lookup-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid #2563eb;
+            background: #ffffff;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 700;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .plate-lookup-btn:hover {
+            background: #eff6ff;
+        }
+
+        .civilian-lookup-btn {
+            position: fixed;
+            right: 180px;
+            bottom: 24px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid #2563eb;
+            background: #ffffff;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 700;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .civilian-lookup-btn:hover {
+            background: #eff6ff;
+        }
+
+        .military-time {
+            position: fixed;
+            right: 24px;
+            bottom: 70px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #1E293B;
+            font-size: 12px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            z-index: 700;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            pointer-events: none;
+        }
+
+        .status-select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1E293B;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .status-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .id-picture-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            padding: 16px;
+        }
+
+        .id-picture-overlay.open {
+            display: flex;
+        }
+
+        .id-picture-modal {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+            text-align: center;
+        }
+
+        .id-picture-modal img {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .id-picture-placeholder {
+            padding: 40px 20px;
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .suspend-license-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #dc2626;
+            background: #ffffff;
+            color: #dc2626;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .suspend-license-btn:hover {
+            background: #fef2f2;
+        }
+
+        .unsuspend-license-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #22c55e;
+            background: #ffffff;
+            color: #16a34a;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .unsuspend-license-btn:hover {
+            background: #f0fdf4;
+        }
+
+        .license-status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .license-status-badge.active {
+            color: #166534;
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+        }
+
+        .license-status-badge.suspended {
+            color: #991b1b;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .license-points-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .license-points-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid;
+        }
+
+        .license-points-badge.clean {
+            color: #166534;
+            background: #dcfce7;
+            border-color: #bbf7d0;
+        }
+
+        .license-points-badge.warning {
+            color: #854d0e;
+            background: #fef9c3;
+            border-color: #fde68a;
+        }
+
+        .license-points-badge.probation {
+            color: #92400e;
+            background: #ffedd5;
+            border-color: #fed7aa;
+        }
+
+        .license-points-badge.restricted {
+            color: #991b1b;
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
+        .license-points-badge.revoked {
+            color: #7f1d1d;
+            background: #fecaca;
+            border-color: #f87171;
+        }
+
+        .license-points-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1E293B;
+        }
+
+        .license-tier-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .license-points-detail {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .license-points-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+
+        .license-points-detail-row strong {
+            color: #1E293B;
+        }
+
+        .license-expiry-info {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .signature-field {
+            margin-bottom: 14px;
+        }
+
+        .signature-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .signature-canvas {
+            width: 100%;
+            height: 100px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .signature-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .signature-clear-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1E293B;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .signature-clear-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .civilian-name-btn {
+            background: none;
+            border: none;
+            color: #2563eb;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .civilian-name-btn:hover {
+            color: #1d4ed8;
+        }
+
+        .calls-panel {
+            position: fixed;
+            top: 70px;
+            left: 24px;
+            width: 320px;
+            max-height: calc(100vh - 140px);
+            background: #1E293B;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            padding: 14px;
+            z-index: 700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            overflow-y: auto;
+        }
+
+        .calls-panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .calls-panel-title:active {
+            cursor: grabbing;
+        }
+
+        .call-info-box {
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 8px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            font-size: 12px;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .call-info-box strong {
+            color: #f1f5f9;
+        }
+
+        .active-units-panel {
+            position: fixed;
+            top: 70px;
+            right: 24px;
+            width: 320px;
+            max-height: calc(100vh - 140px);
+            background: #1E293B;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            padding: 14px;
+            z-index: 700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            overflow-y: auto;
+        }
+
+        .active-units-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .active-units-title:active {
+            cursor: grabbing;
+        }
+
+        .active-unit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .active-unit-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .active-unit-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .active-unit-meta {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .active-unit-status {
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .active-unit-status.available {
+            background: #14532d;
+            color: #bbf7d0;
+            border: 1px solid #166534;
+        }
+
+        .active-unit-status.unavailable {
+            background: #7f1d1d;
+            color: #fecaca;
+            border: 1px solid #991b1b;
+        }
+
+        .active-unit-status.busy {
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde68a;
+        }
+
+        .bolo-panel {
+            position: fixed;
+            top: 260px;
+            left: 24px;
+            width: 320px;
+            max-height: calc(100vh - 340px);
+            background: #1E293B;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            padding: 14px;
+            z-index: 700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            overflow-y: auto;
+        }
+
+        .bolo-panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .bolo-panel-title:active {
+            cursor: grabbing;
+        }
+
+        .bolo-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .bolo-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bolo-field label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .bolo-field input,
+        .bolo-field textarea,
+        .bolo-field select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            color: #1E293B;
+        }
+
+        .bolo-field input:focus,
+        .bolo-field textarea:focus,
+        .bolo-field select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .bolo-field textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .bolo-submit {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .bolo-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .bolo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bolo-item {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .bolo-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .bolo-type {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde68a;
+        }
+
+        .bolo-delete {
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 1px solid #dc2626;
+            background: #ffffff;
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .bolo-desc {
+            font-size: 12px;
+            color: #334155;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .bolo-priority {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .bolo-priority.high {
+            color: #dc2626;
+        }
+
+        .bolo-priority.medium {
+            color: #d97706;
+        }
+
+        .bolo-priority.low {
+            color: #16a34a;
+        }
+
+        .panel-dragging {
+            opacity: 0.9;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            cursor: grabbing;
+        }
+
+        .record-detail-content {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .record-detail-content strong {
+            color: #1E293B;
+        }
+
+        .record-detail-row {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .record-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .record-detail-image {
+            max-width: 100%;
+            max-height: 50vh;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-top: 8px;
+        }
+
+        .record-view-btn {
+            cursor: pointer;
+            flex: 1;
+            min-width: 0;
+        }
+
+         .record-view-btn:hover {
+             background: #f1f5f9;
+             border-radius: 10px;
+             padding: 8px;
+             margin: -8px;
+         }
+
+         .map-container {
+             flex: 1 1 auto;
+             width: 100%;
+             min-width: 200px;
+             max-width: max(calc(100vw - 760px), 220px);
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             margin: 10px 0;
+             min-height: 300px;
+             background: #0f172a;
+             border-radius: 12px;
+             border: 2px solid #334155;
+             position: relative;
+             z-index: 100;
+             overflow: hidden;
+         }
+
+         .map-container img {
+             display: block;
+             max-width: 100%;
+             max-height: calc(100vh - 360px);
+             width: auto;
+             height: auto;
+             border-radius: 8px;
+             object-fit: contain;
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+         }
+     </style>
+</head>
+<body>
+    <div class="status-bar">
+        <div class="status-current">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Available</span>
+        </div>
+        <div class="status-buttons">
+            <select id="statusSelect" class="status-select">
+                <option value="available">Available</option>
+                <option value="unavailable">Unavailable</option>
+                <option value="busy">Busy</option>
+            </select>
+            <button type="button" class="status-btn" id="supervisorPanelBtn">Supervisor Panel</button>
+        </div>
+    </div>
+
+
+    <button class="back-btn" id="backBtn">← Back</button>
+
+    <div class="calls-panel" id="callsPanel" style="display: none;">
+        <div class="calls-panel-title">Active Call</div>
+        <div class="call-info-box" id="activeCallBox">
+            <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">No active call</div>
+        </div>
+    </div>
+
+    <div class="bolo-panel" id="boloPanel" style="display: none;">
+        <div class="bolo-panel-title">BOLO</div>
+        <div class="bolo-form">
+            <div class="bolo-field">
+                <label for="boloType">Type</label>
+                <input type="text" id="boloType" placeholder="e.g. Suspect, Vehicle" />
+            </div>
+            <div class="bolo-field">
+                <label for="boloDesc">Description</label>
+                <textarea id="boloDesc" placeholder="Describe the BOLO..."></textarea>
+            </div>
+            <div class="bolo-field">
+                <label for="boloPriority">Priority</label>
+                <select id="boloPriority">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+            <button type="button" class="bolo-submit" id="boloSubmitBtn">Add BOLO</button>
+        </div>
+        <div class="bolo-list" id="boloList"></div>
+    </div>
+
+    <div class="active-units-panel" id="activeUnitsPanel" style="display: none;">
+        <div class="active-units-title">Active Units</div>
+        <div id="activeUnitsList"></div>
+    </div>
+
+    <div class="map-container" id="mapContainer">
+        <img src="/api/erlc/maps/fall_postals.png" alt="ERLC Map" id="erlcMapImg" width="900" height="600" />
+    </div>
+
+    <div class="military-time" id="militaryTime">00:00</div>
+    <button type="button" class="plate-lookup-btn" id="plateLookupBtn">Plate Lookup</button>
+    <button type="button" class="civilian-lookup-btn" id="civilianLookupBtn">Lookup Civilian</button>
+
+    <div class="modal-overlay" id="plateLookupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Plate Lookup</div>
+                <button class="modal-close" id="plateLookupClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="lookup-field">
+                <label for="plateInput">Plate number</label>
+                <input type="text" id="plateInput" placeholder="e.g. ABC 123" />
+            </div>
+            <button type="button" class="lookup-submit" id="plateSubmitBtn">Search</button>
+            <div class="lookup-error" id="plateError"></div>
+            <div class="lookup-result" id="plateResult"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="civilianLookupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Civilian Lookup</div>
+                <button class="modal-close" id="civilianLookupClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="lookup-field">
+                <label for="civilianInput">Name or ID</label>
+                <input type="text" id="civilianInput" placeholder="e.g. John Doe" />
+            </div>
+            <button type="button" class="lookup-submit" id="civilianSubmitBtn">Search</button>
+            <div class="lookup-error" id="civilianError"></div>
+            <div class="lookup-result" id="civilianResult"></div>
+            <div id="civilianDetails" style="display:none; margin-top:14px;">
+                <div class="tabs">
+                    <button type="button" class="tab-btn active" data-tab="details" data-target="civilianDetailsPanel">Details</button>
+                    <button type="button" class="tab-btn" data-tab="license" data-target="civilianLicensePanel">License</button>
+                    <button type="button" class="tab-btn" data-tab="records" data-target="civilianRecordsPanel">Records</button>
+                </div>
+                <div class="tab-panel active" id="civilianDetailsPanel">
+                    <div class="record-item" id="selectedCivilianInfo"></div>
+                    <div class="record-actions">
+                        <button type="button" class="record-action-btn citation" id="openCitationBtn">Citation</button>
+                        <button type="button" class="record-action-btn arrest" id="openArrestBtn">Arrest</button>
+                    </div>
+                </div>
+                <div class="tab-panel" id="civilianLicensePanel">
+                    <div id="civilianLicenseDetails"><div class="empty">Select a civilian to view license details.</div></div>
+                </div>
+                <div class="tab-panel" id="civilianRecordsPanel">
+                    <div id="civilianRecordsList"><div class="empty">Loading records...</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="citationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Issue Citation</div>
+                <button class="modal-close" id="citationModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="report-field">
+                <label for="citationCivilianId">Civilian ID</label>
+                <input type="text" id="citationCivilianId" readonly />
+            </div>
+            <div class="report-field">
+                <label for="citationCivilianName">Civilian Name</label>
+                <input type="text" id="citationCivilianName" readonly />
+            </div>
+            <div class="report-field">
+                <label for="citationReason">Violation</label>
+                <input type="text" id="citationReason" placeholder="e.g. Speeding, Parking violation" />
+            </div>
+            <div class="report-field">
+                <label for="citationLocation">Location</label>
+                <input type="text" id="citationLocation" placeholder="e.g. Highway 1" />
+            </div>
+            <div class="report-field">
+                <label>Charges</label>
+                <div id="citationChargesList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="citationChargesInput" placeholder="e.g. Speeding" style="flex:2;" />
+                    <input type="text" id="citationFineInput" placeholder="Fine $" style="flex:1;" />
+                    <button type="button" class="add-charge-btn" id="addCitationChargeBtn" style="padding:6px 12px;border-radius:8px;border:1px solid #2563eb;background:#ffffff;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;">Add</button>
+                </div>
+            </div>
+            <div class="report-field">
+                <label for="citationNotes">Notes</label>
+                <textarea id="citationNotes" placeholder="Any details..."></textarea>
+            </div>
+            <div class="signature-field">
+                <label>Signature</label>
+                <canvas class="signature-canvas" id="citationSignatureCanvas"></canvas>
+                <div class="signature-actions">
+                    <button type="button" class="signature-clear-btn" id="citationSignatureClear">Clear</button>
+                </div>
+            </div>
+            <button type="button" class="report-submit" id="citationSubmitBtn">Issue Citation</button>
+            <div class="lookup-error" id="citationError"></div>
+            <div class="lookup-result" id="citationSuccess"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="arrestModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Make Arrest</div>
+                <button class="modal-close" id="arrestModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="report-field">
+                <label for="arrestCivilianId">Civilian ID</label>
+                <input type="text" id="arrestCivilianId" readonly />
+            </div>
+            <div class="report-field">
+                <label for="arrestCivilianName">Civilian Name</label>
+                <input type="text" id="arrestCivilianName" readonly />
+            </div>
+            <div class="report-field">
+                <label>Charges</label>
+                <div id="arrestChargesList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="arrestChargesInput" placeholder="e.g. Grand Theft Auto" style="flex:2;" />
+                    <input type="text" id="arrestFineInput" placeholder="Fine $" style="flex:1;" />
+                    <button type="button" class="add-charge-btn" id="addArrestChargeBtn" style="padding:6px 12px;border-radius:8px;border:1px solid #2563eb;background:#ffffff;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;">Add</button>
+                </div>
+            </div>
+            <div class="report-field">
+                <label for="arrestLocation">Location</label>
+                <input type="text" id="arrestLocation" placeholder="e.g. Downtown" />
+            </div>
+            <div class="report-field">
+                <label for="arrestNotes">Notes</label>
+                <textarea id="arrestNotes" placeholder="Any details..."></textarea>
+            </div>
+            <div class="signature-field">
+                <label>Signature</label>
+                <canvas class="signature-canvas" id="arrestSignatureCanvas"></canvas>
+                <div class="signature-actions">
+                    <button type="button" class="signature-clear-btn" id="arrestSignatureClear">Clear</button>
+                </div>
+            </div>
+            <button type="button" class="report-submit" id="arrestSubmitBtn">Make Arrest</button>
+            <div class="lookup-error" id="arrestError"></div>
+            <div class="lookup-result" id="arrestSuccess"></div>
+        </div>
+    </div>
+
+    <div class="id-picture-overlay" id="idPictureOverlay">
+        <div class="id-picture-modal">
+            <div class="modal-header">
+                <div class="modal-title">ID Picture</div>
+                <button class="modal-close" id="idPictureClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div id="idPictureContent"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="supervisorPanelModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Supervisor Panel</div>
+                <button class="modal-close" id="supervisorPanelClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="lookup-field">
+                <label for="supervisorPassword">Supervisor Password</label>
+                <input type="password" id="supervisorPassword" placeholder="Enter password" />
+            </div>
+            <button type="button" class="lookup-submit" id="supervisorSubmitBtn">Access Panel</button>
+            <div class="lookup-error" id="supervisorError"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="recordDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="recordDetailTitle">Record</div>
+                <button class="modal-close" id="recordDetailClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div id="recordDetailContent" class="record-detail-content"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        let localSupabase = null;
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+         }
+
+        async function getCurrentUser() {
+            if (!localSupabase) return null;
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                return user;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        document.getElementById("backBtn").addEventListener("click", () => window.close());
+
+        let officerId = "officer-" + Math.random().toString(36).slice(2, 10);
+        try {
+            const stored = localStorage.getItem("policeOfficerId");
+            if (stored) officerId = stored;
+            else localStorage.setItem("policeOfficerId", officerId);
+        } catch (err) {
+            console.error("Could not read officer id:", err);
+        }
+
+        let officerName = "Officer";
+        let officerRank = "";
+
+        (function loadOfficerDetails() {
+            const officerInfo = document.getElementById("officerInfo");
+            const params = new URLSearchParams(window.location.search);
+            const pName = params.get("name");
+            const pRank = params.get("rank");
+            if (pName) {
+                officerName = pName;
+                officerRank = pRank || "";
+                try {
+                    localStorage.setItem("policeOfficerName", officerName);
+                    localStorage.setItem("policeOfficerRank", officerRank);
+                } catch (err) {
+                    console.error("Could not save officer details:", err);
+                }
+            } else {
+                try {
+                    officerName = localStorage.getItem("policeOfficerName") || "Officer";
+                    officerRank = localStorage.getItem("policeOfficerRank") || "";
+                } catch (err) {
+                    console.error("Could not read officer details:", err);
+                }
+            }
+            if (officerInfo) {
+                const display = (officerRank ? officerRank + " " : "") + officerName;
+                officerInfo.innerHTML = display;
+            }
+        })();
+
+        const STATUS_LABELS = {
+            available: "Available",
+            unavailable: "Unavailable",
+            busy: "Busy"
+        };
+
+        const statusDot = document.getElementById("statusDot");
+        const statusText = document.getElementById("statusText");
+        const statusSelect = document.getElementById("statusSelect");
+
+        let currentStatus = "available";
+
+        function getCurrentStatus() {
+            return currentStatus;
+        }
+
+        function setStatus(status) {
+            if (!STATUS_LABELS[status]) status = "available";
+            currentStatus = status;
+            if (statusText) statusText.textContent = STATUS_LABELS[status];
+            if (statusDot) {
+                statusDot.className = "status-dot " + status;
+            }
+            if (statusSelect) {
+                statusSelect.value = status;
+            }
+            try {
+                localStorage.setItem("policeStatus", status);
+            } catch (err) {
+                console.error("Could not save status:", err);
+            }
+        }
+
+        if (statusSelect) {
+            statusSelect.addEventListener("change", () => {
+                setStatus(statusSelect.value);
+            });
+        }
+
+        let savedStatus = "available";
+        try {
+            savedStatus = localStorage.getItem("policeStatus") || "available";
+        } catch (err) {
+            console.error("Could not read status:", err);
+        }
+        setStatus(savedStatus);
+
+        const plateLookupModal = document.getElementById("plateLookupModal");
+        const plateLookupClose = document.getElementById("plateLookupClose");
+        const civilianLookupModal = document.getElementById("civilianLookupModal");
+        const civilianLookupClose = document.getElementById("civilianLookupClose");
+        const plateInput = document.getElementById("plateInput");
+        const plateSubmitBtn = document.getElementById("plateSubmitBtn");
+        const plateError = document.getElementById("plateError");
+        const plateResult = document.getElementById("plateResult");
+        const civilianInput = document.getElementById("civilianInput");
+        const civilianSubmitBtn = document.getElementById("civilianSubmitBtn");
+        const civilianError = document.getElementById("civilianError");
+        const civilianResult = document.getElementById("civilianResult");
+
+        if (plateLookupClose) {
+            plateLookupClose.addEventListener("click", () => {
+                if (plateLookupModal) plateLookupModal.classList.remove("open");
+            });
+        }
+
+        if (plateLookupModal) {
+            plateLookupModal.addEventListener("click", (e) => {
+                if (e.target === plateLookupModal) plateLookupModal.classList.remove("open");
+            });
+        }
+
+        if (civilianLookupClose) {
+            civilianLookupClose.addEventListener("click", () => {
+                if (civilianLookupModal) civilianLookupModal.classList.remove("open");
+            });
+        }
+
+        if (civilianLookupModal) {
+            civilianLookupModal.addEventListener("click", (e) => {
+                if (e.target === civilianLookupModal) civilianLookupModal.classList.remove("open");
+            });
+        }
+
+        const plateLookupBtn = document.getElementById("plateLookupBtn");
+        const civilianLookupBtn = document.getElementById("civilianLookupBtn");
+        const supervisorPanelBtn = document.getElementById("supervisorPanelBtn");
+        const supervisorPanelModal = document.getElementById("supervisorPanelModal");
+        const supervisorPanelClose = document.getElementById("supervisorPanelClose");
+        const supervisorSubmitBtn = document.getElementById("supervisorSubmitBtn");
+        const supervisorPassword = document.getElementById("supervisorPassword");
+        const supervisorError = document.getElementById("supervisorError");
+
+        if (supervisorPanelBtn) {
+            supervisorPanelBtn.addEventListener("click", () => {
+                if (!supervisorPanelModal) return;
+                if (supervisorPassword) supervisorPassword.value = "";
+                if (supervisorError) { supervisorError.textContent = ""; supervisorError.style.display = "none"; }
+                supervisorPanelModal.classList.add("open");
+                if (supervisorPassword) supervisorPassword.focus();
+            });
+        }
+
+        if (supervisorPanelClose) {
+            supervisorPanelClose.addEventListener("click", () => {
+                if (supervisorPanelModal) supervisorPanelModal.classList.remove("open");
+            });
+        }
+
+        if (supervisorPanelModal) {
+            supervisorPanelModal.addEventListener("click", (e) => {
+                if (e.target === supervisorPanelModal) supervisorPanelModal.classList.remove("open");
+            });
+        }
+
+        if (supervisorSubmitBtn) {
+            supervisorSubmitBtn.addEventListener("click", async () => {
+                const password = supervisorPassword ? supervisorPassword.value.trim() : "";
+                if (!password) {
+                    if (supervisorError) { supervisorError.textContent = "Enter a password."; supervisorError.style.display = "block"; }
+                    return;
+                }
+                if (!localSupabase) {
+                    if (supervisorError) { supervisorError.textContent = "Database unavailable."; supervisorError.style.display = "block"; }
+                    return;
+                }
+                let expectedPassword = "admin123";
+                if (POLICE_COMMUNITY_ID) {
+                    try {
+                        const { data } = await localSupabase
+                            .from("communities")
+                            .select("supervisor_password")
+                            .eq("id", POLICE_COMMUNITY_ID)
+                            .maybeSingle();
+                        if (data && data.supervisor_password) {
+                            expectedPassword = data.supervisor_password;
+                        }
+                    } catch (err) {
+                        console.error("Failed to load supervisor password:", err);
+                    }
+                }
+                if (password !== expectedPassword) {
+                    if (supervisorError) { supervisorError.textContent = "Invalid password."; supervisorError.style.display = "block"; }
+                    return;
+                }
+                if (supervisorError) { supervisorError.textContent = ""; supervisorError.style.display = "none"; }
+                if (supervisorPanelModal) supervisorPanelModal.classList.remove("open");
+                alert("Supervisor panel access granted.");
+            });
+        }
+
+        if (plateLookupBtn) {
+            plateLookupBtn.addEventListener("click", () => {
+                if (!plateLookupModal) return;
+                if (plateInput) plateInput.value = "";
+                if (plateError) { plateError.textContent = ""; plateError.style.display = "none"; }
+                if (plateResult) { plateResult.textContent = ""; plateResult.style.display = "none"; }
+                plateLookupModal.classList.add("open");
+                if (plateInput) plateInput.focus();
+            });
+        }
+
+        if (civilianLookupBtn) {
+            civilianLookupBtn.addEventListener("click", () => {
+                if (!civilianLookupModal) return;
+                if (civilianInput) civilianInput.value = "";
+                if (civilianError) { civilianError.textContent = ""; civilianError.style.display = "none"; }
+                if (civilianResult) { civilianResult.textContent = ""; civilianResult.style.display = "none"; }
+                civilianLookupModal.classList.add("open");
+                if (civilianInput) civilianInput.focus();
+            });
+        }
+
+        if (plateSubmitBtn) {
+            plateSubmitBtn.addEventListener("click", async () => {
+                const query = plateInput ? plateInput.value.trim() : "";
+                if (!query) {
+                    if (plateError) { plateError.textContent = "Enter a plate number."; plateError.style.display = "block"; }
+                    return;
+                }
+                if (!localSupabase) {
+                    if (plateError) { plateError.textContent = "Database unavailable."; plateError.style.display = "block"; }
+                    return;
+                }
+                if (plateError) { plateError.textContent = ""; plateError.style.display = "none"; }
+                if (plateResult) { plateResult.textContent = ""; plateResult.style.display = "none"; }
+
+                try {
+                    const { data, error } = await localSupabase
+                        .from("plates")
+                        .select("*")
+                        .ilike("plate", query)
+                        .limit(5);
+
+                    if (error) {
+                        if (plateResult) {
+                            plateResult.style.display = "block";
+                            plateResult.textContent = "Result not found.";
+                        }
+                        return;
+                    }
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        if (plateResult) {
+                            plateResult.style.display = "block";
+                            plateResult.textContent = "No records found.";
+                        }
+                        return;
+                    }
+
+                    const rows = data.map((row) => {
+                        const info = [row.plate, row.owner, row.vehicle, row.status, row.notes].filter(Boolean).join(" | ");
+                        return info || "Record";
+                    });
+
+                    if (plateResult) {
+                        plateResult.style.display = "block";
+                        plateResult.textContent = rows.join("\n");
+                    }
+                } catch (err) {
+                    if (plateError) { plateError.textContent = "Lookup failed."; plateError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        if (civilianSubmitBtn) {
+            civilianSubmitBtn.addEventListener("click", async () => {
+                const query = civilianInput ? civilianInput.value.trim() : "";
+                if (!query) {
+                    if (civilianError) { civilianError.textContent = "Enter a name or ID."; civilianError.style.display = "block"; }
+                    return;
+                }
+                if (!localSupabase) {
+                    if (civilianError) { civilianError.textContent = "Database unavailable."; civilianError.style.display = "block"; }
+                    return;
+                }
+                if (civilianError) { civilianError.textContent = ""; civilianError.style.display = "none"; }
+                if (civilianResult) { civilianResult.textContent = ""; civilianResult.style.display = "none"; }
+
+                try {
+                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(query);
+                    let data = [];
+                    let error = null;
+
+                    if (isUUID) {
+                        const res = await localSupabase
+                            .from("civilians")
+                            .select("*")
+                            .eq("id", query)
+                            .limit(1);
+                        data = res.data;
+                        error = res.error;
+                    } else {
+                        const res = await localSupabase
+                            .from("civilians")
+                            .select("*")
+                            .ilike("name", `%${query}%`)
+                            .limit(5);
+                        data = res.data;
+                        error = res.error;
+                    }
+
+                    if (error) {
+                        if (civilianResult) {
+                            civilianResult.style.display = "block";
+                            civilianResult.textContent = "Result not found.";
+                        }
+                        return;
+                    }
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        if (civilianResult) {
+                            civilianResult.style.display = "block";
+                            civilianResult.textContent = "No records found.";
+                        }
+                        return;
+                    }
+
+                    if (data.length === 1) {
+                        selectCivilian(data[0]);
+                    } else {
+                        const rows = data.map((row) => {
+                            return `<button type="button" class="lookup-submit civilian-select-btn" data-id="${row.id}" data-name="${(row.name || '').replace(/"/g, '&quot;')}">${row.name || row.id}</button>`;
+                        });
+                        if (civilianResult) {
+                            civilianResult.style.display = "block";
+                            civilianResult.innerHTML = rows.join("<br><br>");
+                        }
+                        civilianResult.querySelectorAll(".civilian-select-btn").forEach((btn) => {
+                            btn.addEventListener("click", () => {
+                                const id = btn.getAttribute("data-id");
+                                const name = btn.getAttribute("data-name");
+                                const civilian = data.find((r) => r.id === id);
+                                if (civilian) selectCivilian(civilian);
+                            });
+                        });
+                    }
+                } catch (err) {
+                    if (civilianError) { civilianError.textContent = "Lookup failed."; civilianError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        let selectedCivilian = null;
+        const civilianDetails = document.getElementById("civilianDetails");
+        const selectedCivilianInfo = document.getElementById("selectedCivilianInfo");
+        const civilianRecordsList = document.getElementById("civilianRecordsList");
+
+        function selectCivilian(civilian) {
+            selectedCivilian = civilian;
+            if (civilianResult) civilianResult.style.display = "none";
+            if (civilianDetails) civilianDetails.style.display = "block";
+            if (selectedCivilianInfo) {
+                selectedCivilianInfo.innerHTML = `
+                    <button type="button" class="civilian-name-btn" id="civilianNameBtn">${escapeHtml(civilian.name || 'N/A')}</button>
+                    <span>ID: ${civilian.id} | Age: ${civilian.age || 'N/A'} | Gender: ${civilian.gender || 'N/A'}</span><br>
+                    <span>Address: ${escapeHtml(civilian.address || 'N/A')}</span><br>
+                    <span>Notes: ${escapeHtml(civilian.notes || 'N/A')}</span>
+                    <div id="licenseStatusArea" style="margin-top: 8px;"></div>
+                `;
+            }
+            const civilianNameBtn = document.getElementById("civilianNameBtn");
+            if (civilianNameBtn) {
+                civilianNameBtn.addEventListener("click", () => {
+                    showIdPicture(civilian);
+                });
+            }
+            loadCivilianLicenseStatus(civilian.id);
+            loadCivilianRecords(civilian.id);
+            switchTab(document.querySelector('.tab-btn.active'));
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function switchTab(activeTabBtn) {
+            document.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach((panel) => panel.classList.remove('active'));
+            if (activeTabBtn) activeTabBtn.classList.add('active');
+            const targetId = activeTabBtn ? activeTabBtn.getAttribute('data-target') : null;
+            const targetPanel = targetId ? document.getElementById(targetId) : null;
+            if (targetPanel) targetPanel.classList.add('active');
+        }
+
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+            btn.addEventListener('click', () => switchTab(btn));
+        });
+
+        async function loadCivilianRecords(civilianId) {
+            if (!civilianRecordsList || !localSupabase) return;
+            civilianRecordsList.innerHTML = '<div class="empty">Loading records...</div>';
+            try {
+                const [stopsRes, citationsRes, arrestsRes] = await Promise.all([
+                    localSupabase.from('traffic_stops').select('*').eq('civilian_id', civilianId).order('created_at', { ascending: false }),
+                    localSupabase.from('citations').select('*').eq('civilian_id', civilianId).order('created_at', { ascending: false }),
+                    localSupabase.from('arrests').select('*').eq('civilian_id', civilianId).order('created_at', { ascending: false })
+                ]);
+
+                const records = [];
+                (stopsRes.data || []).forEach((row) => records.push({ table: 'traffic_stops', type: 'Traffic Stop', row }));
+                (citationsRes.data || []).forEach((row) => records.push({ table: 'citations', type: 'Citation', row }));
+                (arrestsRes.data || []).forEach((row) => records.push({ table: 'arrests', type: 'Arrest', row }));
+
+                if (records.length === 0) {
+                    civilianRecordsList.innerHTML = '<div class="empty">No records found.</div>';
+                    return;
+                }
+
+                civilianRecordsList.innerHTML = records.map((record) => {
+                    const date = record.row.created_at ? new Date(record.row.created_at).toLocaleString() : '';
+                    const details = [record.row.reason, record.row.charges, record.row.location, record.row.notes].filter(Boolean).join(' | ');
+                    const rowData = encodeURIComponent(JSON.stringify(record.row));
+                    return `<div class="record-item">
+                        <div class="record-text record-view-btn" data-record="${encodeURIComponent(JSON.stringify(record.row))}">
+                            <strong>${record.type} - ${date}</strong>
+                            <span>${details || 'No details'}</span>
+                        </div>
+                        <button type="button" class="record-delete-btn" data-table="${record.table}" data-id="${record.row.id}" title="Delete record">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>`;
+                }).join('');
+
+                civilianRecordsList.querySelectorAll('.record-view-btn').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const raw = btn.getAttribute('data-record');
+                        if (!raw) return;
+                        const record = JSON.parse(decodeURIComponent(raw));
+                        openRecordDetail(record);
+                    });
+                });
+
+                civilianRecordsList.querySelectorAll('.record-delete-btn').forEach((btn) => {
+                    btn.addEventListener('click', async (e) => {
+                        const table = btn.getAttribute('data-table');
+                        const id = btn.getAttribute('data-id');
+                        if (!confirm('Delete this record?')) return;
+                        try {
+                            const { error } = await localSupabase.from(table).delete().eq('id', id);
+                            if (error) {
+                                alert('Failed to delete: ' + error.message);
+                                return;
+                            }
+                            loadCivilianRecords(civilianId);
+                        } catch (err) {
+                            alert('Failed to delete record.');
+                            console.error(err);
+                        }
+                    });
+                });
+            } catch (err) {
+                civilianRecordsList.innerHTML = '<div class="empty">Failed to load records.</div>';
+                console.error(err);
+            }
+        }
+
+        function showIdPicture(civilian) {
+            const overlay = document.getElementById("idPictureOverlay");
+            const content = document.getElementById("idPictureContent");
+            if (!overlay || !content) return;
+
+            const photo = civilian.photo_url || civilian.photo || "";
+            if (photo) {
+                content.innerHTML = `<img src="${escapeHtml(photo)}" alt="ID Picture" />`;
+            } else {
+                content.innerHTML = `<div class="id-picture-placeholder">No ID picture on record.</div>`;
+            }
+
+            overlay.classList.add("open");
+        }
+
+        function getLicenseTier(points) {
+            if (points <= 0) return { label: "Clean Record", cls: "clean", color: "#166534" };
+            if (points <= 3) return { label: "Warning", cls: "warning", color: "#854d0e" };
+            if (points <= 6) return { label: "Probation", cls: "probation", color: "#92400e" };
+            if (points <= 10) return { label: "Restricted", cls: "restricted", color: "#991b1b" };
+            return { label: "Revoked", cls: "revoked", color: "#7f1d1d" };
+        }
+
+        async function loadCivilianLicenseStatus(civilianId) {
+            const licenseStatusArea = document.getElementById("licenseStatusArea");
+            if (!licenseStatusArea || !localSupabase) return;
+
+            try {
+                const { data: licData, error: licError } = await localSupabase
+                    .from("licenses")
+                    .select("id, license_type, license_number, suspended, points, expiry_date")
+                    .eq("civilian_id", civilianId)
+                    .order("created_at", { ascending: false })
+                    .limit(1);
+
+                if (licError || !Array.isArray(licData) || licData.length === 0) {
+                    licenseStatusArea.innerHTML = '<span style="font-size: 13px; color: #94a3b8;">No license on record.</span>';
+                    return;
+                }
+
+                const lic = licData[0];
+                const isSuspended = !!lic.suspended;
+                const points = (lic.points != null) ? lic.points : 0;
+                const tier = getLicenseTier(points);
+                const hasExpiry = lic.expiry_date && lic.expiry_date !== "null" && lic.expiry_date !== "";
+                const isExpired = hasExpiry && new Date(lic.expiry_date) < new Date();
+
+                let expiryHtml = "";
+                if (hasExpiry) {
+                    expiryHtml = `<div class="license-expiry-info">Expiry: ${escapeHtml(lic.expiry_date)}${isExpired ? ' — EXPIRED' : ''}</div>`;
+                }
+
+                licenseStatusArea.innerHTML = `
+                    <span style="font-size: 13px; color: #475569;">
+                        License: ${escapeHtml(lic.license_type || 'N/A')} — ${escapeHtml(lic.license_number || 'N/A')}
+                        <span class="license-status-badge ${isSuspended ? 'suspended' : 'active'}">${isSuspended ? 'SUSPENDED' : 'ACTIVE'}</span>
+                    </span>
+                    <div class="license-points-display">
+                        <span class="license-points-value">${points} pts</span>
+                        <span class="license-points-badge ${tier.cls}">${tier.label}</span>
+                    </div>
+                    ${expiryHtml}
+                    <button type="button" class="${isSuspended ? 'unsuspend-license-btn' : 'suspend-license-btn'}" id="suspendLicenseBtn" data-license-id="${lic.id}">
+                        ${isSuspended ? 'Unsuspend License' : 'Suspend License'}
+                    </button>
+                `;
+
+                const suspendBtn = document.getElementById("suspendLicenseBtn");
+                if (suspendBtn) {
+                    suspendBtn.addEventListener("click", async () => {
+                        if (!confirm(`Are you sure you want to ${isSuspended ? 'unsuspend' : 'suspend'} this license?`)) return;
+
+                        try {
+                            const { error } = await localSupabase
+                                .from("licenses")
+                                .update({ suspended: !isSuspended })
+                                .eq("id", lic.id);
+
+                            if (error) {
+                                alert("Failed to update license status: " + error.message);
+                                return;
+                            }
+
+                            loadCivilianLicenseStatus(civilianId);
+                        } catch (err) {
+                            alert("Failed to update license status.");
+                            console.error(err);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load license status:", err);
+            }
+        }
+
+        if (openCitationBtn) {
+            openCitationBtn.addEventListener("click", () => {
+                if (!selectedCivilian) return;
+                const citationCivilianId = document.getElementById("citationCivilianId");
+                const citationCivilianName = document.getElementById("citationCivilianName");
+                const citationReason = document.getElementById("citationReason");
+                const citationLocation = document.getElementById("citationLocation");
+                const citationNotes = document.getElementById("citationNotes");
+                const citationError = document.getElementById("citationError");
+                const citationSuccess = document.getElementById("citationSuccess");
+                if (citationCivilianId) citationCivilianId.value = selectedCivilian.id || "";
+                if (citationCivilianName) citationCivilianName.value = selectedCivilian.name || "";
+                if (citationReason) citationReason.value = "";
+                if (citationLocation) citationLocation.value = "";
+                if (citationChargesInput) citationChargesInput.value = "";
+                const citationChargesList = document.getElementById("citationChargesList");
+                if (citationChargesList) citationChargesList.innerHTML = "";
+                if (citationFineInput) citationFineInput.value = "";
+                if (citationNotes) citationNotes.value = "";
+                clearSignature("citationSignatureCanvas");
+                if (citationError) { citationError.textContent = ""; citationError.style.display = "none"; }
+                if (citationSuccess) { citationSuccess.textContent = ""; citationSuccess.style.display = "none"; }
+                if (citationModal) citationModal.classList.add("open");
+            });
+        }
+
+        if (openArrestBtn) {
+            openArrestBtn.addEventListener("click", () => {
+                if (!selectedCivilian) return;
+                const arrestCivilianId = document.getElementById("arrestCivilianId");
+                const arrestCivilianName = document.getElementById("arrestCivilianName");
+                const arrestLocation = document.getElementById("arrestLocation");
+                const arrestNotes = document.getElementById("arrestNotes");
+                const arrestError = document.getElementById("arrestError");
+                const arrestSuccess = document.getElementById("arrestSuccess");
+                if (arrestCivilianId) arrestCivilianId.value = selectedCivilian.id || "";
+                if (arrestCivilianName) arrestCivilianName.value = selectedCivilian.name || "";
+                if (arrestChargesInput) arrestChargesInput.value = "";
+                const arrestChargesList = document.getElementById("arrestChargesList");
+                if (arrestChargesList) arrestChargesList.innerHTML = "";
+                if (arrestFineInput) arrestFineInput.value = "";
+                if (arrestLocation) arrestLocation.value = "";
+                if (arrestNotes) arrestNotes.value = "";
+                clearSignature("arrestSignatureCanvas");
+                if (arrestError) { arrestError.textContent = ""; arrestError.style.display = "none"; }
+                if (arrestSuccess) { arrestSuccess.textContent = ""; arrestSuccess.style.display = "none"; }
+                if (arrestModal) arrestModal.classList.add("open");
+            });
+        }
+        const citationModal = document.getElementById("citationModal");
+        const citationModalClose = document.getElementById("citationModalClose");
+        const citationSubmitBtn = document.getElementById("citationSubmitBtn");
+
+        if (citationModalClose) {
+            citationModalClose.addEventListener("click", () => {
+                if (citationModal) citationModal.classList.remove("open");
+            });
+        }
+
+        if (citationModal) {
+            citationModal.addEventListener("click", (e) => {
+                if (e.target === citationModal) {
+                    citationModal.classList.remove("open");
+                }
+            });
+        }
+
+            if (citationSubmitBtn) {
+                citationSubmitBtn.addEventListener("click", async () => {
+                    const civilianId = document.getElementById("citationCivilianId")?.value.trim() || "";
+                    const civilianName = document.getElementById("citationCivilianName")?.value.trim() || "";
+                    const reason = document.getElementById("citationReason")?.value.trim() || "";
+                    const location = document.getElementById("citationLocation")?.value.trim() || "";
+                    const charges = getCharges("citationChargesList");
+                    const totalFine = getTotalFine("citationChargesList");
+                    const notes = document.getElementById("citationNotes")?.value.trim() || "";
+                    const citationError = document.getElementById("citationError");
+                    const citationSuccess = document.getElementById("citationSuccess");
+
+                    if (!reason || !location || charges.length === 0) {
+                        if (citationError) { citationError.textContent = "Violation, at least one charge, and location are required."; citationError.style.display = "block"; }
+                        return;
+                    }
+
+                    if (!localSupabase) {
+                        if (citationError) { citationError.textContent = "Database unavailable."; citationError.style.display = "block"; }
+                        return;
+                    }
+
+                    if (citationError) { citationError.textContent = ""; citationError.style.display = "none"; }
+                    if (citationSuccess) { citationSuccess.textContent = ""; citationSuccess.style.display = "none"; }
+
+                    try {
+                        const signature = getSignatureData("citationSignatureCanvas");
+                        const { error } = await localSupabase
+                            .from("citations")
+                            .insert([{
+                                civilian_id: civilianId || null,
+                                civilian_name: civilianName || null,
+                                officer_id: officerId,
+                                officer_name: officerName,
+                                reason,
+                                location,
+                                charges: charges.join(", "),
+                                fine: totalFine || null,
+                                notes: notes || null,
+                                signature: signature || null,
+                                created_at: new Date().toISOString()
+                            }]);
+
+                    if (error) {
+                        if (citationError) { citationError.textContent = error.message || "Failed to issue citation."; citationError.style.display = "block"; }
+                        console.error("Insert failed:", error);
+                        return;
+                    }
+
+                    if (citationSuccess) {
+                        citationSuccess.textContent = "Citation issued.";
+                        citationSuccess.style.display = "block";
+                    }
+                    if (selectedCivilian && selectedCivilian.id) loadCivilianRecords(selectedCivilian.id);
+                } catch (err) {
+                    if (citationError) { citationError.textContent = "Failed to issue citation."; citationError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        const arrestModal = document.getElementById("arrestModal");
+        const arrestModalClose = document.getElementById("arrestModalClose");
+        const arrestSubmitBtn = document.getElementById("arrestSubmitBtn");
+
+        if (arrestModalClose) {
+            arrestModalClose.addEventListener("click", () => {
+                if (arrestModal) arrestModal.classList.remove("open");
+            });
+        }
+
+        if (arrestModal) {
+            arrestModal.addEventListener("click", (e) => {
+                if (e.target === arrestModal) {
+                    arrestModal.classList.remove("open");
+                }
+            });
+        }
+
+        if (arrestSubmitBtn) {
+            arrestSubmitBtn.addEventListener("click", async () => {
+                    const civilianId = document.getElementById("arrestCivilianId")?.value.trim() || "";
+                    const civilianName = document.getElementById("arrestCivilianName")?.value.trim() || "";
+                    const charges = getCharges("arrestChargesList");
+                    const totalFine = getTotalFine("arrestChargesList");
+                    const location = document.getElementById("arrestLocation")?.value.trim() || "";
+                    const notes = document.getElementById("arrestNotes")?.value.trim() || "";
+                    const arrestError = document.getElementById("arrestError");
+                    const arrestSuccess = document.getElementById("arrestSuccess");
+
+                    if (charges.length === 0 || !location) {
+                        if (arrestError) { arrestError.textContent = "At least one charge and location are required."; arrestError.style.display = "block"; }
+                        return;
+                    }
+
+                if (!localSupabase) {
+                    if (arrestError) { arrestError.textContent = "Database unavailable."; arrestError.style.display = "block"; }
+                    return;
+                }
+
+                if (arrestError) { arrestError.textContent = ""; arrestError.style.display = "none"; }
+                if (arrestSuccess) { arrestSuccess.textContent = ""; arrestSuccess.style.display = "none"; }
+
+                try {
+                    const signature = getSignatureData("arrestSignatureCanvas");
+                    const { error } = await localSupabase
+                        .from("arrests")
+                            .insert([{
+                                civilian_id: civilianId || null,
+                                civilian_name: civilianName || null,
+                                officer_id: officerId,
+                                officer_name: officerName,
+                                charges: charges.join(", "),
+                                fine: totalFine || null,
+                                location,
+                                notes: notes || null,
+                                signature: signature || null,
+                                created_at: new Date().toISOString()
+                            }]);
+
+                    if (error) {
+                        if (arrestError) { arrestError.textContent = error.message || "Failed to record arrest."; arrestError.style.display = "block"; }
+                        console.error("Insert failed:", error);
+                        return;
+                    }
+
+                    if (arrestSuccess) {
+                        arrestSuccess.textContent = "Arrest recorded.";
+                        arrestSuccess.style.display = "block";
+                    }
+                    if (selectedCivilian && selectedCivilian.id) loadCivilianRecords(selectedCivilian.id);
+                } catch (err) {
+                    if (arrestError) { arrestError.textContent = "Failed to record arrest."; arrestError.style.display = "block"; }
+                    console.error(err);
+                }
+            });
+        }
+
+        const idPictureOverlay = document.getElementById("idPictureOverlay");
+        const idPictureClose = document.getElementById("idPictureClose");
+
+        if (idPictureClose) {
+            idPictureClose.addEventListener("click", () => {
+                if (idPictureOverlay) idPictureOverlay.classList.remove("open");
+            });
+        }
+
+        if (idPictureOverlay) {
+            idPictureOverlay.addEventListener("click", (e) => {
+                if (e.target === idPictureOverlay) {
+                    idPictureOverlay.classList.remove("open");
+                }
+            });
+        }
+
+        const recordDetailModal = document.getElementById("recordDetailModal");
+        const recordDetailClose = document.getElementById("recordDetailClose");
+
+        if (recordDetailClose) {
+            recordDetailClose.addEventListener("click", () => {
+                if (recordDetailModal) recordDetailModal.classList.remove("open");
+            });
+        }
+
+        if (recordDetailModal) {
+            recordDetailModal.addEventListener("click", (e) => {
+                if (e.target === recordDetailModal) {
+                    recordDetailModal.classList.remove("open");
+                }
+            });
+        }
+
+        function openRecordDetail(record) {
+            const title = document.getElementById("recordDetailTitle");
+            const content = document.getElementById("recordDetailContent");
+            if (!title || !content || !recordDetailModal) return;
+
+            let typeLabel = "Record";
+            if (record.officer_id) typeLabel = "Citation";
+            else if (record.id && record.charges && record.location) typeLabel = "Arrest";
+            else if (record.reason && record.location) typeLabel = "Traffic Stop";
+
+            title.textContent = typeLabel;
+
+            const fields = [
+                ["Officer", escapeHtml(record.officer_name || "")],
+                ["Civilian", escapeHtml(record.civilian_name || record.civilian_id || "")],
+                ["Date", record.created_at ? new Date(record.created_at).toLocaleString() : ""],
+                ["Reason", escapeHtml(record.reason || "")],
+                ["Charges", escapeHtml(record.charges || "")],
+                ["Fine", record.fine ? `$${Number(record.fine).toFixed(2)}` : ""],
+                ["Location", escapeHtml(record.location || "")],
+                ["Notes", escapeHtml(record.notes || "")]
+            ];
+
+            content.innerHTML = fields.map(([label, value]) => {
+                if (!value) return "";
+                return `<div class="record-detail-row"><strong>${label}:</strong> ${value}</div>`;
+            }).join("");
+
+            if (record.signature) {
+                content.innerHTML += `<img class="record-detail-image" src="${escapeHtml(record.signature)}" alt="Signature" />`;
+            }
+
+            if (!content.innerHTML.trim()) {
+                content.innerHTML = '<div class="empty">No details available.</div>';
+            }
+
+            recordDetailModal.classList.add("open");
+        }
+
+        function getText(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : "";
+        }
+
+        function getTotalFine(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return 0;
+            let total = 0;
+            Array.from(container.querySelectorAll(".charge-item")).forEach((el) => {
+                const raw = (el.dataset.fine || "").trim();
+                const num = parseFloat(raw);
+                if (!isNaN(num) && num > 0) total += num;
+            });
+            return total;
+        }
+
+        async function getCurrentUser() {
+            if (!localSupabase) return null;
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                return user;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function getSignatureData(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            return canvas.toDataURL("image/png");
+        }
+
+        function clearSignature(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function initSignatureCanvas(canvasId, clearBtnId) {
+            const canvas = document.getElementById(canvasId);
+            const clearBtn = document.getElementById(clearBtnId);
+            if (!canvas) return;
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width || 300;
+            canvas.height = 100;
+
+            const ctx = canvas.getContext("2d");
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "#1E293B";
+
+            let drawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            function getPos(e) {
+                const r = canvas.getBoundingClientRect();
+                const touch = e.touches ? e.touches[0] : e;
+                return {
+                    x: (touch.clientX - r.left) * (canvas.width / r.width),
+                    y: (touch.clientY - r.top) * (canvas.height / r.height)
+                };
+            }
+
+            function start(e) {
+                drawing = true;
+                const pos = getPos(e);
+                lastX = pos.x;
+                lastY = pos.y;
+                e.preventDefault();
+            }
+
+            function move(e) {
+                if (!drawing) return;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                lastX = pos.x;
+                lastY = pos.y;
+                e.preventDefault();
+            }
+
+            function end() {
+                drawing = false;
+            }
+
+            canvas.addEventListener("mousedown", start);
+            canvas.addEventListener("mousemove", move);
+            canvas.addEventListener("mouseup", end);
+            canvas.addEventListener("mouseleave", end);
+            canvas.addEventListener("touchstart", start, { passive: false });
+            canvas.addEventListener("touchmove", move, { passive: false });
+            canvas.addEventListener("touchend", end);
+
+            if (clearBtn) {
+                clearBtn.addEventListener("click", () => {
+                    clearSignature(canvasId);
+                });
+            }
+        }
+
+        function addChargeInput(containerId, inputId, btnId, fineInputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            const fineInput = fineInputId ? document.getElementById(fineInputId) : null;
+            if (!container || !input || !btn) return;
+
+            function render() {
+                const items = container.querySelectorAll(".charge-item");
+                if (items.length === 0) {
+                    container.innerHTML = "";
+                    return;
+                }
+                container.innerHTML = Array.from(items).map((el, idx) => {
+                    const charge = escapeHtml(el.dataset.charge || "");
+                    const fine = escapeHtml(el.dataset.fine || "");
+                    return `
+                        <div class="charge-item" data-charge-idx="${idx}" data-charge="${escapeHtml(el.dataset.charge || "")}" data-fine="${escapeHtml(el.dataset.fine || "")}" style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                            <span style="flex:2;font-size:13px;color:#334155;">${charge}</span>
+                            <span style="flex:1;font-size:13px;color:#2563eb;font-weight:600;">${fine ? "$" + fine : ""}</span>
+                            <button type="button" class="remove-charge-btn" data-remove-charge="${idx}" style="padding:2px 8px;border-radius:6px;border:1px solid #dc2626;background:#ffffff;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Remove</button>
+                        </div>
+                    `;
+                }).join("");
+                container.querySelectorAll("[data-remove-charge]").forEach((b) => {
+                    b.addEventListener("click", () => {
+                        const idx = parseInt(b.getAttribute("data-remove-charge"), 10);
+                        const current = container.querySelectorAll(".charge-item");
+                        if (current[idx]) current[idx].remove();
+                        render();
+                    });
+                });
+            }
+
+            btn.addEventListener("click", () => {
+                const val = input.value.trim();
+                const fineVal = fineInput ? fineInput.value.trim() : "";
+                if (!val) return;
+                const div = document.createElement("div");
+                div.className = "charge-item";
+                div.dataset.charge = val;
+                div.dataset.fine = fineVal;
+                container.appendChild(div);
+                input.value = "";
+                if (fineInput) fineInput.value = "";
+                render();
+            });
+
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+
+            if (fineInput) {
+                fineInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        btn.click();
+                    }
+                });
+            }
+        }
+
+        function getCharges(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            return Array.from(container.querySelectorAll(".charge-item")).map((el) => {
+                const charge = el.dataset.charge || "";
+                const fine = el.dataset.fine || "";
+                if (!charge) return null;
+                return fine ? `${charge} ($${fine})` : charge;
+            }).filter(Boolean);
+        }
+
+        const callsPanel = document.getElementById("callsPanel");
+        const activeCallBox = document.getElementById("activeCallBox");
+
+        function loadPoliceCalls() {
+            try {
+                const raw = localStorage.getItem("policeCalls");
+                return raw ? JSON.parse(raw) : [];
+            } catch (err) {
+                console.error("Could not load calls:", err);
+                return [];
+            }
+        }
+
+        function savePoliceCalls(calls) {
+            localStorage.setItem("policeCalls", JSON.stringify(calls));
+        }
+
+        function getCurrentOfficerId() {
+            try {
+                return localStorage.getItem("policeOfficerId") || "";
+            } catch {
+                return "";
+            }
+        }
+
+        function renderCalls() {
+            if (!callsPanel || !activeCallBox) return;
+            const calls = loadPoliceCalls();
+            const officerId = getCurrentOfficerId();
+            const myCall = calls.find(c => c.assigned_officer_id === officerId && c.status !== "closed") || null;
+
+            if (!myCall) {
+                activeCallBox.innerHTML = `
+                    <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Call Info</div>
+                    <div style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">
+                        <strong>Priority:</strong> <br>
+                        <strong>Code:</strong> <br>
+                        <strong>Description:</strong> 
+                    </div>
+                `;
+                callsPanel.style.display = "block";
+                return;
+            }
+
+            callsPanel.style.display = "block";
+            activeCallBox.innerHTML = `
+                <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">${escapeHtml(myCall.title || "Untitled Call")}</div>
+                <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 4px;">${escapeHtml(myCall.location || "")}</div>
+                <div style="font-size: 12px; color: #f1f5f9; line-height: 1.4;">
+                    <strong>Priority:</strong> ${escapeHtml(myCall.priority || "Normal")}<br>
+                    <strong>Code:</strong> ${escapeHtml(myCall.code || "Unknown")}<br>
+                    <strong>Description:</strong> ${escapeHtml(myCall.description || "No description.")}
+                </div>
+            `;
+        }
+
+        renderCalls();
+
+        const activeUnitsPanel = document.getElementById("activeUnitsPanel");
+        const activeUnitsList = document.getElementById("activeUnitsList");
+        const POLICE_COMMUNITY_ID = (new URLSearchParams(window.location.search).get("community")) || "";
+
+        function loadActiveUnits() {
+            try {
+                const raw = localStorage.getItem("policeActiveUnits");
+                return raw ? JSON.parse(raw) : [];
+            } catch (err) {
+                console.error("Could not load active units:", err);
+                return [];
+            }
+        }
+
+        function saveActiveUnits(units) {
+            localStorage.setItem("policeActiveUnits", JSON.stringify(units));
+        }
+
+        function getCurrentOfficerInfo() {
+            const params = new URLSearchParams(window.location.search);
+            const urlName = params.get("name");
+            const urlRank = params.get("rank");
+            const urlCallsign = params.get("callsign");
+            const storedName = localStorage.getItem("policeOfficerName") || "Officer";
+            const storedRank = localStorage.getItem("policeOfficerRank") || "";
+            const storedCallsign = localStorage.getItem("policeOfficerCallsign") || "";
+            return {
+                id: getCurrentOfficerId(),
+                name: urlName || storedName,
+                rank: urlRank || storedRank,
+                callsign: urlCallsign || storedCallsign,
+                status: getCurrentStatus()
+            };
+        }
+
+        function upsertActiveUnit(officerInfo) {
+            let units = loadActiveUnits();
+            const idx = units.findIndex(u => u.id === officerInfo.id);
+            if (idx !== -1) {
+                units[idx] = { ...units[idx], ...officerInfo, updated_at: new Date().toISOString() };
+            } else {
+                units.push({ ...officerInfo, updated_at: new Date().toISOString() });
+            }
+            saveActiveUnits(units);
+            syncUnitToSupabase(officerInfo);
+        }
+
+        function removeActiveUnit(officerId) {
+            let units = loadActiveUnits();
+            units = units.filter(u => u.id !== officerId);
+            saveActiveUnits(units);
+            removeUnitFromSupabase(officerId);
+        }
+
+        async function syncUnitToSupabase(officerInfo) {
+            if (!localSupabase) return;
+            try {
+                const payload = {
+                    id: officerInfo.id,
+                    name: officerInfo.name || "Officer",
+                    rank: officerInfo.rank || "",
+                    callsign: officerInfo.callsign || "",
+                    status: officerInfo.status || "available",
+                    updated_at: new Date().toISOString(),
+                    community_id: POLICE_COMMUNITY_ID || null
+                };
+                const { error } = await localSupabase
+                    .from("police_active_units")
+                    .upsert([payload], { onConflict: "id" });
+                if (error) console.error("syncUnitToSupabase failed:", error);
+            } catch (err) {
+                console.error("syncUnitToSupabase error:", err);
+            }
+        }
+
+        async function removeUnitFromSupabase(officerId) {
+            if (!localSupabase) return;
+            try {
+                const { error } = await localSupabase
+                    .from("police_active_units")
+                    .delete()
+                    .eq("id", officerId);
+                if (error) console.error("removeUnitFromSupabase failed:", error);
+            } catch (err) {
+                console.error("removeUnitFromSupabase error:", err);
+            }
+        }
+
+        async function loadRemoteUnits() {
+            if (!localSupabase) return [];
+            try {
+                const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+                const query = localSupabase
+                    .from("police_active_units")
+                    .select("*")
+                    .gte("updated_at", fifteenMinutesAgo)
+                    .neq("id", getCurrentOfficerId());
+                if (POLICE_COMMUNITY_ID) {
+                    query.eq("community_id", POLICE_COMMUNITY_ID);
+                }
+                const { data, error } = await query;
+                if (error) {
+                    console.error("loadRemoteUnits failed:", error);
+                    return [];
+                }
+                return (data || []).map(u => ({
+                    id: u.id,
+                    name: u.name || "Officer",
+                    rank: u.rank || "",
+                    callsign: u.callsign || "",
+                    status: u.status || "available",
+                    updated_at: u.updated_at || new Date().toISOString()
+                }));
+            } catch (err) {
+                console.error("loadRemoteUnits error:", err);
+                return [];
+            }
+        }
+
+        async function refreshActiveUnits() {
+            if (!activeUnitsPanel || !activeUnitsList) return;
+            const local = loadActiveUnits();
+            const remote = await loadRemoteUnits();
+            const merged = new Map();
+            for (const u of local) merged.set(u.id, u);
+            for (const u of remote) merged.set(u.id, u);
+            const now = Date.now();
+            const fifteenMinutes = 15 * 60 * 1000;
+            const activeUnits = Array.from(merged.values()).filter(u => {
+                const updated = u.updated_at ? new Date(u.updated_at).getTime() : 0;
+                return now - updated < fifteenMinutes;
+            });
+
+            if (activeUnits.length === 0) {
+                activeUnitsList.innerHTML = '<div style="font-size: 13px; color: #64748b; text-align: center; padding: 10px 0;">No active units.</div>';
+                activeUnitsPanel.style.display = "block";
+                return;
+            }
+
+            activeUnitsPanel.style.display = "block";
+            activeUnitsList.innerHTML = activeUnits.map(u => `
+                <div class="active-unit-item">
+                    <div class="active-unit-info">
+                        <div class="active-unit-name">${escapeHtml(u.name || "Officer")}</div>
+                        <div class="active-unit-meta">${escapeHtml(u.callsign || "")} ${escapeHtml(u.rank ? "• " + u.rank : "")}</div>
+                    </div>
+                    <span class="active-unit-status ${u.status || "available"}">${u.status || "available"}</span>
+                </div>
+            `).join("");
+        }
+
+        const currentOfficerInfo = getCurrentOfficerInfo();
+        if (currentOfficerInfo.name && currentOfficerInfo.name !== "Officer") {
+            upsertActiveUnit(currentOfficerInfo);
+            refreshActiveUnits();
+        }
+
+        const originalSetStatus = setStatus;
+        setStatus = function(status) {
+            originalSetStatus(status);
+            const info = getCurrentOfficerInfo();
+            if (info.name && info.name !== "Officer") {
+                upsertActiveUnit({ ...info, status });
+                refreshActiveUnits();
+            }
+        };
+
+        setInterval(() => {
+            refreshActiveUnits();
+        }, 3000);
+
+        window.addEventListener("beforeunload", () => {
+            removeActiveUnit(getCurrentOfficerId());
+        });
+
+        const boloPanel = document.getElementById("boloPanel");
+        const boloList = document.getElementById("boloList");
+        const boloSubmitBtn = document.getElementById("boloSubmitBtn");
+        const boloTypeInput = document.getElementById("boloType");
+        const boloDescInput = document.getElementById("boloDesc");
+        const boloPriorityInput = document.getElementById("boloPriority");
+
+        function loadBolos() {
+            try {
+                const raw = localStorage.getItem("policeBolos");
+                return raw ? JSON.parse(raw) : [];
+            } catch (err) {
+                console.error("Could not load BOLOs:", err);
+                return [];
+            }
+        }
+
+        function saveBolos(bolos) {
+            localStorage.setItem("policeBolos", JSON.stringify(bolos));
+        }
+
+        function renderBolos() {
+            if (!boloPanel || !boloList) return;
+            const bolos = loadBolos();
+            boloPanel.style.display = "block";
+            if (bolos.length === 0) {
+                boloList.innerHTML = '<div style="font-size: 13px; color: #64748b; text-align: center; padding: 10px 0;">No active BOLOs.</div>';
+                return;
+            }
+            boloList.innerHTML = bolos.map((b, idx) => `
+                <div class="bolo-item">
+                    <div class="bolo-item-header">
+                        <span class="bolo-type">${escapeHtml(b.type || "Unknown")}</span>
+                        <button type="button" class="bolo-delete" data-bolo-idx="${idx}">Clear</button>
+                    </div>
+                    <div class="bolo-desc">${escapeHtml(b.description || "")}</div>
+                    <div class="bolo-priority ${(b.priority || "medium").toLowerCase()}">Priority: ${escapeHtml(b.priority || "Medium")}</div>
+                </div>
+            `).join("");
+            boloList.querySelectorAll(".bolo-delete").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const idx = parseInt(btn.getAttribute("data-bolo-idx"), 10);
+                    const updated = loadBolos();
+                    updated.splice(idx, 1);
+                    saveBolos(updated);
+                    renderBolos();
+                });
+            });
+        }
+
+        if (boloSubmitBtn) {
+            boloSubmitBtn.addEventListener("click", () => {
+                const type = boloTypeInput ? boloTypeInput.value.trim() : "";
+                const description = boloDescInput ? boloDescInput.value.trim() : "";
+                const priority = boloPriorityInput ? boloPriorityInput.value : "Medium";
+                if (!type && !description) return;
+                const bolos = loadBolos();
+                bolos.unshift({ type: type || "General", description, priority, created_at: new Date().toISOString() });
+                saveBolos(bolos);
+                if (boloTypeInput) boloTypeInput.value = "";
+                if (boloDescInput) boloDescInput.value = "";
+                renderBolos();
+            });
+        }
+
+        renderBolos();
+
+        function makeDraggable(panel, handleSelector) {
+            if (!panel) return;
+            const handle = panel.querySelector(handleSelector);
+            if (!handle) return;
+
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let startLeft = 0;
+            let startTop = 0;
+
+            const getStart = (clientX, clientY) => {
+                const rect = panel.getBoundingClientRect();
+                startLeft = rect.left;
+                startTop = rect.top;
+                startX = clientX;
+                startY = clientY;
+            };
+
+            const move = (clientX, clientY) => {
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                const newLeft = startLeft + dx;
+                const newTop = startTop + dy;
+                panel.style.left = Math.max(0, newLeft) + "px";
+                panel.style.top = Math.max(0, newTop) + "px";
+                panel.style.right = "auto";
+            };
+
+            handle.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                panel.classList.add("panel-dragging");
+                getStart(e.clientX, e.clientY);
+                e.preventDefault();
+            });
+
+            window.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                move(e.clientX, e.clientY);
+            });
+
+            window.addEventListener("mouseup", () => {
+                if (!isDragging) return;
+                isDragging = false;
+                panel.classList.remove("panel-dragging");
+            });
+        }
+
+        makeDraggable(document.getElementById("callsPanel"), ".calls-panel-title");
+        makeDraggable(document.getElementById("boloPanel"), ".bolo-panel-title");
+        makeDraggable(document.getElementById("activeUnitsPanel"), ".active-units-title");
+
+        initSignatureCanvas("citationSignatureCanvas", "citationSignatureClear");
+        initSignatureCanvas("arrestSignatureCanvas", "arrestSignatureClear");
+        addChargeInput("citationChargesList", "citationChargesInput", "addCitationChargeBtn", "citationFineInput");
+        addChargeInput("arrestChargesList", "arrestChargesInput", "addArrestChargeBtn", "arrestFineInput");
+
+        (function updateMilitaryTime() {
+            const el = document.getElementById("militaryTime");
+            if (!el) return;
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, "0");
+            const m = String(now.getMinutes()).padStart(2, "0");
+            el.textContent = h + ":" + m;
+            setTimeout(updateMilitaryTime, 1000);
+        })();
+    </script>
+</body>
+</html>

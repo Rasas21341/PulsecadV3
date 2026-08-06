@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggest a Feature - PulseCAD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1a202c;
+            padding: 40px 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .brand-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .brand-sub {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        .form-field {
+            margin-bottom: 16px;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+            font-family: inherit;
+            background: #ffffff;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .form-field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+            display: none;
+        }
+
+        .form-success {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-size: 14px;
+            display: none;
+        }
+
+        .back-btn {
+            margin-bottom: 18px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .hint {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a class="back-btn" href="/dashboard">← Back</a>
+        <div class="brand">
+            <div class="brand-logo">PC</div>
+            <div class="brand-title">Suggest a Feature</div>
+            <div class="brand-sub">Tell us how we can improve PulseCAD</div>
+        </div>
+        <form class="card" id="suggestionForm">
+            <div class="form-field">
+                <label for="sugName">Your Name (optional)</label>
+                <input type="text" id="sugName" placeholder="John Doe" />
+            </div>
+            <div class="form-field">
+                <label for="sugTitle">Title</label>
+                <input type="text" id="sugTitle" placeholder="Short summary of your idea" required />
+            </div>
+            <div class="form-field">
+                <label for="sugCategory">Category</label>
+                <select id="sugCategory">
+                    <option value="">Select a category</option>
+                    <option value="Feature Request">Feature Request</option>
+                    <option value="Bug Report">Bug Report</option>
+                    <option value="UI/UX">UI/UX</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="sugMessage">Suggestion</label>
+                <textarea id="sugMessage" placeholder="Describe your suggestion in detail..." required></textarea>
+                <div class="hint">Be as specific as possible so we can act on it.</div>
+            </div>
+            <button type="submit" class="submit-btn" id="sugSubmitBtn">Submit Suggestion</button>
+            <div class="form-error" id="sugError"></div>
+            <div class="form-success" id="sugSuccess"></div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
+
+        let localSupabase = null;
+        try {
+            if (typeof window.supabase !== "undefined") {
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
+
+        const form = document.getElementById("suggestionForm");
+        const errorEl = document.getElementById("sugError");
+        const successEl = document.getElementById("sugSuccess");
+        const submitBtn = document.getElementById("sugSubmitBtn");
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (errorEl) { errorEl.textContent = ""; errorEl.style.display = "none"; }
+                if (successEl) { successEl.textContent = ""; successEl.style.display = "none"; }
+
+                const title = document.getElementById("sugTitle")?.value.trim() || "";
+                const message = document.getElementById("sugMessage")?.value.trim() || "";
+                const name = document.getElementById("sugName")?.value.trim() || "";
+                const category = document.getElementById("sugCategory")?.value || "";
+
+                if (!title || !message) {
+                    if (errorEl) { errorEl.textContent = "Title and suggestion are required."; errorEl.style.display = "block"; }
+                    return;
+                }
+
+                if (!localSupabase) {
+                    if (errorEl) { errorEl.textContent = "Database unavailable."; errorEl.style.display = "block"; }
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Submitting...";
+
+                try {
+                    const { data: { user } } = await localSupabase.auth.getUser();
+                    const payload = {
+                        user_id: user ? user.id : null,
+                        email: user ? user.email : null,
+                        author_name: name || (user ? (user.email || "Anonymous") : "Anonymous"),
+                        title,
+                        category: category || null,
+                        message,
+                        status: "open",
+                        created_at: new Date().toISOString()
+                    };
+
+                    const { error } = await localSupabase
+                        .from("suggestions")
+                        .insert([payload]);
+
+                    if (error) {
+                        if (errorEl) { errorEl.textContent = error.message || "Failed to submit suggestion."; errorEl.style.display = "block"; }
+                        console.error("Insert failed:", error);
+                        return;
+                    }
+
+                    if (successEl) {
+                        successEl.textContent = "Thanks! Your suggestion has been submitted.";
+                        successEl.style.display = "block";
+                    }
+                    form.reset();
+                } catch (err) {
+                    if (errorEl) { errorEl.textContent = "Failed to submit suggestion."; errorEl.style.display = "block"; }
+                    console.error(err);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit Suggestion";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

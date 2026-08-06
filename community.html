@@ -23,22 +23,6 @@
             margin: 0 auto;
         }
 
-        .back-btn {
-            margin-bottom: 20px;
-            padding: 8px 14px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            color: #0f172a;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .back-btn:hover {
-            background: #f1f5f9;
-        }
-
         .community-name {
             font-size: 26px;
             font-weight: 700;
@@ -131,6 +115,26 @@
             color: #64748b;
             font-size: 14px;
             padding: 20px 0;
+            text-align: center;
+        }
+
+        .departments-empty {
+            text-align: center;
+            padding: 32px 16px;
+            color: #64748b;
+        }
+
+        .departments-empty-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .departments-empty-text {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
         }
 
         .modal-overlay {
@@ -214,6 +218,27 @@
             transform: translateY(1px);
         }
 
+        .submit-btn {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .05s ease, background .15s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
         .modal-error {
             margin-top: 10px;
             padding: 10px 12px;
@@ -224,11 +249,844 @@
             font-size: 14px;
             display: none;
         }
+
+        .dashboard {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .dashboard-top-right {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            z-index: 600;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .dashboard-top-right-badge {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            user-select: none;
+            margin-bottom: 8px;
+        }
+
+        .cad-config-badge {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            user-select: none;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
+        .server-admin-badge {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            user-select: none;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
+        .settings-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .settings-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .btn-dropdown-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .member-list,
+        .departments-dropdown-menu {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 8px;
+            z-index: 602;
+        }
+
+        .member-list.open,
+        .departments-dropdown-menu.open {
+            display: flex;
+        }
+
+        .member-list .member-btn {
+            width: 100%;
+        }
+
+        .members-view {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            z-index: 550;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .members-view.open {
+            display: flex;
+        }
+
+        .members-view-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .members-view-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .members-view-close {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .members-view-close:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .members-view-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .members-view-list         .member-btn {
+            width: 100%;
+            text-align: left;
+            background: #f8fafc;
+        }
+
+        .departments-view, .documents-view, .settings-view {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            z-index: 550;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .departments-view.open, .documents-view.open, .settings-view.open {
+            display: flex;
+        }
+
+        .licences-view {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            z-index: 550;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .licences-view.open {
+            display: flex;
+        }
+
+        .vehicles-view {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            z-index: 550;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .vehicles-view.open {
+            display: flex;
+        }
+
+        .view-body {
+            flex: 1;
+            overflow-y: auto;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .members-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .members-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .members-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .vehicles-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vehicles-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .vehicles-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .licences-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .licences-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .licences-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .departments-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .departments-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .departments-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .add-department-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #2563eb;
+            background: #2563eb;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .add-department-btn .btn-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        .add-department-btn:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .add-department-btn:active {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .documents-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .documents-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .documents-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .applications-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .applications-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .applications-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .applications-btn .btn-icon,
+        .applications-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .document-list {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 8px;
+            z-index: 602;
+        }
+
+        .document-list.open {
+            display: flex;
+        }
+
+        .penal-codes-btn {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .penal-codes-btn .btn-icon,
+        .penal-codes-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .btn-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .penal-codes-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
+        }
+
+        .penal-codes-btn:active {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+        }
+
+        .penal-codes-btn.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .penal-codes-btn.locked:hover {
+            background: rgba(15, 23, 42, 0.04);
+            border-color: #e2e8f0;
+        }
+
+        .penal-codes-list {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 8px;
+            z-index: 602;
+        }
+
+        .penal-codes-list.open {
+            display: flex;
+        }
+
+        .member-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .member-btn:hover {
+            background: #f8fafc;
+        }
+
+        .approval-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .approval-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .approval-btn.active {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+        }
+
+        .dashboard-dropdown {
+            margin-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+        }
+
+        .dropdown-toggle {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .dropdown-toggle:hover {
+            background: #f1f5f9;
+        }
+
+        .dropdown-menu {
+            margin-top: 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 8px;
+            display: none;
+        }
+
+        .dropdown-menu.open {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+        }
+
+        .member-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .member-item .member-email {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .member-item .member-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .member-item .kick-btn,
+        .member-item .ban-btn {
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .member-item .kick-btn:hover {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .member-item .ban-btn:hover {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .discord-invite-link {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #5865F2;
+            background: #5865F2;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .discord-invite-link:hover {
+            background: #4752c4;
+        }
+
+        .discord-server-link {
+            color: #5865F2;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .discord-join-logs {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px;
+            background: #f8fafc;
+        }
+
+        .discord-log-item {
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .discord-log-item:last-child {
+            border-bottom: none;
+        }
+
+        .discord-log-time {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .request-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .request-item button {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .request-item button.approve {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .request-item button.deny {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .role-btn {
+            width: 220px;
+            padding: 0;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .role-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .role-btn-banner {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+            background-color: #e2e8f0;
+        }
+
+        .role-btn-name {
+            padding: 10px 16px;
+            text-align: center;
+        }
+
+        .dept-wrap {
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .dept-wrap .role-btn {
+            width: 100%;
+        }
+
+        .dept-passcode-box {
+            display: none;
+            margin-top: 8px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .dept-passcode-box.open {
+            display: block;
+        }
+
+        .dept-passcode-box label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        .dept-passcode-box input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .dept-passcode-box input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .dept-passcode-box .dept-pc-submit {
+            width: 100%;
+            margin-top: 8px;
+            padding: 9px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .dept-passcode-box .dept-pc-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .dept-passcode-box .dept-pc-error {
+            display: none;
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 6px;
+            text-align: left;
+        }
+
+        .dept-banner-preview {
+            width: 100%;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: none;
+            border: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <button class="back-btn" id="backBtn">← Back</button>
         <div id="content"><div class="empty">Loading community...</div></div>
     </div>
 
@@ -252,6 +1110,88 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="departmentPasscodeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="deptPasscodeTitle">Department Passcode</div>
+                <button class="modal-close" id="deptPasscodeModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="field">
+                <label for="deptPasscodeInput">Enter passcode</label>
+                <input type="text" id="deptPasscodeInput" placeholder="Passcode" />
+            </div>
+            <button type="button" class="submit-btn" id="deptPasscodeSubmitBtn">Enter</button>
+            <div class="modal-error" id="deptPasscodeError"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="newDepartmentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">New Department</div>
+                <button class="modal-close" id="newDeptModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="field">
+                <label for="newDeptName">Department Name</label>
+                <input type="text" id="newDeptName" placeholder="Department name" />
+            </div>
+            <div class="field">
+                <label for="newDeptPasscode">Passcode (optional)</label>
+                <input type="text" id="newDeptPasscode" placeholder="Passcode" />
+            </div>
+            <div class="field">
+                <label>Banner Image</label>
+                <input type="file" id="newDeptBanner" accept="image/*" />
+                <img id="newDeptBannerPreview" class="dept-banner-preview" />
+            </div>
+            <button type="button" class="submit-btn" id="newDeptSubmitBtn">Create Department</button>
+            <div class="modal-error" id="newDeptError"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="newDocumentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">New Document</div>
+                <button class="modal-close" id="newDocModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="field">
+                <label for="newDocTitle">Document Title</label>
+                <input type="text" id="newDocTitle" placeholder="Document title" />
+            </div>
+            <div class="field">
+                <label>Assign Departments</label>
+                <div id="newDocDeptCheckboxes"><div class="empty">Loading departments...</div></div>
+            </div>
+            <button type="button" class="submit-btn" id="newDocSubmitBtn">Create Document</button>
+            <div class="modal-error" id="newDocError"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editDepartmentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Edit Department</div>
+                <button class="modal-close" id="editDeptModalClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="field">
+                <label for="editDeptName">Department Name</label>
+                <input type="text" id="editDeptName" placeholder="Department name" />
+            </div>
+            <div class="field">
+                <label for="editDeptPasscode">Passcode (leave blank to remove)</label>
+                <input type="text" id="editDeptPasscode" placeholder="Passcode" />
+            </div>
+            <div class="field">
+                <label>Banner Image</label>
+                <input type="file" id="editDeptBanner" accept="image/*" />
+                <img id="editDeptBannerPreview" class="dept-banner-preview" />
+            </div>
+            <button type="button" class="submit-btn" id="editDeptSubmitBtn">Save Changes</button>
+            <div class="modal-error" id="editDeptError"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
@@ -259,65 +1199,1802 @@
 
         const localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const contentEl = document.getElementById("content");
+        let currentCommunityData = null;
+        let currentCommunityId = null;
 
-        document.getElementById("backBtn").addEventListener("click", () => window.close());
+        function getCommunityIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get("id");
+            if (q) return q;
+            const m = window.location.pathname.match(/\/community\/([^/?#]+)/);
+            if (m) {
+                const seg = decodeURIComponent(m[1]);
+                if (/\.html?$/i.test(seg)) return null;
+                return seg;
+            }
+            return null;
+        }
 
         async function loadCommunity() {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get("id");
-            if (!id) {
-                contentEl.innerHTML = `<div class="empty">No community specified.</div>`;
-                return;
-            }
+            try {
+                const id = getCommunityIdFromUrl();
+                const dashboard = new URLSearchParams(window.location.search).get("dashboard");
+                if (!id) {
+                    contentEl.innerHTML = `<div class="empty">No community specified.</div>`;
+                    return;
+                }
 
-            const { data, error } = await localSupabase
-                .from("communities")
-                .select("*")
-                .eq("id", id)
-                .maybeSingle();
+                const { data, error } = await localSupabase
+                    .from("communities")
+                    .select("*")
+                    .eq("id", id)
+                    .maybeSingle();
 
-            if (error) {
-                contentEl.innerHTML = `<div class="empty">Failed to load community: ${error.message}</div>`;
-                return;
-            }
-            if (!data) {
-                contentEl.innerHTML = `<div class="empty">Community not found.</div>`;
-                return;
-            }
+                if (error) {
+                    contentEl.innerHTML = `<div class="empty">Failed to load community: ${error.message}</div>`;
+                    return;
+                }
+                if (!data) {
+                    contentEl.innerHTML = `<div class="empty">Community not found.</div>`;
+                    return;
+                }
 
-            const name = (data.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const description = (data.description || "No description.").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const creator = (data.creator_email || "Unknown").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const created = data.created_at ? new Date(data.created_at).toLocaleString() : "";
-            const suspended = !!data.suspended;
-            const joined = !!data.joined;
-            const verified = !!data.verification_requested;
+                currentCommunityData = data;
+                currentCommunityId = id;
 
-            const badges = [];
-            if (verified) badges.push('<span class="badge badge-verified">Verified</span>');
-            if (suspended) badges.push('<span class="badge badge-suspended">Suspended</span>');
-            if (joined) badges.push('<span class="badge badge-joined">Joined</span>');
+                const name = (data.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const description = (data.description || "No description.").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const creator = (data.creator_email || "Unknown").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const created = data.created_at ? new Date(data.created_at).toLocaleString() : "";
+                const suspended = !!data.suspended;
+                const joined = !!data.joined;
+                const verified = !!data.verification_requested;
 
-            contentEl.innerHTML = `
-                <div class="community-screen">
-                    <button type="button" class="role-btn" data-role="Police">Police</button>
-                    <button type="button" class="role-btn" data-role="Civilian">Civilian</button>
-                    <button type="button" class="role-btn" data-role="Admin">Admin</button>
-                </div>
-            `;
+                const badges = [];
+                if (verified) badges.push('<span class="badge badge-verified">Verified</span>');
+                if (suspended) badges.push('<span class="badge badge-suspended">Suspended</span>');
+                if (joined) badges.push('<span class="badge badge-joined">Joined</span>');
 
-            contentEl.querySelectorAll(".role-btn").forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    const role = btn.getAttribute("data-role");
-                    if (role === "Police") {
-                        openPoliceModal();
-                    } else if (role === "Civilian") {
-                        window.open("civilian.html", "_blank");
-                    } else {
-                        alert("Selected role: " + role);
+                const communityPasscode = data?.passcode || "";
+
+                if (dashboard === "1") {
+                    try {
+                        let currentEmail = "";
+                        let currentUserDepartment = "";
+                        try {
+                            const userData = await localSupabase.auth.getUser();
+                            currentEmail = userData?.data?.user?.email || "";
+                            if (currentEmail) {
+                                try {
+                                    const { data: currentUserData } = await localSupabase
+                                        .from("users")
+                                        .select("department")
+                                        .eq("email", currentEmail)
+                                        .maybeSingle();
+                                    currentUserDepartment = (currentUserData && currentUserData.department) ? currentUserData.department : "";
+                                } catch (e) {}
+                            }
+                        } catch (authErr) {
+                            console.error("Auth check failed:", authErr);
+                        }
+                        const { data: communityData } = await localSupabase
+                            .from("communities")
+                            .select("*")
+                            .eq("id", id)
+                            .maybeSingle();
+                        if (!communityData || communityData.creator_email !== currentEmail) {
+                            contentEl.innerHTML = `<div class="empty">Access denied. Community creator only.</div>`;
+                            return;
+                        }
+                        const serverName = (communityData.name || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        const approvalMode = communityData.join_approval === "manual" ? "manual" : "automatic";
+                        let initialErkKey = communityData.erlc_api_key || "";
+                        if (!initialErkKey) {
+                            try { initialErkKey = localStorage.getItem("erlcApiKey_" + id) || ""; } catch (e) {}
+                        }
+
+                        contentEl.innerHTML = `
+                            <div class="dashboard">
+                                <div class="dashboard-top-right">
+                                    <div class="dashboard-top-right-badge">People & Property</div>
+                                    <div class="btn-dropdown-wrap">
+                                        <button type="button" class="members-btn" id="membersBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            Members
+                                        </button>
+                                        <div class="member-list" id="memberList"></div>
+                                    </div>
+                                    <div class="btn-dropdown-wrap">
+                                        <button type="button" class="vehicles-btn" id="vehiclesBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                                            Vehicles
+                                        </button>
+                                    </div>
+                                    <div class="btn-dropdown-wrap">
+                                        <button type="button" class="licences-btn" id="licencesBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="17" x2="12" y2="17"/></svg>
+                                            Licences
+                                        </button>
+                                    </div>
+                                    <div class="cad-config-badge">CAD Configuration</div>
+                                    <div class="btn-dropdown-wrap">
+                                        <button type="button" class="documents-btn" id="documentsBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                            Documents
+                                        </button>
+                                    </div>
+                                    <div class="btn-dropdown-wrap">
+                                        <button type="button" class="applications-btn" id="applicationsBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                            Applications
+                                        </button>
+                                    </div>
+                                    <div class="btn-dropdown-wrap">
+                                        <button type="button" class="penal-codes-btn" id="penalCodesBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                                            Penal Codes (Coming Soon)
+                                        </button>
+                                        <div class="penal-codes-list" id="penalCodesList"></div>
+                                    </div>
+                                    <button type="button" class="departments-btn" id="departmentsBtn">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+                                        Departments
+                                    </button>
+                                    <div class="server-admin-badge">Server Admin</div>
+                                    <button type="button" class="settings-btn" id="settingsBtn">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                        Settings
+                                    </button>
+                                </div>
+                                <div class="settings-view" id="settingsView">
+                                    <div class="members-view-header">
+                                        <div class="members-view-title">Settings</div>
+                                        <button type="button" class="members-view-close" id="settingsViewClose" aria-label="Close">×</button>
+                                    </div>
+                                    <div class="view-body">
+                                        <div class="field">
+                                            <label>Server Name</label>
+                                            <input type="text" id="serverNameInput" value="${serverName}" />
+                                        </div>
+                                        <div class="field">
+                                            <label>Join Approval</label>
+                                            <div class="approval-options">
+                                                <button type="button" class="approval-btn ${approvalMode === 'automatic' ? 'active' : ''}" data-value="automatic">Automatic</button>
+                                                <button type="button" class="approval-btn ${approvalMode === 'manual' ? 'active' : ''}" data-value="manual">Manual Approval</button>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label>Community Passcode</label>
+                                            <input type="text" id="communityPasscodeInput" placeholder="Leave blank for no passcode" value="${(communityData.passcode || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
+                                        </div>
+                                        <div class="field">
+                                            <label>Supervisor Panel Password</label>
+                                            <input type="password" id="supervisorPasswordInput" placeholder="Leave blank for default" value="${(communityData.supervisor_password || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
+                                            <button type="button" class="submit-btn" id="saveSupervisorPasswordBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Save Password</button>
+                                        </div>
+                                        <div class="field">
+                                            <label>ERLC API Key</label>
+                                            <input type="text" id="erlcApiKeyInput" placeholder="ERLC API key" value="${initialErkKey.replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
+                                        </div>
+                                        <div class="dashboard-dropdown">
+                                            <button type="button" class="dropdown-toggle" id="requestsDropdownToggle">Requests</button>
+                                            <div class="dropdown-menu" id="requestsDropdownMenu">
+                                                <div class="empty" id="requestsStatus">Requests turned off</div>
+                                                <div id="requestsList"></div>
+                                            </div>
+                                            <button type="button" class="dropdown-toggle" id="discordDropdownToggle" style="margin-top:8px;">Discord Integration</button>
+                                            <div class="dropdown-menu" id="discordDropdownMenu">
+                                                <div class="field">
+                                                    <label>Discord Server Invite</label>
+                                                    <input type="text" id="discordServerInviteInput" placeholder="https://discord.gg/..." value="${(communityData.discord_invite || '').replace(/"/g, '&quot;')}" />
+                                                    <button type="button" class="submit-btn" id="saveDiscordInviteBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Save Invite</button>
+                                                </div>
+                                                <div class="field" style="margin-top:10px;">
+                                                    <label>Discord Webhook (for join logs)</label>
+                                                    <input type="text" id="discordWebhookInput" placeholder="https://discord.com/api/webhooks/..." value="${(communityData.discord_webhook || '').replace(/"/g, '&quot;')}" />
+                                                    <button type="button" class="submit-btn" id="saveDiscordWebhookBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Save Webhook</button>
+                                                </div>
+                                                <div class="field" style="margin-top:12px; border-top:1px solid #e2e8f0; padding-top:12px;">
+                                                    <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:6px;">Or pick a channel (bot token)</div>
+                                                    <label style="font-size:12px; color:#64748b;">Bot Token</label>
+                                                    <input type="password" id="discordBotTokenInput" placeholder="Bot token (kept server-side)" style="margin-top:4px;" />
+                                                    <button type="button" class="submit-btn" id="discordFetchGuildsBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Fetch Servers</button>
+                                                    <div id="discordGuildSelectWrap" style="margin-top:8px; display:none;">
+                                                        <select id="discordGuildSelect" class="department-select" style="width:100%;"></select>
+                                                        <button type="button" class="submit-btn" id="discordFetchChannelsBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Fetch Channels</button>
+                                                    </div>
+                                                    <div id="discordChannelSelectWrap" style="margin-top:8px; display:none;">
+                                                        <select id="discordChannelSelect" class="department-select" style="width:100%;"></select>
+                                                        <button type="button" class="submit-btn" id="discordUseChannelBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Use This Channel</button>
+                                                    </div>
+                                                    <div id="discordChannelStatus" style="font-size:12px; color:#64748b; margin-top:6px;"></div>
+                                                </div>
+                                                <div class="field" style="margin-top:10px;">
+                                                    <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:4px;">Invite the PulseCAD bot</div>
+                                                    <a class="submit-btn discord-invite-link" id="discordBotInviteLink" target="_blank" rel="noopener">Invite Bot to Server</a>
+                                                    <a class="discord-server-link" id="discordServerLink" target="_blank" rel="noopener" style="display:block; margin-top:8px; font-size:13px;">Open Community Discord Server</a>
+                                                </div>
+                                                <div style="font-size:12px; font-weight:600; color:#334155; margin-top:14px; margin-bottom:4px;">Join Logs</div>
+                                                <div id="discordJoinLogs" class="discord-join-logs"><div class="empty">No join events yet.</div></div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-dropdown" style="margin-top:24px; border-top:2px solid #fecaca; padding-top:16px;">
+                                            <button type="button" class="dropdown-toggle" style="background:#fef2f2; border-color:#fecaca; color:#991b1b;" id="deleteServerBtn">Delete Server</button>
+                                            <div class="dropdown-menu" id="deleteServerMenu" style="margin-top:6px;">
+                                                <p style="font-size:13px; color:#334155; margin-bottom:10px;">This will permanently delete the server and all associated data. This action cannot be undone.</p>
+                                                <button type="button" class="submit-btn" id="confirmDeleteServerBtn" style="background:#dc2626;">Delete Server</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="members-view" id="membersView">
+                                    <div class="members-view-header">
+                                        <div class="members-view-title">Members</div>
+                                        <button type="button" class="members-view-close" id="membersViewClose" aria-label="Close">×</button>
+                                    </div>
+                                    <div class="members-view-list" id="membersViewList"></div>
+                                </div>
+                                <div class="departments-view" id="departmentsView">
+                                    <div class="members-view-header">
+                                        <div class="members-view-title">Departments</div>
+                                        <button type="button" class="add-department-btn" id="openAddDepartmentBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            Add department
+                                        </button>
+                                    </div>
+                                    <div class="view-body">
+                                        <div id="departmentsList"></div>
+                                    </div>
+                                </div>
+                                <div class="documents-view" id="documentsView">
+                                    <div class="members-view-header">
+                                        <div class="members-view-title">Documents</div>
+                                        <button type="button" class="add-department-btn" id="openAddDocumentBtn">
+                                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            Add document
+                                        </button>
+                                    </div>
+                                    <div class="view-body">
+                                        <div id="documentsList"></div>
+                                    </div>
+                                </div>
+                                <div class="licences-view" id="licencesView">
+                                    <div class="members-view-header">
+                                        <div class="members-view-title">Licences</div>
+                                        <button type="button" class="members-view-close" id="licencesViewClose" aria-label="Close">×</button>
+                                    </div>
+                                    <div class="view-body">
+                                        <div class="members-view-list" id="licencesViewList"></div>
+                                    </div>
+                                </div>
+                                <div class="vehicles-view" id="vehiclesView">
+                                    <div class="members-view-header">
+                                        <div class="members-view-title">Vehicles</div>
+                                        <button type="button" class="members-view-close" id="vehiclesViewClose" aria-label="Close">×</button>
+                                    </div>
+                                    <div class="view-body">
+                                         <div class="members-view-list" id="vehiclesViewList"></div>
+                                     </div>
+                                 </div>
+                                 <div class="members-view" id="applicationsView">
+                                     <div class="members-view-header">
+                                         <div class="members-view-title">Applications</div>
+                                         <button type="button" class="members-view-close" id="applicationsViewClose" aria-label="Close">×</button>
+                                     </div>
+                                     <div class="view-body">
+                                         <button type="button" class="add-department-btn" id="openAddApplicationBtn">
+                                             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                             Create Application
+                                         </button>
+                                         <div id="applicationsList"></div>
+                                     </div>
+                                 </div>
+                                        </div>
+                                    </div>
+                                </div>
+                         `;
+
+                        const serverNameInput = document.getElementById("serverNameInput");
+                        const approvalBtns = document.getElementById("settingsView").querySelectorAll(".approval-btn");
+                        const membersBtn = document.getElementById("membersBtn");
+                        const memberList = document.getElementById("memberList");
+                        const vehiclesBtn = document.getElementById("vehiclesBtn");
+                        const vehiclesView = document.getElementById("vehiclesView");
+                        const vehiclesViewList = document.getElementById("vehiclesViewList");
+                        const vehiclesViewClose = document.getElementById("vehiclesViewClose");
+                        const licencesBtn = document.getElementById("licencesBtn");
+                        const licencesView = document.getElementById("licencesView");
+                        const licencesViewList = document.getElementById("licencesViewList");
+                        const licencesViewClose = document.getElementById("licencesViewClose");
+                        const requestsDropdownToggle = document.getElementById("requestsDropdownToggle");
+                        const requestsDropdownMenu = document.getElementById("requestsDropdownMenu");
+                        const requestsStatus = document.getElementById("requestsStatus");
+                        const requestsList = document.getElementById("requestsList");
+                        const settingsBtn = document.getElementById("settingsBtn");
+                        const settingsView = document.getElementById("settingsView");
+                        const settingsViewClose = document.getElementById("settingsViewClose");
+                        const membersView = document.getElementById("membersView");
+                        const membersViewList = document.getElementById("membersViewList");
+                        const membersViewClose = document.getElementById("membersViewClose");
+                        const applicationsBtn = document.getElementById("applicationsBtn");
+                        const applicationsView = document.getElementById("applicationsView");
+                        const applicationsViewClose = document.getElementById("applicationsViewClose");
+                        const applicationsList = document.getElementById("applicationsList");
+
+                        if (settingsBtn && settingsView) {
+                            settingsBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (settingsView.classList.contains("open")) {
+                                    settingsView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    settingsView.classList.add("open");
+                                }
+                            });
+                        }
+
+                        if (settingsViewClose && settingsView) {
+                            settingsViewClose.addEventListener("click", () => {
+                                settingsView.classList.remove("open");
+                            });
+                        }
+
+                        if (serverNameInput) {
+                            serverNameInput.addEventListener("blur", async () => {
+                                const newName = serverNameInput.value.trim();
+                                if (!newName) return;
+                                try {
+                                    await localSupabase
+                                        .from("communities")
+                                        .update({ name: newName })
+                                        .eq("id", id);
+                                } catch (err) {
+                                    alert("Failed to save server name.");
+                                }
+                            });
+                        }
+
+                        const communityPasscodeInput = document.getElementById("communityPasscodeInput");
+                        if (communityPasscodeInput) {
+                            communityPasscodeInput.addEventListener("blur", async () => {
+                                const newPasscode = communityPasscodeInput.value.trim();
+                                try {
+                                    await localSupabase
+                                        .from("communities")
+                                        .update({ passcode: newPasscode || null })
+                                        .eq("id", id);
+                                } catch (err) {
+                                    alert("Failed to save community passcode.");
+                                }
+                            });
+                        }
+
+                        const supervisorPasswordInput = document.getElementById("supervisorPasswordInput");
+                        const saveSupervisorPasswordBtn = document.getElementById("saveSupervisorPasswordBtn");
+                        if (saveSupervisorPasswordBtn && supervisorPasswordInput) {
+                            saveSupervisorPasswordBtn.addEventListener("click", async () => {
+                                const newPassword = supervisorPasswordInput.value.trim();
+                                try {
+                                    await localSupabase
+                                        .from("communities")
+                                        .update({ supervisor_password: newPassword || null })
+                                        .eq("id", id);
+                                    alert("Supervisor password saved.");
+                                } catch (err) {
+                                    alert("Failed to save supervisor password: " + (err.message || err));
+                                }
+                            });
+                        }
+
+                        const erlcApiKeyInput = document.getElementById("erlcApiKeyInput");
+                        if (erlcApiKeyInput) {
+                            erlcApiKeyInput.addEventListener("blur", async () => {
+                                const val = erlcApiKeyInput.value.trim();
+                                try {
+                                    const { error } = await localSupabase
+                                        .from("communities")
+                                        .update({ erlc_api_key: val || null })
+                                        .eq("id", id);
+                                    if (error) console.warn("DB save of ERLC API key failed:", error.message);
+                                    try {
+                                        if (val) localStorage.setItem("erlcApiKey_" + id, val);
+                                        else localStorage.removeItem("erlcApiKey_" + id);
+                                    } catch (e) {}
+                                } catch (err) {
+                                    try {
+                                        if (val) localStorage.setItem("erlcApiKey_" + id, val);
+                                        else localStorage.removeItem("erlcApiKey_" + id);
+                                    } catch (e) {}
+                                }
+                            });
+                        }
+
+                        const deleteServerBtn = document.getElementById("deleteServerBtn");
+                        const deleteServerMenu = document.getElementById("deleteServerMenu");
+                        const confirmDeleteServerBtn = document.getElementById("confirmDeleteServerBtn");
+
+                        if (deleteServerBtn && deleteServerMenu) {
+                            deleteServerBtn.addEventListener("click", () => {
+                                deleteServerMenu.classList.toggle("open");
+                            });
+                        }
+
+                        if (confirmDeleteServerBtn) {
+                            confirmDeleteServerBtn.addEventListener("click", async () => {
+                                if (!confirm("Are you sure you want to delete this server? This will permanently remove the server and all associated data.")) return;
+                                try {
+                                    const { error } = await localSupabase
+                                        .from("communities")
+                                        .delete()
+                                        .eq("id", id);
+                                    if (error) throw error;
+                                    window.location.href = "/";
+                                } catch (err) {
+                                    alert("Failed to delete server: " + (err.message || err));
+                                }
+                            });
+                        }
+
+                        approvalBtns.forEach((btn) => {
+                            btn.addEventListener("click", async () => {
+                                const mode = btn.getAttribute("data-value");
+                                approvalBtns.forEach((b) => b.classList.remove("active"));
+                                btn.classList.add("active");
+                                try {
+                                    await localSupabase
+                                        .from("communities")
+                                        .update({ join_approval: mode })
+                                        .eq("id", id);
+                                    if (mode === "automatic") {
+                                        if (requestsStatus) requestsStatus.style.display = "block";
+                                        if (requestsList) requestsList.innerHTML = "";
+                                    } else {
+                                        if (requestsStatus) requestsStatus.style.display = "none";
+                                        loadRequests();
+                                    }
+                                } catch (err) {
+                                    alert("Failed to update approval mode.");
+                                }
+                            });
+                        });
+
+                        async function loadMembersInto(targetEl, { loadingText = 'Loading members...', openDropdown = true } = {}) {
+                            if (!targetEl || !localSupabase) return;
+                            if (openDropdown) targetEl.classList.add("open");
+                            targetEl.innerHTML = '<div class="empty">' + loadingText + '</div>';
+                            try {
+                                const { data: community } = await localSupabase
+                                    .from("communities")
+                                    .select("creator_email")
+                                    .eq("id", id)
+                                    .maybeSingle();
+
+                                const { data: memberRows, error: memberError } = await localSupabase
+                                    .from("user_communities")
+                                    .select("user_id")
+                                    .eq("community_id", id);
+
+                                if (memberError) throw memberError;
+
+                                const rows = Array.isArray(memberRows) ? memberRows : [];
+                                const ids = rows.map((r) => r.user_id).filter(Boolean);
+                                let emailById = {};
+                                let deptById = {};
+                                if (ids.length > 0) {
+                                    const { data: users, error: userError } = await localSupabase
+                                        .from("users")
+                                        .select("id, email, department")
+                                        .in("id", ids);
+                                    if (userError) throw userError;
+                                    (users || []).forEach((u) => { emailById[u.id] = u.email; deptById[u.id] = u.department; });
+                                }
+
+                                const esc = (t) => (t || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                let html = '';
+                                const creatorEmail = community && community.creator_email ? community.creator_email : "";
+                                const creatorUserId = creatorEmail ? (() => {
+                                    const match = Object.entries(emailById).find(([uid, email]) => email === creatorEmail);
+                                    return match ? match[0] : null;
+                                })() : null;
+                                if (creatorEmail) {
+                                    html += `<button type="button" class="member-btn">${esc(creatorEmail)} (Owner)</button>`;
+                                }
+                                const isMembersView = targetEl === membersViewList;
+                                const isDropdown = targetEl === memberList;
+                                const showKickBan = (isMembersView || isDropdown) && creatorEmail === currentEmail;
+                                const currentUserDepartment = (currentUserDepartment || "").trim();
+                                const isSupport = currentUserDepartment === "Support Team";
+                                if (rows.length === 0) {
+                                    if (!html) html = '<div class="empty">No members yet.</div>';
+                                } else {
+                                    html += rows.map((r) => {
+                                        if (creatorUserId && r.user_id === creatorUserId) {
+                                            return "";
+                                        }
+                                        const email = esc(emailById[r.user_id] || r.user_id);
+                                        const memberDept = (deptById[r.user_id] || "").trim();
+                                        const isManagement = memberDept === "Management";
+                                        const canKickBan = showKickBan && !(isSupport && isManagement);
+                                        if (canKickBan) {
+                                            return `<div class="member-item"><span class="member-email">${email}</span><div class="member-actions"><button type="button" class="kick-btn" data-user-id="${esc(r.user_id)}">Kick</button><button type="button" class="ban-btn" data-user-id="${esc(r.user_id)}">Ban</button></div></div>`;
+                                        }
+                                        return `<button type="button" class="member-btn">${email}</button>`;
+                                    }).join('');
+                                }
+                                targetEl.innerHTML = html;
+                            } catch (err) {
+                                console.error("Failed to load members:", err);
+                                if (err && err.code === "42501" || (err && err.message && /permission|policy|row-level/i.test(err.message))) {
+                                    targetEl.innerHTML = '<div class="empty">Members are hidden by database permissions (RLS). Enable read access on user_communities.</div>';
+                                } else {
+                                    targetEl.innerHTML = '<div class="empty">Failed to load members.</div>';
+                                }
+                            }
+                        }
+
+                        async function loadMembers() {
+                            await loadMembersInto(memberList);
+                        }
+
+                        if (membersViewList) {
+                            membersViewList.addEventListener("click", async (e) => {
+                                const kickBtn = e.target.closest(".kick-btn");
+                                const banBtn = e.target.closest(".ban-btn");
+                                if (kickBtn) {
+                                    const userId = kickBtn.getAttribute("data-user-id");
+                                    if (userId === currentEmail) {
+                                        alert("You cannot kick yourself.");
+                                        return;
+                                    }
+                                    if (confirm("Kick this member?")) {
+                                        try {
+                                            const res = await fetch("/api/kick", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ communityId: id, userId, action: "kick", webhook: communityData && communityData.discord_webhook, username: "PulseCAD" })
+                                            });
+                                            const status = res.status;
+                                            let respText = "";
+                                            try { respText = await res.text(); } catch (err) { respText = "unreadable"; }
+                                            if (!res.ok) {
+                                                let respJson = {};
+                                                try { respJson = JSON.parse(respText); } catch (err) {}
+                                                throw new Error((respJson && respJson.error) ? respJson.error : ("Kick failed (status " + status + ")"));
+                                            }
+                                            loadMembersInto(membersViewList, { loadingText: "Loading members...", openDropdown: false });
+                                        } catch (err) {
+                                            alert("Failed to kick member: " + (err.message || err));
+                                        }
+                                    }
+                                }
+                                if (banBtn) {
+                                    const userId = banBtn.getAttribute("data-user-id");
+                                    if (userId === currentEmail) {
+                                        alert("You cannot ban yourself.");
+                                        return;
+                                    }
+                                    if (confirm("Ban this member? They will not be able to rejoin.")) {
+                                        try {
+                                            const res = await fetch("/api/ban", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ communityId: id, userId, action: "ban", webhook: communityData && communityData.discord_webhook, username: "PulseCAD" })
+                                            });
+                                            const status = res.status;
+                                            let respText = "";
+                                            try { respText = await res.text(); } catch (err) { respText = "unreadable"; }
+                                            if (!res.ok) {
+                                                let respJson = {};
+                                                try { respJson = JSON.parse(respText); } catch (err) {}
+                                                throw new Error((respJson && respJson.error) ? respJson.error : ("Ban failed (status " + status + ")"));
+                                            }
+                                            loadMembersInto(membersViewList, { loadingText: "Loading members...", openDropdown: false });
+                                        } catch (err) {
+                                            alert("Failed to ban member: " + (err.message || err));
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        if (memberList) {
+                            memberList.addEventListener("click", async (e) => {
+                                const kickBtn = e.target.closest(".kick-btn");
+                                const banBtn = e.target.closest(".ban-btn");
+                                if (kickBtn) {
+                                    const userId = kickBtn.getAttribute("data-user-id");
+                                    if (userId === currentEmail) {
+                                        alert("You cannot kick yourself.");
+                                        return;
+                                    }
+                                    if (confirm("Kick this member?")) {
+                                        try {
+                                            let apiOk = false;
+                                            try {
+                                                const res = await fetch("/api/kick", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ communityId: id, userId, action: "kick", webhook: communityData && communityData.discord_webhook, username: "PulseCAD" })
+                                                });
+                                                const status = res.status;
+                                                let respText = "";
+                                                try { respText = await res.text(); } catch (err) { respText = "unreadable"; }
+                                                if (res.ok) {
+                                                    apiOk = true;
+                                                } else {
+                                                    let respJson = {};
+                                                    try { respJson = JSON.parse(respText); } catch (err) {}
+                                                    throw new Error((respJson && respJson.error) ? respJson.error : ("Kick failed (status " + status + ")"));
+                                                }
+                                            } catch (apiErr) {
+                                                if (apiOk) return;
+                                                console.warn("Kick API failed, trying direct Supabase delete:", apiErr);
+                                                const { error: directError } = await localSupabase
+                                                    .from("user_communities")
+                                                    .delete()
+                                                    .eq("user_id", userId)
+                                                    .eq("community_id", id);
+                                                if (directError) throw apiErr;
+                                            }
+                                            loadMembersInto(memberList, { loadingText: "Loading members...", openDropdown: true });
+                                        } catch (err) {
+                                            alert("Failed to kick member: " + (err.message || err));
+                                        }
+                                    }
+                                }
+                                if (banBtn) {
+                                    const userId = banBtn.getAttribute("data-user-id");
+                                    if (userId === currentEmail) {
+                                        alert("You cannot ban yourself.");
+                                        return;
+                                    }
+                                    if (confirm("Ban this member? They will not be able to rejoin.")) {
+                                        try {
+                                            let apiOk = false;
+                                            try {
+                                                const res = await fetch("/api/ban", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ communityId: id, userId, action: "ban", webhook: communityData && communityData.discord_webhook, username: "PulseCAD" })
+                                                });
+                                                const status = res.status;
+                                                let respText = "";
+                                                try { respText = await res.text(); } catch (err) { respText = "unreadable"; }
+                                                if (res.ok) {
+                                                    apiOk = true;
+                                                } else {
+                                                    let respJson = {};
+                                                    try { respJson = JSON.parse(respText); } catch (err) {}
+                                                    throw new Error((respJson && respJson.error) ? respJson.error : ("Ban failed (status " + status + ")"));
+                                                }
+                                            } catch (apiErr) {
+                                                if (apiOk) return;
+                                                console.warn("Ban API failed, trying direct Supabase update:", apiErr);
+                                                const { error: directError } = await localSupabase
+                                                    .from("user_communities")
+                                                    .update({ banned: true })
+                                                    .eq("user_id", userId)
+                                                    .eq("community_id", id);
+                                                if (directError) throw apiErr;
+                                            }
+                                            loadMembersInto(memberList, { loadingText: "Loading members...", openDropdown: true });
+                                        } catch (err) {
+                                            alert("Failed to ban member: " + (err.message || err));
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        async function loadVehicles() {
+                            if (!vehiclesViewList || !localSupabase) return;
+                            vehiclesViewList.innerHTML = '<div class="empty">Loading vehicles...</div>';
+                            try {
+                                let query = localSupabase
+                                    .from("vehicles")
+                                    .select("*")
+                                    .order("created_at", { ascending: false });
+
+                                if (currentCommunityId) {
+                                    query = query.eq("community_id", currentCommunityId);
+                                }
+
+                                const { data, error } = await query;
+
+                                if (error) throw error;
+
+                                const esc = (t) => (t || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                                const civilianIds = [...new Set((data || []).map((v) => v.civilian_id).filter(Boolean))];
+                                let civilianNameById = {};
+                                if (civilianIds.length > 0) {
+                                    const { data: civilians, error: civError } = await localSupabase
+                                        .from("civilians")
+                                        .select("id, name")
+                                        .in("id", civilianIds);
+                                    if (!civError && Array.isArray(civilians)) {
+                                        civilians.forEach((c) => { civilianNameById[c.id] = c.name; });
+                                    }
+                                }
+
+                                if (!Array.isArray(data) || data.length === 0) {
+                                    vehiclesViewList.innerHTML = '<div class="empty">No vehicles yet.</div>';
+                                    return;
+                                }
+
+                                vehiclesViewList.innerHTML = data.map((v) => {
+                                    const name = esc(civilianNameById[v.civilian_id] || "Unknown Civilian");
+                                    const detail = [v.make, v.model, v.color, v.plate].filter(Boolean).join(" | ") || "No details";
+                                    return `<button type="button" class="member-btn">${name} — ${esc(detail)}</button>`;
+                                }).join('');
+                            } catch (err) {
+                                console.error("Failed to load vehicles:", err);
+                                vehiclesViewList.innerHTML = '<div class="empty">Failed to load vehicles.</div>';
+                            }
+                        }
+
+                        async function loadLicences() {
+                            if (!licencesViewList || !localSupabase) return;
+                            licencesViewList.innerHTML = '<div class="empty">Loading licences...</div>';
+                            try {
+                                const { data, error } = await localSupabase
+                                    .from("licenses")
+                                    .select("*")
+                                    .order("created_at", { ascending: false });
+
+                                if (error) throw error;
+
+                                const esc = (t) => (t || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                if (!Array.isArray(data) || data.length === 0) {
+                                    licencesViewList.innerHTML = '<div class="empty">No licences yet.</div>';
+                                    return;
+                                }
+
+                                const civilianIds = [...new Set(data.map((l) => l.civilian_id).filter(Boolean))];
+                                let civilianNameById = {};
+                                if (civilianIds.length > 0) {
+                                    const { data: civilians, error: civError } = await localSupabase
+                                        .from("civilians")
+                                        .select("id, name")
+                                        .in("id", civilianIds);
+                                    if (!civError && Array.isArray(civilians)) {
+                                        civilians.forEach((c) => { civilianNameById[c.id] = c.name; });
+                                    }
+                                }
+
+                                licencesViewList.innerHTML = data.map((l) => {
+                                    const name = esc(civilianNameById[l.civilian_id] || "Unknown Civilian");
+                                    const detail = [l.license_type, l.license_number, l.expiry_date].filter(Boolean).join(" | ") || "No details";
+                                    return `<button type="button" class="member-btn">${name} — ${esc(detail)}</button>`;
+                                }).join('');
+                            } catch (err) {
+                                console.error("Failed to load licences:", err);
+                                licencesViewList.innerHTML = '<div class="empty">Failed to load licences.</div>';
+                            }
+                        }
+
+                        async function loadRequests() {
+                            if (!requestsList) return;
+                            try {
+                                const { data } = await localSupabase
+                                    .from("join_requests")
+                                    .select("*")
+                                    .eq("community_id", id)
+                                    .eq("status", "pending");
+                                const requests = Array.isArray(data) ? data : [];
+                                if (requests.length === 0) {
+                                    requestsList.innerHTML = '<div class="empty">No pending requests.</div>';
+                                    return;
+                                }
+                                requestsList.innerHTML = requests.map((r) => `
+                                    <div class="request-item" data-request-id="${r.id}">
+                                        <span>${(r.user_email || 'Unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                                        <div>
+                                            <button type="button" class="approve">Approve</button>
+                                            <button type="button" class="deny">Deny</button>
+                                        </div>
+                                    </div>
+                                `).join('');
+                                requestsList.querySelectorAll(".approve").forEach((btn) => {
+                                    btn.addEventListener("click", async (e) => {
+                                        const item = e.target.closest(".request-item");
+                                        const requestId = item.getAttribute("data-request-id");
+                                        await handleRequest(requestId, "approved");
+                                    });
+                                });
+                                requestsList.querySelectorAll(".deny").forEach((btn) => {
+                                    btn.addEventListener("click", async (e) => {
+                                        const item = e.target.closest(".request-item");
+                                        const requestId = item.getAttribute("data-request-id");
+                                        await handleRequest(requestId, "denied");
+                                    });
+                                });
+                            } catch (err) {
+                                requestsList.innerHTML = '<div class="empty">Failed to load requests.</div>';
+                            }
+                        }
+
+                        async function handleRequest(requestId, status) {
+                            try {
+                                const { data: request } = await localSupabase
+                                    .from("join_requests")
+                                    .select("user_email, community_id")
+                                    .eq("id", requestId)
+                                    .maybeSingle();
+                                await localSupabase
+                                    .from("join_requests")
+                                    .update({ status })
+                                    .eq("id", requestId);
+                                if (status === "approved") {
+                                    await localSupabase
+                                        .from("communities")
+                                        .update({ joined: true })
+                                        .eq("id", id)
+                                        .eq("creator_email", currentEmail);
+                                }
+                                loadRequests();
+                                if (request && request.community_id) {
+                                        const webhook = communityData && communityData.discord_webhook;
+                                        console.log("[webhook] handleRequest webhook check:", !!webhook, communityId);
+                                        if (webhook) {
+                                            const actionText = status === "approved" ? "approved" : "denied";
+                                            const content = `**${request.user_email || "A user"}** join request was **${actionText}** for **${communityData ? communityData.name : "a community"}**.`;
+                                            const endpoints = ["/api/discord-webhook", "https://www.pulsecad.xyz/api/discord-webhook"];
+                                            for (const ep of endpoints) {
+                                                try {
+                                                    const res = await fetch(ep, {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/json" },
+                                                        body: JSON.stringify({ webhook: webhook, content: content, username: "PulseCAD" })
+                                                    });
+                                                    console.log("[webhook] handleRequest attempt", ep, res.status);
+                                                    if (res.ok) break;
+                                                } catch (e) {
+                                                    console.warn("[webhook] handleRequest fetch error", ep, e);
+                                                }
+                                            }
+                                        }
+                                }
+                            } catch (err) {
+                                alert("Failed to update request.");
+                            }
+                        }
+
+                        if (membersBtn && membersView) {
+                            membersBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (membersView.classList.contains("open")) {
+                                    membersView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    membersView.classList.add("open");
+                                    loadMembersInto(membersViewList, { loadingText: 'Loading members...', openDropdown: false });
+                                }
+                            });
+                        }
+
+                        if (membersViewClose && membersView) {
+                            membersViewClose.addEventListener("click", () => {
+                                membersView.classList.remove("open");
+                            });
+                        }
+
+                        if (applicationsBtn && applicationsView) {
+                            applicationsBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (applicationsView.classList.contains("open")) {
+                                    applicationsView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    applicationsView.classList.add("open");
+                                }
+                            });
+                        }
+
+                        if (applicationsViewClose && applicationsView) {
+                            applicationsViewClose.addEventListener("click", () => {
+                                applicationsView.classList.remove("open");
+                            });
+                        }
+
+                        if (vehiclesBtn && vehiclesView) {
+                            vehiclesBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (vehiclesView.classList.contains("open")) {
+                                    vehiclesView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    vehiclesView.classList.add("open");
+                                    loadVehicles();
+                                }
+                            });
+                        }
+
+                        if (vehiclesViewClose && vehiclesView) {
+                            vehiclesViewClose.addEventListener("click", () => {
+                                vehiclesView.classList.remove("open");
+                            });
+                        }
+
+                        if (licencesBtn && licencesView) {
+                            licencesBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (licencesView.classList.contains("open")) {
+                                    licencesView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    licencesView.classList.add("open");
+                                    loadLicences();
+                                }
+                            });
+                        }
+
+                        if (licencesViewClose && licencesView) {
+                            licencesViewClose.addEventListener("click", () => {
+                                licencesView.classList.remove("open");
+                            });
+                        }
+
+                        const departmentsList = document.getElementById("departmentsList");
+
+                        document.addEventListener("click", () => {
+                            if (memberList) memberList.classList.remove("open");
+                            if (penalCodesList) penalCodesList.classList.remove("open");
+                        });
+
+                        function closeAllPages() {
+                            const pages = [membersView, departmentsView, documentsView, licencesView, vehiclesView, applicationsView, settingsView];
+                            pages.forEach((p) => { if (p) p.classList.remove("open"); });
+                        }
+
+                        if (requestsDropdownToggle && requestsDropdownMenu) {
+                            requestsDropdownToggle.addEventListener("click", () => {
+                                requestsDropdownMenu.classList.toggle("open");
+                                if (approvalMode === "manual") {
+                                    loadRequests();
+                                }
+                            });
+                        }
+
+                        const departmentsBtn = document.getElementById("departmentsBtn");
+                        const departmentsView = document.getElementById("departmentsView");
+
+                        if (departmentsBtn && departmentsView) {
+                            departmentsBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (departmentsView.classList.contains("open")) {
+                                    departmentsView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    departmentsView.classList.add("open");
+                                    loadDepartments();
+                                }
+                            });
+                        }
+                        async function loadDepartments() {
+                            if (!departmentsList || !localSupabase) return;
+                            try {
+                                const { data } = await localSupabase
+                                    .from("departments")
+                                    .select("*")
+                                    .eq("community_id", id)
+                                    .order("created_at", { ascending: true });
+                                const departments = Array.isArray(data) ? data : [];
+                                if (departments.length === 0) {
+                                    departmentsList.innerHTML = '<div class="departments-empty"><div class="departments-empty-title">No departments yet</div><div class="departments-empty-text">This community doesn\'t have any departments set up.<br>Click "Add department" to create your first department.</div></div>';
+                                    return;
+                                }
+                                departmentsList.innerHTML = departments.map((d) => `
+                                    <div class="request-item" data-department-id="${d.id}">
+                                        <div>
+                                            ${d.banner ? `<img src="${d.banner}" style="width:100%; max-height:60px; object-fit:cover; border-radius:6px; margin-bottom:6px; display:block;" />` : ""}
+                                            <span>${(d.name || 'Department').replace(/</g, '&lt;').replace(/>/g, '&gt;')} ${d.passcode ? '🔒' : ''}</span>
+                                        </div>
+                                        <div>
+                                            <button type="button" class="approve" style="background:#fef9c3; border-color:#fde68a; color:#854d0e;" data-action="edit" data-department-id="${d.id}">Edit</button>
+                                            <button type="button" class="deny" style="background:#fef2f2; border-color:#fecaca; color:#991b1b;" data-action="delete" data-department-id="${d.id}">Delete</button>
+                                        </div>
+                                    </div>
+                                `).join('');
+                                departmentsList.querySelectorAll("[data-action='delete']").forEach((btn) => {
+                                    btn.addEventListener("click", async (e) => {
+                                        const item = e.target.closest(".request-item");
+                                        const departmentId = item.getAttribute("data-department-id");
+                                        await deleteDepartment(departmentId);
+                                    });
+                                });
+                                departmentsList.querySelectorAll("[data-action='edit']").forEach((btn) => {
+                                    btn.addEventListener("click", async (e) => {
+                                        const item = e.target.closest(".request-item");
+                                        const departmentId = item.getAttribute("data-department-id");
+                                        const department = departments.find((d) => d.id === departmentId);
+                                        if (department) {
+                                            await editDepartment(department);
+                                        }
+                                    });
+                                });
+                            } catch (err) {
+                                departmentsList.innerHTML = '<div class="empty">Failed to load departments.</div>';
+                            }
+                        }
+
+                        async function addDepartment(name, passcode, banner) {
+                            if (!name || !localSupabase) return;
+                            try {
+                                const { count, error: countError } = await localSupabase
+                                    .from("departments")
+                                    .select("*", { count: "exact", head: true })
+                                    .eq("community_id", id);
+                                if (!countError && typeof count === "number" && count >= 5) {
+                                    alert("This community already has the maximum of 5 departments.");
+                                    return;
+                                }
+                                const payload = { community_id: id, name: name.trim() };
+                                if (passcode && passcode.trim()) payload.passcode = passcode.trim();
+                                if (banner) payload.banner = banner;
+                                await localSupabase
+                                    .from("departments")
+                                    .insert([payload]);
+                                loadDepartments();
+                            } catch (err) {
+                                alert("Failed to add department.");
+                            }
+                        }
+
+                        async function editDepartment(department) {
+                            if (!department || !localSupabase) return;
+                            const editModal = document.getElementById("editDepartmentModal");
+                            const editDeptName = document.getElementById("editDeptName");
+                            const editDeptPasscode = document.getElementById("editDeptPasscode");
+                            const editDeptBanner = document.getElementById("editDeptBanner");
+                            const editDeptBannerPreview = document.getElementById("editDeptBannerPreview");
+                            const editDeptSubmitBtn = document.getElementById("editDeptSubmitBtn");
+                            const editDeptError = document.getElementById("editDeptError");
+                            const editDeptModalClose = document.getElementById("editDeptModalClose");
+                            
+                            if (!editModal) return;
+                            
+                            let currentBanner = department.banner || null;
+                            
+                            if (editDeptName) editDeptName.value = department.name || "";
+                            if (editDeptPasscode) editDeptPasscode.value = department.passcode || "";
+                            if (editDeptBannerPreview) {
+                                if (currentBanner) {
+                                    editDeptBannerPreview.src = currentBanner;
+                                    editDeptBannerPreview.style.display = "block";
+                                } else {
+                                    editDeptBannerPreview.style.display = "none";
+                                }
+                            }
+                            if (editDeptError) { editDeptError.textContent = ""; editDeptError.style.display = "none"; }
+                            
+                            editModal.classList.add("open");
+                            
+                            const handleEditDeptBannerChange = (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (!file.type.startsWith("image/")) {
+                                    if (editDeptError) { editDeptError.textContent = "Please select an image file."; editDeptError.style.display = "block"; }
+                                    return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                    currentBanner = ev.target.result;
+                                    if (editDeptBannerPreview) {
+                                        editDeptBannerPreview.src = currentBanner;
+                                        editDeptBannerPreview.style.display = "block";
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                            };
+                            
+                            if (editDeptBanner) {
+                                editDeptBanner.onchange = handleEditDeptBannerChange;
+                            }
+                            
+                            const handleEditDeptSubmit = async () => {
+                                const newName = editDeptName ? editDeptName.value.trim() : "";
+                                const newPasscode = editDeptPasscode ? editDeptPasscode.value.trim() : "";
+                                
+                                if (!newName) {
+                                    if (editDeptError) { editDeptError.textContent = "Department name is required."; editDeptError.style.display = "block"; }
+                                    return;
+                                }
+                                
+                                try {
+                                    const payload = { name: newName };
+                                    if (newPasscode) payload.passcode = newPasscode;
+                                    else payload.passcode = null;
+                                    if (currentBanner !== null) payload.banner = currentBanner;
+                                    
+                                    console.log("Saving department:", payload);
+                                    
+                                    const { data: updated, error } = await localSupabase
+                                        .from("departments")
+                                        .update(payload)
+                                        .eq("id", department.id)
+                                        .select();
+                                    if (error) throw error;
+                                    if (!updated || updated.length === 0) {
+                                        throw new Error("Update saved 0 rows. This is a database permissions (RLS) issue on the departments table \u2014 enable UPDATE for authenticated users.");
+                                    }
+                                    
+                                    editModal.classList.remove("open");
+                                    loadDepartments();
+                                } catch (err) {
+                                    console.error("Failed to update department:", err);
+                                    if (editDeptError) { editDeptError.textContent = "Failed to save: " + (err.message || err); editDeptError.style.display = "block"; }
+                                }
+                            };
+                            
+                            if (editDeptSubmitBtn) {
+                                editDeptSubmitBtn.onclick = handleEditDeptSubmit;
+                            }
+                        }
+
+                        async function deleteDepartment(departmentId) {
+                            if (!confirm("Delete this department?")) return;
+                            try {
+                                await localSupabase
+                                    .from("departments")
+                                    .delete()
+                                    .eq("id", departmentId);
+                                loadDepartments();
+                            } catch (err) {
+                                alert("Failed to delete department.");
+                            }
+                        }
+
+                        const documentsBtn = document.getElementById("documentsBtn");
+                        const documentsView = document.getElementById("documentsView");
+                        const documentsList = document.getElementById("documentsList");
+                        const penalCodesBtn = document.getElementById("penalCodesBtn");
+                        const penalCodesList = document.getElementById("penalCodesList");
+
+                        const communityIsPro = !!(communityData && communityData.pro);
+                        if (documentsBtn && !communityIsPro) {
+                            documentsBtn.disabled = true;
+                            documentsBtn.style.opacity = "0.5";
+                            documentsBtn.style.cursor = "not-allowed";
+                            documentsBtn.textContent = "Documents (Pro)";
+                            documentsBtn.title = "Documents is a PulseCAD Pro feature. Upgrade your community to Pro to use it.";
+                            if (documentsView) documentsView.style.display = "none";
+                        }
+
+                        async function loadDocumentDeptCheckboxes(target) {
+                            const container = target || document.getElementById("documentDeptCheckboxes");
+                            if (!container || !localSupabase) return;
+                            try {
+                                const { data } = await localSupabase
+                                    .from("departments")
+                                    .select("*")
+                                    .eq("community_id", id)
+                                    .order("created_at", { ascending: true });
+                                const depts = Array.isArray(data) ? data : [];
+                                if (depts.length === 0) {
+                                    container.innerHTML = '<div class="empty">No departments to assign. Create a department first.</div>';
+                                    return;
+                                }
+                                container.innerHTML = depts.map((d) => `
+                                    <label style="display:flex; align-items:center; gap:6px; font-size:13px; margin-bottom:4px; cursor:pointer;">
+                                        <input type="checkbox" class="doc-dept-cb" value="${(d.name || '').replace(/"/g, '&quot;')}" />
+                                        <span>${(d.name || 'Department').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                                    </label>
+                                `).join('');
+                            } catch (err) {
+                                container.innerHTML = '<div class="empty">Failed to load departments.</div>';
+                            }
+                        }
+
+                        async function loadDocuments() {
+                            if (!documentsList || !localSupabase) return;
+                            try {
+                                const { data } = await localSupabase
+                                    .from("documents")
+                                    .select("*")
+                                    .eq("community_id", id)
+                                    .order("created_at", { ascending: false });
+                                const docs = Array.isArray(data) ? data : [];
+                                if (docs.length === 0) {
+                                    documentsList.innerHTML = '<div class="empty">No documents yet.</div>';
+                                    return;
+                                }
+                                documentsList.innerHTML = docs.map((doc) => {
+                                    const depts = Array.isArray(doc.departments) ? doc.departments : [];
+                                    const chips = depts.map((n) => `<span style="display:inline-block; padding:2px 8px; border-radius:999px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:11px; font-weight:700;">${(n || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('');
+                                    return `
+                                        <div class="request-item" data-document-id="${doc.id}">
+                                            <div>
+                                                <span>${(doc.title || 'Document').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                                                ${chips ? `<div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">${chips}</div>` : ''}
+                                            </div>
+                                            <div>
+                                                <button type="button" class="approve" style="background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8;" data-action="open-doc" data-document-id="${doc.id}">Open</button>
+                                                <button type="button" class="approve" style="background:#f0fdf4; border-color:#bbf7d0; color:#166534;" data-action="copy-doc" data-document-id="${doc.id}">Copy Link</button>
+                                                <button type="button" class="deny" style="background:#fef2f2; border-color:#fecaca; color:#991b1b;" data-action="delete-doc" data-document-id="${doc.id}">Delete</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('');
+                                documentsList.querySelectorAll("[data-action='delete-doc']").forEach((btn) => {
+                                    btn.addEventListener("click", async (e) => {
+                                        const item = e.target.closest(".request-item");
+                                        await deleteDocument(item.getAttribute("data-document-id"));
+                                    });
+                                });
+                                documentsList.querySelectorAll("[data-action='open-doc']").forEach((btn) => {
+                                    btn.addEventListener("click", (e) => {
+                                        const documentId = e.target.closest(".request-item").getAttribute("data-document-id");
+                                        window.open("/document.html?id=" + encodeURIComponent(documentId), "_blank");
+                                    });
+                                });
+                                documentsList.querySelectorAll("[data-action='copy-doc']").forEach((btn) => {
+                                    btn.addEventListener("click", (e) => {
+                                        const documentId = e.target.closest(".request-item").getAttribute("data-document-id");
+                                        const link = new URL("/document.html", window.location.origin);
+                                        link.searchParams.set("id", documentId);
+                                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                                            navigator.clipboard.writeText(link.href)
+                                                .then(() => alert("Document link copied to clipboard."))
+                                                .catch(() => prompt("Copy this link:", link.href));
+                                        } else {
+                                            prompt("Copy this link:", link.href);
+                                        }
+                                    });
+                                });
+                            } catch (err) {
+                                documentsList.innerHTML = '<div class="empty">Failed to load documents.</div>';
+                            }
+                        }
+
+                        async function loadPenalCodes() {
+                            if (!penalCodesList || !localSupabase) return;
+                            penalCodesList.classList.add("open");
+                            penalCodesList.innerHTML = '<div class="empty">Loading penal codes...</div>';
+                            try {
+                                const { data, error } = await localSupabase
+                                    .from("penal_codes")
+                                    .select("*")
+                                    .order("created_at", { ascending: false });
+
+                                if (error) throw error;
+
+                                const esc = (t) => (t || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                if (!Array.isArray(data) || data.length === 0) {
+                                    penalCodesList.innerHTML = '<div class="empty">No penal codes yet.</div>';
+                                    return;
+                                }
+
+                                penalCodesList.innerHTML = data.map((pc) => {
+                                    const title = esc(pc.title || 'Penal Code');
+                                    const code = esc(pc.code || '');
+                                    const detail = [code, pc.description].filter(Boolean).join(" — ");
+                                    return `<button type="button" class="member-btn">${title}${detail ? ' — ' + esc(detail) : ''}</button>`;
+                                }).join('');
+                            } catch (err) {
+                                console.error("Failed to load penal codes:", err);
+                                penalCodesList.innerHTML = '<div class="empty">Failed to load penal codes.</div>';
+                            }
+                        }
+
+                        async function addDocument(title, departments) {
+                            if (!title || !localSupabase) return;
+                            try {
+                                await localSupabase
+                                    .from("documents")
+                                    .insert([{ community_id: id, title: title.trim(), departments: departments }]);
+                                loadDocuments();
+                            } catch (err) {
+                                alert("Failed to create document.");
+                            }
+                        }
+
+                        async function deleteDocument(documentId) {
+                            if (!confirm("Delete this document?")) return;
+                            try {
+                                await localSupabase
+                                    .from("documents")
+                                    .delete()
+                                    .eq("id", documentId);
+                                loadDocuments();
+                            } catch (err) {
+                                alert("Failed to delete document.");
+                            }
+                        }
+
+                        if (documentsBtn && documentsView) {
+                            documentsBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                if (documentsView.classList.contains("open")) {
+                                    documentsView.classList.remove("open");
+                                } else {
+                                    closeAllPages();
+                                    documentsView.classList.add("open");
+                                    loadDocuments();
+                                    loadDocumentDeptCheckboxes();
+                                }
+                            });
+                        }
+
+                        if (penalCodesBtn && penalCodesList) {
+                            penalCodesBtn.disabled = true;
+                            penalCodesBtn.classList.add("locked");
+                            penalCodesBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                penalCodesList.classList.add("open");
+                                penalCodesList.innerHTML = '<div class="empty">Coming soon.</div>';
+                            });
+                        }
+
+                        // Discord Integration
+                        const discordDropdownToggle = document.getElementById("discordDropdownToggle");
+                        const discordDropdownMenu = document.getElementById("discordDropdownMenu");
+                        const discordServerInviteInput = document.getElementById("discordServerInviteInput");
+                        const saveDiscordInviteBtn = document.getElementById("saveDiscordInviteBtn");
+                        const discordWebhookInput = document.getElementById("discordWebhookInput");
+                        const saveDiscordWebhookBtn = document.getElementById("saveDiscordWebhookBtn");
+                        const discordBotInviteLink = document.getElementById("discordBotInviteLink");
+                        const discordServerLink = document.getElementById("discordServerLink");
+                        const discordJoinLogs = document.getElementById("discordJoinLogs");
+
+                        const DISCORD_BOT_CLIENT_ID = "1526488253237170227";
+                        const DISCORD_BOT_INVITE = "https://discord.com/api/oauth2/authorize?client_id=" + DISCORD_BOT_CLIENT_ID + "&permissions=2048&scope=bot";
+
+                        async function loadDiscordJoinLogs() {
+                            if (!discordJoinLogs || !localSupabase) return;
+                            try {
+                                const { data, error } = await localSupabase
+                                    .from("discord_join_logs")
+                                    .select("*")
+                                    .eq("community_id", id)
+                                    .order("created_at", { ascending: false })
+                                    .limit(50);
+                                if (error) throw error;
+                                const rows = Array.isArray(data) ? data : [];
+                                if (rows.length === 0) {
+                                    discordJoinLogs.innerHTML = '<div class="empty">No join events yet.</div>';
+                                    return;
+                                }
+                                discordJoinLogs.innerHTML = rows.map((r) => `
+                                    <div class="discord-log-item">
+                                        <div>${escHtml(r.message || "A user joined the community.")}</div>
+                                        <div class="discord-log-time">${new Date(r.created_at).toLocaleString()}</div>
+                                    </div>
+                                `).join('');
+                            } catch (err) {
+                                console.error("Failed to load Discord join logs:", err);
+                            }
+                        }
+
+                        if (discordDropdownToggle && discordDropdownMenu) {
+                            discordDropdownToggle.addEventListener("click", () => {
+                                discordDropdownMenu.classList.toggle("open");
+                                if (discordDropdownMenu.classList.contains("open")) {
+                                    if (discordBotInviteLink) discordBotInviteLink.href = DISCORD_BOT_INVITE;
+                                    if (discordServerLink) {
+                                        const invite = (communityData && communityData.discord_invite) || "";
+                                        if (invite) {
+                                            discordServerLink.href = invite;
+                                            discordServerLink.style.display = "block";
+                                        } else {
+                                            discordServerLink.style.display = "none";
+                                        }
+                                    }
+                                    loadDiscordJoinLogs();
+                                }
+                            });
+                        }
+
+                        if (saveDiscordInviteBtn) {
+                            saveDiscordInviteBtn.addEventListener("click", async () => {
+                                const invite = discordServerInviteInput ? discordServerInviteInput.value.trim() : "";
+                                try {
+                                    const { error } = await localSupabase
+                                        .from("communities")
+                                        .update({ discord_invite: invite })
+                                        .eq("id", id);
+                                    if (error) throw error;
+                                    if (communityData) communityData.discord_invite = invite;
+                                    if (discordServerLink) {
+                                        if (invite) { discordServerLink.href = invite; discordServerLink.style.display = "block"; }
+                                        else discordServerLink.style.display = "none";
+                                    }
+                                    alert("Discord server invite saved.");
+                                } catch (err) {
+                                    alert("Failed to save invite: " + (err.message || err));
+                                }
+                            });
+                        }
+
+                        if (saveDiscordWebhookBtn) {
+                            saveDiscordWebhookBtn.addEventListener("click", async () => {
+                                const webhook = discordWebhookInput ? discordWebhookInput.value.trim() : "";
+                                if (webhook && !/^https:\/\/discord\.com\/api\/webhooks\//.test(webhook) && !/^https:\/\/discordapp\.com\/api\/webhooks\//.test(webhook)) {
+                                    alert("Please enter a valid Discord webhook URL (starts with https://discord.com/api/webhooks/).");
+                                    return;
+                                }
+                                try {
+                                    const { error } = await localSupabase
+                                        .from("communities")
+                                        .update({ discord_webhook: webhook })
+                                        .eq("id", id);
+                                    if (error) throw error;
+                                    if (communityData) communityData.discord_webhook = webhook;
+                                    alert("Discord webhook saved.");
+                                } catch (err) {
+                                    alert("Failed to save webhook: " + (err.message || err));
+                                }
+                            });
+                        }
+
+                        const discordBotTokenInput = document.getElementById("discordBotTokenInput");
+                        const discordFetchGuildsBtn = document.getElementById("discordFetchGuildsBtn");
+                        const discordGuildSelectWrap = document.getElementById("discordGuildSelectWrap");
+                        const discordGuildSelect = document.getElementById("discordGuildSelect");
+                        const discordFetchChannelsBtn = document.getElementById("discordFetchChannelsBtn");
+                        const discordChannelSelectWrap = document.getElementById("discordChannelSelectWrap");
+                        const discordChannelSelect = document.getElementById("discordChannelSelect");
+                        const discordUseChannelBtn = document.getElementById("discordUseChannelBtn");
+                        const discordChannelStatus = document.getElementById("discordChannelStatus");
+
+                        async function discordApi(route, body) {
+                            const endpoints = ["/api/discord-" + route, "https://www.pulsecad.xyz/api/discord-" + route];
+                            for (const ep of endpoints) {
+                                try {
+                                    const r = await fetch(ep, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify(body)
+                                    });
+                                    const data = await r.json();
+                                    if (r.ok) return data;
+                                    if (data && data.error) throw new Error(data.error);
+                                    throw new Error("Request failed");
+                                } catch (err) {
+                                    if (ep === endpoints[endpoints.length - 1]) throw err;
+                                }
+                            }
+                        }
+
+                        if (discordFetchGuildsBtn) {
+                            discordFetchGuildsBtn.addEventListener("click", async () => {
+                                const token = discordBotTokenInput ? discordBotTokenInput.value.trim() : "";
+                                if (!token) { alert("Enter the bot token first."); return; }
+                                if (discordChannelStatus) discordChannelStatus.textContent = "Loading servers...";
+                                try {
+                                    const data = await discordApi("guilds", { token });
+                                    const guilds = data.guilds || [];
+                                    if (guilds.length === 0) {
+                                        if (discordChannelStatus) discordChannelStatus.textContent = "No servers found for this bot.";
+                                        return;
+                                    }
+                                    discordGuildSelect.innerHTML = guilds.map((g) => `<option value="${g.id}">${g.name.replace(/</g, '&lt;')}</option>`).join('');
+                                    discordGuildSelectWrap.style.display = "block";
+                                    discordChannelSelectWrap.style.display = "none";
+                                    if (discordChannelStatus) discordChannelStatus.textContent = "Select a server and fetch channels.";
+                                } catch (err) {
+                                    if (discordChannelStatus) discordChannelStatus.textContent = "Error: " + (err.message || err);
+                                }
+                            });
+                        }
+
+                        if (discordFetchChannelsBtn) {
+                            discordFetchChannelsBtn.addEventListener("click", async () => {
+                                const token = discordBotTokenInput ? discordBotTokenInput.value.trim() : "";
+                                const guildId = discordGuildSelect ? discordGuildSelect.value : "";
+                                if (!token || !guildId) { alert("Fetch servers first."); return; }
+                                if (discordChannelStatus) discordChannelStatus.textContent = "Loading channels...";
+                                try {
+                                    const data = await discordApi("channels", { token, guildId });
+                                    const channels = data.channels || [];
+                                    const textChannels = channels.filter((c) => c.type === 0 || c.type === 5);
+                                    if (textChannels.length === 0) {
+                                        if (discordChannelStatus) discordChannelStatus.textContent = "No text channels found.";
+                                        return;
+                                    }
+                                    discordChannelSelect.innerHTML = textChannels.map((c) => `<option value="${c.id}">${c.name.replace(/</g, '&lt;')}</option>`).join('');
+                                    discordChannelSelectWrap.style.display = "block";
+                                    if (discordChannelStatus) discordChannelStatus.textContent = "Select a channel and click Use This Channel.";
+                                } catch (err) {
+                                    if (discordChannelStatus) discordChannelStatus.textContent = "Error: " + (err.message || err);
+                                }
+                            });
+                        }
+
+                        if (discordUseChannelBtn) {
+                            discordUseChannelBtn.addEventListener("click", async () => {
+                                const token = discordBotTokenInput ? discordBotTokenInput.value.trim() : "";
+                                const channelId = discordChannelSelect ? discordChannelSelect.value : "";
+                                if (!token || !channelId) { alert("Select a channel first."); return; }
+                                if (discordChannelStatus) discordChannelStatus.textContent = "Creating webhook...";
+                                try {
+                                    const data = await discordApi("create-webhook", { token, channelId });
+                                    const webhook = data.webhook || "";
+                                    if (!webhook) throw new Error("No webhook returned.");
+                                    if (discordWebhookInput) discordWebhookInput.value = webhook;
+                                    const { error } = await localSupabase
+                                        .from("communities")
+                                        .update({ discord_webhook: webhook })
+                                        .eq("id", id);
+                                    if (error) throw error;
+                                    if (communityData) communityData.discord_webhook = webhook;
+                                    if (discordChannelStatus) discordChannelStatus.textContent = "Channel linked! Join logs will post there.";
+                                    alert("Channel linked successfully.");
+                                } catch (err) {
+                                    if (discordChannelStatus) discordChannelStatus.textContent = "Error: " + (err.message || err);
+                                }
+                            });
+                        }
+
+                        const openAddDocumentBtn = document.getElementById("openAddDocumentBtn");
+                        const newDocumentModal = document.getElementById("newDocumentModal");
+                        const newDocTitle = document.getElementById("newDocTitle");
+                        const newDocDeptCheckboxes = document.getElementById("newDocDeptCheckboxes");
+                        const newDocSubmitBtn = document.getElementById("newDocSubmitBtn");
+                        const newDocModalClose = document.getElementById("newDocModalClose");
+                        const newDocError = document.getElementById("newDocError");
+
+                        function openNewDocumentModal() {
+                            if (!newDocumentModal) return;
+                            if (newDocTitle) newDocTitle.value = "";
+                            if (newDocError) { newDocError.textContent = ""; newDocError.style.display = "none"; }
+                            if (newDocDeptCheckboxes) newDocDeptCheckboxes.innerHTML = '<div class="empty">Loading departments...</div>';
+                            loadDocumentDeptCheckboxes(newDocDeptCheckboxes);
+                            newDocumentModal.classList.add("open");
+                        }
+
+                        function closeNewDocumentModal() {
+                            if (newDocumentModal) newDocumentModal.classList.remove("open");
+                        }
+
+                        if (openAddDocumentBtn) {
+                            openAddDocumentBtn.addEventListener("click", openNewDocumentModal);
+                        }
+                        if (newDocModalClose) {
+                            newDocModalClose.addEventListener("click", closeNewDocumentModal);
+                        }
+                        if (newDocumentModal) {
+                            newDocumentModal.addEventListener("click", (e) => {
+                                if (e.target === newDocumentModal) closeNewDocumentModal();
+                            });
+                        }
+                        if (newDocSubmitBtn) {
+                            newDocSubmitBtn.onclick = async () => {
+                                const title = newDocTitle ? newDocTitle.value.trim() : "";
+                                if (!title) {
+                                    if (newDocError) { newDocError.textContent = "Document title is required."; newDocError.style.display = "block"; }
+                                    return;
+                                }
+                                const selected = newDocDeptCheckboxes
+                                    ? Array.from(newDocDeptCheckboxes.querySelectorAll(".doc-dept-cb:checked")).map((cb) => cb.value)
+                                    : [];
+                                closeNewDocumentModal();
+                                await addDocument(title, selected);
+                            };
+                        }
+
+                        const openAddDepartmentBtn = document.getElementById("openAddDepartmentBtn");
+                        const newDepartmentModal = document.getElementById("newDepartmentModal");
+                        const newDeptName = document.getElementById("newDeptName");
+                        const newDeptPasscode = document.getElementById("newDeptPasscode");
+                        const newDeptBanner = document.getElementById("newDeptBanner");
+                        const newDeptBannerPreview = document.getElementById("newDeptBannerPreview");
+                        const newDeptSubmitBtn = document.getElementById("newDeptSubmitBtn");
+                        const newDeptModalClose = document.getElementById("newDeptModalClose");
+                        const newDeptError = document.getElementById("newDeptError");
+
+                        function openNewDepartmentModal() {
+                            if (!newDepartmentModal) return;
+                            if (newDeptName) newDeptName.value = "";
+                            if (newDeptPasscode) newDeptPasscode.value = "";
+                            if (newDeptBanner) newDeptBanner.value = "";
+                            if (newDeptBannerPreview) newDeptBannerPreview.style.display = "none";
+                            if (newDeptError) { newDeptError.textContent = ""; newDeptError.style.display = "none"; }
+                            newDepartmentModal.classList.add("open");
+                        }
+
+                        function closeNewDepartmentModal() {
+                            if (newDepartmentModal) newDepartmentModal.classList.remove("open");
+                        }
+
+                        if (openAddDepartmentBtn) {
+                            openAddDepartmentBtn.addEventListener("click", openNewDepartmentModal);
+                        }
+                        if (newDeptModalClose) {
+                            newDeptModalClose.addEventListener("click", closeNewDepartmentModal);
+                        }
+                        if (newDepartmentModal) {
+                            newDepartmentModal.addEventListener("click", (e) => {
+                                if (e.target === newDepartmentModal) closeNewDepartmentModal();
+                            });
+                        }
+                        if (newDeptBanner) {
+                            newDeptBanner.onchange = (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (!file.type.startsWith("image/")) {
+                                    if (newDeptError) { newDeptError.textContent = "Please select an image file."; newDeptError.style.display = "block"; }
+                                    return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                    if (newDeptBannerPreview) {
+                                        newDeptBannerPreview.src = ev.target.result;
+                                        newDeptBannerPreview.style.display = "block";
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                            };
+                        }
+                        if (newDeptSubmitBtn) {
+                            newDeptSubmitBtn.onclick = async () => {
+                                const name = newDeptName ? newDeptName.value.trim() : "";
+                                if (!name) {
+                                    if (newDeptError) { newDeptError.textContent = "Department name is required."; newDeptError.style.display = "block"; }
+                                    return;
+                                }
+                                const passcode = newDeptPasscode ? newDeptPasscode.value.trim() : "";
+                                const banner = (newDeptBannerPreview && newDeptBannerPreview.style.display !== "none") ? newDeptBannerPreview.src : null;
+                                closeNewDepartmentModal();
+                                await addDepartment(name, passcode, banner);
+                            };
+                        }
+
+                        if (approvalMode === "manual") {
+                            if (requestsStatus) requestsStatus.style.display = "none";
+                            loadRequests();
+                        }
+                    } catch (err) {
+                        contentEl.innerHTML = `<div class="empty">Failed to load dashboard: ${err?.message || err}</div>`;
+                        console.error("Dashboard load failed:", err);
                     }
+                    return;
+                }
+
+                if (communityPasscode) {
+                    const sessionPasscode = sessionStorage.getItem("community_passcode_" + id);
+                    if (sessionPasscode !== communityPasscode) {
+                        contentEl.innerHTML = `
+                            <div class="community-name">${name}</div>
+                            <div class="community-meta">This community is passcode protected.</div>
+                            <div class="field" style="max-width: 320px; margin-top: 16px;">
+                                <input type="text" id="communityPasscodeEntry" placeholder="Enter passcode" />
+                            </div>
+                            <button type="button" class="submit-btn" id="communityPasscodeSubmit" style="max-width: 320px; margin-top: 8px;">Enter</button>
+                            <div class="modal-error" id="communityPasscodeError"></div>
+                        `;
+                        const communityPasscodeEntry = document.getElementById("communityPasscodeEntry");
+                        const communityPasscodeSubmit = document.getElementById("communityPasscodeSubmit");
+                        const communityPasscodeError = document.getElementById("communityPasscodeError");
+                        if (communityPasscodeSubmit) {
+                            communityPasscodeSubmit.addEventListener("click", () => {
+                                const entered = communityPasscodeEntry ? communityPasscodeEntry.value.trim() : "";
+                                if (entered === communityPasscode) {
+                                    sessionStorage.setItem("community_passcode_" + id, entered);
+                                    loadCommunity();
+                                } else {
+                                    if (communityPasscodeError) { communityPasscodeError.textContent = "Incorrect passcode."; communityPasscodeError.style.display = "block"; }
+                                }
+                            });
+                        }
+                        if (communityPasscodeEntry) {
+                            communityPasscodeEntry.addEventListener("keydown", (e) => {
+                                if (e.key === "Enter") {
+                                    const entered = communityPasscodeEntry.value.trim();
+                                    if (entered === communityPasscode) {
+                                        sessionStorage.setItem("community_passcode_" + id, entered);
+                                        loadCommunity();
+                                    } else {
+                                        if (communityPasscodeError) { communityPasscodeError.textContent = "Incorrect passcode."; communityPasscodeError.style.display = "block"; }
+                                    }
+                                }
+                            });
+                        }
+                        return;
+                    }
+                }
+
+                contentEl.innerHTML = `
+                    <button type="button" class="role-btn" data-role="Civilian">Civilian</button>
+                    <div id="communityDepartments"></div>
+                `;
+
+                const communityDepartments = document.getElementById("communityDepartments");
+                if (communityDepartments && localSupabase) {
+                    localSupabase
+                        .from("departments")
+                        .select("*")
+                        .eq("community_id", id)
+                        .order("created_at", { ascending: true })
+                        .then(({ data }) => {
+                            const departments = Array.isArray(data) ? data : [];
+                            departments.forEach((dept) => {
+                                const wrap = document.createElement("div");
+                                wrap.className = "dept-wrap";
+
+                                const btn = document.createElement("button");
+                                btn.type = "button";
+                                btn.className = "role-btn";
+                                const bannerImg = document.createElement("img");
+                                bannerImg.className = "role-btn-banner";
+                                bannerImg.alt = (dept.name || "Department") + " banner";
+                                if (dept.banner) {
+                                    bannerImg.src = dept.banner;
+                                } else {
+                                    bannerImg.style.display = "none";
+                                }
+                                const nameSpan = document.createElement("div");
+                                nameSpan.className = "role-btn-name";
+                                nameSpan.textContent = dept.name;
+                                btn.appendChild(bannerImg);
+                                btn.appendChild(nameSpan);
+                                btn.setAttribute("data-department-id", dept.id);
+                                btn.setAttribute("data-passcode", dept.passcode || "");
+                                wrap.appendChild(btn);
+
+                                // Inline passcode box (shown only if the department has a passcode)
+                                const pcBox = document.createElement("div");
+                                pcBox.className = "dept-passcode-box";
+                                pcBox.innerHTML = `
+                                    <label>Enter passcode</label>
+                                    <input type="password" class="dept-pc-input" placeholder="Passcode" autocomplete="new-password" />
+                                    <button type="button" class="dept-pc-submit">Enter</button>
+                                    <div class="dept-pc-error">Incorrect passcode.</div>
+                                `;
+                                wrap.appendChild(pcBox);
+
+                                communityDepartments.appendChild(wrap);
+
+                                const pcInput = pcBox.querySelector(".dept-pc-input");
+                                const pcSubmit = pcBox.querySelector(".dept-pc-submit");
+                                const pcError = pcBox.querySelector(".dept-pc-error");
+
+                                function tryEnter() {
+                                    const entered = pcInput ? pcInput.value.trim() : "";
+                                    const expected = (dept.passcode == null ? "" : String(dept.passcode)).trim();
+                                    if (entered === expected && expected !== "") {
+                                        openPoliceForDepartment(dept);
+                                        pcBox.classList.remove("open");
+                                        if (pcInput) pcInput.value = "";
+                                        if (pcError) pcError.style.display = "none";
+                                    } else {
+                                        if (pcError) pcError.style.display = "block";
+                                    }
+                                }
+
+                                if (pcSubmit) pcSubmit.addEventListener("click", tryEnter);
+                                if (pcInput) pcInput.addEventListener("keydown", (e) => {
+                                    if (e.key === "Enter") tryEnter();
+                                });
+
+                                btn.addEventListener("click", () => {
+                                    const hasPasscode = dept.passcode != null && String(dept.passcode).trim() !== "";
+                                    if (!hasPasscode) {
+                                        openPoliceForDepartment(dept);
+                                        return;
+                                    }
+                                    document.querySelectorAll(".dept-passcode-box.open").forEach((b) => {
+                                        if (b !== pcBox) b.classList.remove("open");
+                                    });
+                                    pcBox.classList.toggle("open");
+                                    if (pcBox.classList.contains("open") && pcInput) {
+                                        if (pcError) pcError.style.display = "none";
+                                        pcInput.focus();
+                                    }
+                                });
+                            });
+                        });
+                }
+
+                contentEl.querySelectorAll(".role-btn[data-role='Civilian']").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        window.open(`/civilian.html?communityId=${currentCommunityId}`, "_blank");
+                    });
                 });
-            });
+            } catch (err) {
+                contentEl.innerHTML = `<div class="empty">An unexpected error occurred: ${err?.message || err}</div>`;
+                console.error("loadCommunity failed:", err);
+            }
         }
 
         const policeModal = document.getElementById("policeModal");
@@ -327,8 +3004,13 @@
         const poError = document.getElementById("poError");
 
         function openPoliceModal() {
-            if (policeModal) policeModal.classList.add("open");
-            if (poName) poName.focus();
+            if (policeModal) {
+                policeModal.classList.add("open");
+                policeModal.style.display = "flex";
+            }
+            if (poName) {
+                setTimeout(() => poName.focus(), 50);
+            }
         }
 
         if (policeModal) {
@@ -348,9 +3030,110 @@
                     return;
                 }
                 if (poError) { poError.textContent = ""; poError.style.display = "none"; }
+                let erlcKey = (currentCommunityData && currentCommunityData.erlc_api_key) || "";
+                if (!erlcKey) { try { erlcKey = localStorage.getItem("erlcApiKey_" + currentCommunityId) || ""; } catch (e) {} }
                 const params = new URLSearchParams({ name, rank, callsign });
-                window.open("police.html?" + params.toString(), "_blank");
+                params.set("community", currentCommunityId || "");
+                if (erlcKey) params.set("erlckey", erlcKey);
+                if (pendingDepartment) params.set("department", pendingDepartment.id);
+                try {
+                    localStorage.setItem("policeErkKey", erlcKey);
+                    localStorage.setItem("policeOfficerName", name);
+                    localStorage.setItem("policeOfficerRank", rank);
+                    localStorage.setItem("policeOfficerCallsign", callsign);
+                    const officerId = localStorage.getItem("policeOfficerId") || ("officer-" + Math.random().toString(36).slice(2, 10));
+                    localStorage.setItem("policeOfficerId", officerId);
+                    const unitsRaw = localStorage.getItem("policeActiveUnits");
+                    let units = unitsRaw ? JSON.parse(unitsRaw) : [];
+                    const existing = units.findIndex(u => u.id === officerId);
+                    const entry = { id: officerId, name, rank, callsign, status: "available", updated_at: new Date().toISOString() };
+                    if (existing !== -1) {
+                        units[existing] = entry;
+                    } else {
+                        units.push(entry);
+                    }
+                    localStorage.setItem("policeActiveUnits", JSON.stringify(units));
+                } catch (e) {}
+                window.open("/Police.html?" + params.toString(), "_blank");
                 if (policeModal) policeModal.classList.remove("open");
+                pendingDepartment = null;
+            });
+        }
+
+        const deptPasscodeModal = document.getElementById("departmentPasscodeModal");
+        const deptPasscodeModalClose = document.getElementById("deptPasscodeModalClose");
+        const deptPasscodeInput = document.getElementById("deptPasscodeInput");
+        const deptPasscodeSubmitBtn = document.getElementById("deptPasscodeSubmitBtn");
+        const deptPasscodeError = document.getElementById("deptPasscodeError");
+        const deptPasscodeTitle = document.getElementById("deptPasscodeTitle");
+        let pendingDepartment = null;
+
+        function openPoliceForDepartment(department) {
+            pendingDepartment = department;
+            openPoliceModal();
+        }
+
+        function openDeptPasscodeModal(department) {
+            pendingDepartment = department;
+            if (deptPasscodeTitle) deptPasscodeTitle.textContent = department.name + " - Passcode";
+            if (deptPasscodeInput) deptPasscodeInput.value = "";
+            if (deptPasscodeError) { deptPasscodeError.textContent = ""; deptPasscodeError.style.display = "none"; }
+            if (deptPasscodeModal) deptPasscodeModal.classList.add("open");
+            if (deptPasscodeInput) deptPasscodeInput.focus();
+        }
+
+        function handleDepartmentClick(department) {
+            if (!department.passcode) {
+                openPoliceForDepartment(department);
+                return;
+            }
+            openDeptPasscodeModal(department);
+        }
+
+        if (deptPasscodeModalClose) {
+            deptPasscodeModalClose.addEventListener("click", () => {
+                if (deptPasscodeModal) deptPasscodeModal.classList.remove("open");
+                pendingDepartment = null;
+            });
+        }
+
+        if (deptPasscodeModal) {
+            deptPasscodeModal.addEventListener("click", (e) => {
+                if (e.target === deptPasscodeModal) {
+                    deptPasscodeModal.classList.remove("open");
+                    pendingDepartment = null;
+                }
+            });
+        }
+
+        const editDepartmentModal = document.getElementById("editDepartmentModal");
+        const editDeptModalClose = document.getElementById("editDeptModalClose");
+        
+        if (editDeptModalClose && editDepartmentModal) {
+            editDeptModalClose.addEventListener("click", () => {
+                editDepartmentModal.classList.remove("open");
+            });
+        }
+        
+        if (editDepartmentModal) {
+            editDepartmentModal.addEventListener("click", (e) => {
+                if (e.target === editDepartmentModal) {
+                    editDepartmentModal.classList.remove("open");
+                }
+            });
+        }
+
+        if (deptPasscodeSubmitBtn) {
+            deptPasscodeSubmitBtn.addEventListener("click", () => {
+                if (!pendingDepartment) return;
+                const entered = deptPasscodeInput ? deptPasscodeInput.value.trim() : "";
+                const expected = (pendingDepartment.passcode == null ? "" : String(pendingDepartment.passcode)).trim();
+                if (entered === expected && expected !== "") {
+                    if (deptPasscodeModal) deptPasscodeModal.classList.remove("open");
+                    openPoliceModal();
+                } else {
+                    if (deptPasscodeError) { deptPasscodeError.textContent = "Incorrect passcode."; deptPasscodeError.style.display = "block"; }
+                }
             });
         }
 

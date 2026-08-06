@@ -148,6 +148,24 @@
             padding: 20px 0;
         }
 
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
         .verified-btn {
             padding: 6px 12px;
             border-radius: 999px;
@@ -330,14 +348,166 @@
         .switch input:checked + .slider::before {
             transform: translateX(22px);
         }
-    </style>
-</head>
+
+        .codes-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .codes-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .codes-section p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .premium-key-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .premium-key-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #1a202c;
+            background: #f8fafc;
+            font-family: monospace;
+        }
+
+        .codes-search-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .codes-search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #1a202c;
+            background: #ffffff;
+        }
+
+        .codes-list-section {
+            margin-top: 20px;
+        }
+
+        .codes-list-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .codes-count {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .codes-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .codes-list-table th,
+        .codes-list-table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .codes-list-table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .codes-list-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .codes-list-table td {
+            color: #334155;
+            word-break: break-all;
+            font-family: monospace;
+        }
+
+        .codes-used-no {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .codes-used-yes {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .delete-code-btn {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .delete-code-btn:hover {
+            background: #b91c1c;
+        }
+
+        .give-key-btn {
+            background: #16a34a;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .give-key-btn:hover {
+            background: #15803d;
+        }
+    </style></head>
 <body>
     <div class="sidebar">
         <div class="sidebar-title">Staff Dashboard</div>
         <button class="sidebar-btn" id="serversBtn">Servers</button>
         <button class="sidebar-btn" id="staffUsersBtn">Users</button>
         <button class="sidebar-btn" id="applicationsBtn">Applications</button>
+        <button class="sidebar-btn" id="codesBtn" style="display:none;">CODES</button>
         <button class="sidebar-btn" id="masterActionsBtn" style="display:none;">Master Actions</button>
     </div>
     <div class="main">
@@ -358,6 +528,7 @@
         const serversBtn = document.getElementById("serversBtn");
         const staffUsersBtn = document.getElementById("staffUsersBtn");
         const applicationsBtn = document.getElementById("applicationsBtn");
+        const codesBtn = document.getElementById("codesBtn");
         const masterActionsBtn = document.getElementById("masterActionsBtn");
 
         let localSupabase = null;
@@ -383,7 +554,7 @@
             try {
                 const { data: { user } } = await localSupabase.auth.getUser();
                 if (!user) {
-                    showStatus("Access denied. Staff only.", "error");
+                    showStatus("Access denied. Please log in to continue.", "error");
                     return { allowed: false };
                 }
                 if (user.email === "oceanviewrp1@gmail.com") {
@@ -395,14 +566,17 @@
                     .eq("email", user.email)
                     .maybeSingle();
                 if (error) {
-                    showStatus("Access denied. Staff only.", "error");
+                    console.error("Department lookup failed:", error);
+                    showStatus("Access denied. Could not verify staff status: " + error.message, "error");
                     return { allowed: false };
                 }
-                const department = data?.department || "";
-                if (department === "Management" || department === "Support Team") {
+                const department = (data?.department || "").trim();
+                const normalized = department.toLowerCase().replace(/\s+/g, "");
+                const allowedDepts = ["management", "supportteam", "supportteamlead", "support"];
+                if (allowedDepts.includes(normalized)) {
                     return { allowed: true, department };
                 }
-                showStatus("Access denied. Staff only.", "error");
+                showStatus("Access denied. Your department (" + (department || "none") + ") is not authorized for the staff dashboard.", "error");
                 return { allowed: false };
             } catch (err) {
                 showStatus("An unexpected error occurred.", "error");
@@ -452,33 +626,58 @@
                     return;
                 }
 
-                let html = `<table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Status</th><th>Actions</th></tr>`;
-                const canSuspend = userDepartment !== "Support Team";
-                const canDelete = userDepartment !== "Support Team";
+                let html = `<input type="text" class="search-box" id="serverSearch" placeholder="Search servers by name or owner..." /><table><tr><th>Name</th><th>Owner</th><th>Created</th><th>Status</th><th>Members Only</th><th>Pro</th><th>Actions</th></tr>`;
+                const canSuspend = userDepartment !== "Support Team" && userDepartment !== "Support Team Lead";
+                const canDelete = userDepartment !== "Support Team" && userDepartment !== "Support Team Lead";
+                const canPro = userDepartment !== "Support Team" && userDepartment !== "Support Team Lead";
                 data.forEach((row) => {
                     const name = (row.name || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const owner = (row.creator_email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
                     const suspended = !!row.suspended;
+                    const membersOnly = !!row.members_only;
                     const statusCell = suspended
-                        ? `<span class="status-pill" style="background:#dc2626;width:auto;">Suspended</span>`
-                        : `<span class="status-pill" style="background:#16a34a;width:auto;">Active</span>`;
+                        ? `<span style="display:inline-flex;align-items:center;background:#dc2626;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:600;width:auto;">Suspended</span>`
+                        : `<span style="display:inline-flex;align-items:center;background:#16a34a;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:600;width:auto;">Active</span>`;
+                    const membersOnlyCell = membersOnly
+                        ? `<span style="display:inline-flex;align-items:center;background:#2563eb;color:#ffffff;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;width:auto;">Members Only</span>`
+                        : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">Public</span>`;
                     const suspendBtn = canSuspend
                         ? `<button class="verified-btn suspend-server-btn" data-id="${row.id}" data-suspended="${suspended}">${suspended ? "Unsuspend" : "Suspend"}</button>`
                         : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
                     const deleteBtn = canDelete
                         ? `<button class="verified-btn delete-server-btn" data-id="${row.id}">Delete</button>`
                         : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
-                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td>${suspendBtn} ${deleteBtn}</td></tr>`;
+                    const pro = !!row.pro;
+                    const proCell = pro
+                        ? `<span style="color:#16a34a;font-size:11px;font-weight:600;">Pro</span>`
+                        : `<span style="color:#94a3b8;font-size:11px;font-weight:600;">No</span>`;
+                    const proToggleBtn = canPro
+                        ? `<button class="pro-server-btn" data-id="${row.id}" data-pro="${pro}" style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #16a34a;background:#f0fdf4;color:#166534;">${pro ? "Remove Pro" : "Give Pro"}</button>`
+                        : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
+                    html += `<tr><td>${name}</td><td>${owner}</td><td>${created}</td><td>${statusCell}</td><td>${membersOnlyCell}</td><td>${proCell}<br/>${proToggleBtn}</td><td><div style="display:flex;gap:8px;flex-wrap:wrap;">${suspendBtn} ${deleteBtn}</div></td></tr>`;
                 });
                 html += "</table>";
                 contentEl.innerHTML = html;
 
+                const serverSearch = document.getElementById("serverSearch");
+                if (serverSearch) {
+                    serverSearch.addEventListener("input", (e) => {
+                        const term = (e.target.value || "").toLowerCase();
+                        const rows = contentEl.querySelectorAll("table tr");
+                        rows.forEach((row, idx) => {
+                            if (idx === 0) return;
+                            const text = row.textContent || "";
+                            row.style.display = text.toLowerCase().includes(term) ? "" : "none";
+                        });
+                    });
+                }
+
                 contentEl.querySelectorAll(".suspend-server-btn").forEach((btn) => {
                     btn.addEventListener("click", async () => {
                         const dept = await getUserDepartment();
-                        if (dept === "Support Team") {
-                            alert("Access denied. Support Team cannot suspend servers.");
+                        if (dept === "Support Team" || dept === "Support Team Lead") {
+                            alert("Access denied. Support cannot suspend servers.");
                             return;
                         }
                         const id = btn.getAttribute("data-id");
@@ -498,8 +697,8 @@
                 contentEl.querySelectorAll(".delete-server-btn").forEach((btn) => {
                     btn.addEventListener("click", async () => {
                         const dept = await getUserDepartment();
-                        if (dept === "Support Team") {
-                            alert("Access denied. Support Team cannot delete servers.");
+                        if (dept === "Support Team" || dept === "Support Team Lead") {
+                            alert("Access denied. Support cannot delete servers.");
                             return;
                         }
                         const id = btn.getAttribute("data-id");
@@ -509,6 +708,27 @@
                             .eq("id", id);
                         if (error) {
                             alert("Failed to delete server: " + error.message);
+                            return;
+                        }
+                        loadServers();
+                    });
+                });
+
+                contentEl.querySelectorAll(".pro-server-btn").forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const dept = await getUserDepartment();
+                        if (dept === "Support Team" || dept === "Support Team Lead") {
+                            alert("Access denied. Support cannot manage Pro status.");
+                            return;
+                        }
+                        const id = btn.getAttribute("data-id");
+                        const currently = btn.getAttribute("data-pro") === "true";
+                        const { error } = await localSupabase
+                            .from("communities")
+                            .update({ pro: !currently })
+                            .eq("id", id);
+                        if (error) {
+                            alert("Failed to update Pro status: " + error.message);
                             return;
                         }
                         loadServers();
@@ -529,7 +749,7 @@
             try {
                 const { data, error } = await localSupabase
                     .from("users")
-                    .select("id, email, created_at, department")
+                    .select("id, email, created_at, department, ip")
                     .order("created_at", { ascending: false });
 
                 if (error) {
@@ -542,20 +762,62 @@
                     return;
                 }
 
-                let html = `<table><tr><th>Email</th><th>Created</th><th>Department</th></tr>`;
+                const userDepartment = await getUserDepartment();
+                const isManagement = userDepartment === "Management";
+                const isSupportLead = userDepartment === "Support Team Lead";
+                const isSupport = userDepartment === "Support Team";
+                let html = `<input type="text" class="search-box" id="userSearch" placeholder="Search users by email..." /><table><tr><th>Email</th><th>Created</th><th>Department</th>${(isManagement || isSupportLead) ? "<th>IP</th>" : ""}<th>Actions</th></tr>`;
                 data.forEach((row) => {
                     const email = (row.email || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
                     const currentDept = row.department || "";
-                    html += `<tr><td>${email}</td><td>${created}</td><td><select class="department-select" data-user-id="${row.id}"><option value="">Unassigned</option><option value="Management" ${currentDept === 'Management' ? 'selected' : ''}>Management</option><option value="Support Team" ${currentDept === 'Support Team' ? 'selected' : ''}>Support Team</option><option value="Development Team" ${currentDept === 'Development Team' ? 'selected' : ''}>Development Team</option></select></td></tr>`;
+                    const ipCell = (isManagement || isSupportLead) ? `<td>${(row.ip || "N/A").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</td>` : "";
+                    const giveKeyBtn = (isManagement || isSupportLead) ? `<button type="button" class="give-key-btn" data-user-id="${row.id}" data-email="${email.replace(/"/g, '&quot;')}">Give Key</button>` : `<span style="color:#94a3b8;font-size:12px;font-weight:600;">No Permission</span>`;
+                    let deptDisabled = "";
+                    let deptOptions = `<option value="">Unassigned</option><option value="Management" ${currentDept === 'Management' ? 'selected' : ''}>Management</option><option value="Support Team Lead" ${currentDept === 'Support Team Lead' ? 'selected' : ''}>Support Team Lead</option><option value="Support Team" ${currentDept === 'Support Team' ? 'selected' : ''}>Support Team</option><option value="Development Team" ${currentDept === 'Development Team' ? 'selected' : ''}>Development Team</option>`;
+                    if (!isManagement && !isSupportLead) {
+                        deptDisabled = "disabled";
+                    }
+                    if (isSupportLead) {
+                        deptOptions = `<option value="">Unassigned</option><option value="Support Team Lead" ${currentDept === 'Support Team Lead' ? 'selected' : ''}>Support Team Lead</option><option value="Support Team" ${currentDept === 'Support Team' ? 'selected' : ''}>Support Team</option><option value="Development Team" ${currentDept === 'Development Team' ? 'selected' : ''}>Development Team</option>`;
+                    }
+                    html += `<tr><td>${email}</td><td>${created}</td><td><select class="department-select" data-user-id="${row.id}" data-current-dept="${(currentDept || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" ${deptDisabled}>${deptOptions}</select></td>${ipCell}<td>${giveKeyBtn}</td></tr>`;
                 });
                 html += "</table>";
                 contentEl.innerHTML = html;
 
+                const userSearch = document.getElementById("userSearch");
+                if (userSearch) {
+                    userSearch.addEventListener("input", (e) => {
+                        const term = (e.target.value || "").toLowerCase();
+                        const rows = contentEl.querySelectorAll("table tr");
+                        rows.forEach((row, idx) => {
+                            if (idx === 0) return;
+                            const text = row.textContent || "";
+                            row.style.display = text.toLowerCase().includes(term) ? "" : "none";
+                        });
+                    });
+                }
+
                 contentEl.querySelectorAll(".department-select").forEach((select) => {
                     select.addEventListener("change", async () => {
-                        const userId = select.getAttribute("data-user-id");
+                        const userDept = await getUserDepartment();
+                        const isSupport = userDept === "Support Team" || userDept === "Support Team Lead";
+                        const currentDept = select.getAttribute("data-current-dept") || "";
                         const newDepartment = select.value;
+                        if (isSupport) {
+                            if (currentDept === "Management") {
+                                alert("Access denied. Support cannot remove users from Management.");
+                                select.value = currentDept;
+                                return;
+                            }
+                            if (newDepartment === "Management") {
+                                alert("Access denied. Support cannot assign users to Management.");
+                                select.value = currentDept;
+                                return;
+                            }
+                        }
+                        const userId = select.getAttribute("data-user-id");
                         const { error } = await localSupabase
                             .from("users")
                             .update({ department: newDepartment })
@@ -565,6 +827,30 @@
                         }
                     });
                 });
+
+                contentEl.querySelectorAll(".give-key-btn").forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const dept = await getUserDepartment();
+                        if (dept !== "Management" && dept !== "Support Team Lead") {
+                            alert("Access denied. Management only.");
+                            return;
+                        }
+                        const userEmail = btn.getAttribute("data-email");
+                        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        let key = "MDT-";
+                        for (let i = 0; i < 16; i++) {
+                            key += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        const { error } = await localSupabase
+                            .from("premium_keys")
+                            .insert([{ key: key, used: true, used_by: userEmail, used_at: new Date().toISOString(), created_at: new Date().toISOString() }]);
+                        if (error) {
+                            alert("Failed to give key: " + error.message);
+                            return;
+                        }
+                        alert("Key given successfully: " + key);
+                    });
+                });
             } catch (err) {
                 contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
                 console.error(err);
@@ -572,11 +858,15 @@
         }
 
         async function initSidebar() {
-            const dept = await getUserDepartment();
-            if (applicationsBtn && dept === "Support Team") {
+            const dept = (await getUserDepartment() || "").trim();
+            const lower = dept.toLowerCase();
+            if (applicationsBtn && (lower === "support team" || lower === "support team lead")) {
                 applicationsBtn.style.display = "none";
             }
-            if (masterActionsBtn && dept === "Management") {
+            if (codesBtn && (lower === "management" || lower === "support team" || lower === "support team lead")) {
+                codesBtn.style.display = "block";
+            }
+            if (masterActionsBtn && (lower === "management" || lower === "support team" || lower === "support team lead")) {
                 masterActionsBtn.style.display = "block";
             }
         }
@@ -597,13 +887,15 @@
             masterActionsBtn.addEventListener("click", loadMasterActions);
         }
 
-        initSidebar();
+        if (codesBtn) {
+            codesBtn.addEventListener("click", loadCodes);
+        }
 
         async function loadApplications() {
             const staff = await ensureStaff();
             if (!staff.allowed) return;
-            if (staff.department === "Support Team") {
-                showStatus("Access denied. Support Team cannot access Applications.", "error");
+            if ((staff.department || "").toLowerCase() === "support team" || (staff.department || "").toLowerCase() === "support team lead") {
+                showStatus("Access denied. Support staff cannot access Applications.", "error");
                 return;
             }
             pageTitle.textContent = "Applications";
@@ -643,18 +935,156 @@
             }
         }
 
+        async function loadCodes() {
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
+            if (staff.department !== "Management" && staff.department !== "Support Team") {
+                showStatus("Access denied.", "error");
+                return;
+            }
+            pageTitle.textContent = "Codes";
+            contentEl.innerHTML = `
+                <div class="codes-section">
+                    <h2>Premium Key Generator</h2>
+                    <p>Generate a new premium key for PulseCAD. Keys start with MDT and are one-time use.</p>
+                    <div class="premium-key-display">
+                        <input type="text" class="premium-key-input" id="generatedPremiumKey" readonly />
+                        <button type="button" class="verified-btn" id="generatePremiumKeyBtn">Generate</button>
+                        <button type="button" class="verified-btn" id="copyPremiumKeyBtn">Copy</button>
+                    </div>
+                </div>
+                <div class="codes-list-section">
+                    <h3>Existing Keys</h3>
+                    <div class="codes-search-row">
+                        <input type="text" class="codes-search-input" id="codesSearchInput" placeholder="Search codes..." />
+                    </div>
+                    <div class="codes-count" id="codesCount"></div>
+                    <table class="codes-list-table">
+                        <tr><th>Key</th><th>Used</th><th>Created</th><th>Actions</th></tr>
+                        <tbody id="codesListBody"><tr><td colspan="4"><div class="empty">Loading...</div></td></tr></tbody>
+                    </table>
+                </div>
+            `;
+
+            const generateKeyBtn = document.getElementById("generatePremiumKeyBtn");
+            const copyKeyBtn = document.getElementById("copyPremiumKeyBtn");
+            const keyInput = document.getElementById("generatedPremiumKey");
+            const searchInput = document.getElementById("codesSearchInput");
+            const codesListBody = document.getElementById("codesListBody");
+            const codesCount = document.getElementById("codesCount");
+
+            async function renderCodes(filterText = "") {
+                if (!codesListBody || !localSupabase) return;
+                try {
+                    const { data, error } = await localSupabase
+                        .from("premium_keys")
+                        .select("*")
+                        .order("created_at", { ascending: false });
+                    if (error) {
+                        codesListBody.innerHTML = `<tr><td colspan="4"><div class="empty">Failed to load codes: ${error.message}</div></td></tr>`;
+                        return;
+                    }
+                    const rows = Array.isArray(data) ? data : [];
+                    const filtered = filterText
+                        ? rows.filter((row) => (row.key || "").toLowerCase().includes(filterText.toLowerCase()))
+                        : rows;
+                    if (codesCount) codesCount.textContent = `${filtered.length} code${filtered.length === 1 ? '' : 's'} found`;
+                    if (filtered.length === 0) {
+                        codesListBody.innerHTML = `<tr><td colspan="4"><div class="empty">No codes found.</div></td></tr>`;
+                        return;
+                    }
+                    codesListBody.innerHTML = filtered.map((row) => {
+                        const usedText = row.used ? "Yes" : "No";
+                        const usedClass = row.used ? "codes-used-yes" : "codes-used-no";
+                        const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
+                        return `<tr><td>${(row.key || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</td><td class="${usedClass}">${usedText}</td><td>${created}</td><td><button type="button" class="delete-code-btn" data-id="${row.id}">Delete</button></td></tr>`;
+                    }).join("");
+
+                    contentEl.querySelectorAll(".delete-code-btn").forEach((btn) => {
+                        btn.addEventListener("click", async () => {
+                            const id = btn.getAttribute("data-id");
+                            if (!confirm("Are you sure you want to delete this code?")) return;
+                            const { error } = await localSupabase
+                                .from("premium_keys")
+                                .delete()
+                                .eq("id", id);
+                            if (error) {
+                                alert("Failed to delete code: " + error.message);
+                                return;
+                            }
+                            renderCodes(searchInput.value.trim());
+                        });
+                    });
+                } catch (err) {
+                    codesListBody.innerHTML = `<tr><td colspan="3"><div class="empty">An unexpected error occurred.</div></td></tr>`;
+                    console.error(err);
+                }
+            }
+
+            renderCodes();
+
+            if (searchInput) {
+                searchInput.addEventListener("input", () => {
+                    renderCodes(searchInput.value.trim());
+                });
+            }
+
+            if (generateKeyBtn && localSupabase) {
+                generateKeyBtn.addEventListener("click", async () => {
+                    try {
+                        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        let key = "MDT-";
+                        for (let i = 0; i < 16; i++) {
+                            key += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        const { error } = await localSupabase
+                            .from("premium_keys")
+                            .insert([{ key: key, used: false, created_at: new Date().toISOString() }]);
+                        if (error) {
+                            alert("Failed to generate premium key: " + error.message);
+                            return;
+                        }
+                        if (keyInput) keyInput.value = key;
+                        if (searchInput) renderCodes(searchInput.value.trim());
+                    } catch (err) {
+                        alert("An unexpected error occurred.");
+                        console.error(err);
+                    }
+                });
+            }
+
+            if (copyKeyBtn && keyInput) {
+                copyKeyBtn.addEventListener("click", async () => {
+                    if (!keyInput.value) {
+                        alert("Generate a key first.");
+                        return;
+                    }
+                    try {
+                        await navigator.clipboard.writeText(keyInput.value);
+                        alert("Key copied to clipboard.");
+                    } catch (err) {
+                        alert("Failed to copy key.");
+                    }
+                });
+            }
+        }
+
         async function loadMasterActions() {
             const staff = await ensureStaff();
             if (!staff.allowed) return;
-            if (staff.department !== "Management") {
-                showStatus("Access denied. Management only.", "error");
+            const isManagement = staff.department === "Management";
+            const deptLower = (staff.department || "").toLowerCase();
+            const isSupport = deptLower === "support team" || deptLower === "support team lead";
+            if (!isManagement && !isSupport) {
+                showStatus("Access denied. Management or Support only.", "error");
                 return;
             }
             pageTitle.textContent = "Master Actions";
             contentEl.innerHTML = `
                 <div class="master-actions">
                     <h2>Master Actions</h2>
-                    <p>Global controls for the PulseCAD website. Management only.</p>
+                    <p>Global controls for the PulseCAD website. ${isManagement ? "Management only." : "Limited view for Support."}</p>
+                    ${isManagement ? `
                     <div class="master-row">
                         <div>
                             <div class="master-row-label">Development Mode</div>
@@ -664,6 +1094,55 @@
                             <input type="checkbox" id="devModeToggle" />
                             <span class="slider"></span>
                         </label>
+                    </div>
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">Restart Servers</div>
+                            <div class="master-row-sub">Restart all PulseCAD servers globally.</div>
+                        </div>
+                        <button type="button" class="verified-btn" id="restartServersBtn">Restart</button>
+                    </div>
+                    ` : `
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">Restricted</div>
+                            <div class="master-row-sub">Development Mode and Restart Servers are Management only.</div>
+                        </div>
+                    </div>
+                    `}
+                </div>
+                <div class="master-actions" style="margin-top:20px;">
+                    <h2>Management</h2>
+                    <p>Ban and unban user emails from accessing PulseCAD.</p>
+                    ${isManagement ? `
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">Banned IDs</div>
+                            <div class="master-row-sub">Manage banned email addresses.</div>
+                        </div>
+                        <button type="button" class="verified-btn" id="bannedIdsBtn" style="background:#dc2626;">Banned IDs</button>
+                    </div>
+                    ` : ""}
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">Support Panel</div>
+                            <div class="master-row-sub">View and manage open support tickets.</div>
+                        </div>
+                        <button type="button" class="verified-btn" id="supportPanelBtn">Support Panel</button>
+                    </div>
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">View Suggestions</div>
+                            <div class="master-row-sub">Review suggestions submitted through /suggestionmake.</div>
+                        </div>
+                        <button type="button" class="verified-btn" id="viewSuggestionsBtn">View Suggestions</button>
+                    </div>
+                    <div class="master-row">
+                        <div>
+                            <div class="master-row-label">Suggestion Form</div>
+                            <div class="master-row-sub">Open the public suggestion submission page.</div>
+                        </div>
+                        <button type="button" class="verified-btn" id="openSuggestionFormBtn">Open Form</button>
                     </div>
                 </div>
             `;
@@ -690,6 +1169,259 @@
                             devToggle.checked = !devToggle.checked;
                         }
                     } catch (err) {
+                        console.error(err);
+                    }
+                });
+            }
+
+            const restartBtn = document.getElementById("restartServersBtn");
+            if (restartBtn) {
+                restartBtn.addEventListener("click", triggerRestart);
+            }
+
+            const bannedIdsBtn = document.getElementById("bannedIdsBtn");
+            if (bannedIdsBtn) {
+                bannedIdsBtn.addEventListener("click", loadBannedIds);
+            }
+
+            const supportPanelBtn = document.getElementById("supportPanelBtn");
+            if (supportPanelBtn) {
+                supportPanelBtn.addEventListener("click", () => {
+                    window.open("support-panel.html#staffchat", "_blank");
+                });
+            }
+
+            const viewSuggestionsBtn = document.getElementById("viewSuggestionsBtn");
+            if (viewSuggestionsBtn) {
+                viewSuggestionsBtn.addEventListener("click", loadSuggestions);
+            }
+
+            const openSuggestionFormBtn = document.getElementById("openSuggestionFormBtn");
+            if (openSuggestionFormBtn) {
+                openSuggestionFormBtn.addEventListener("click", () => {
+                    window.open("/suggestionmake.html", "_blank");
+                });
+            }
+        }
+
+        async function loadSuggestions() {
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
+            const dept = (staff.department || "").toLowerCase();
+                if (dept !== "management" && dept !== "support team" && dept !== "support team lead") {
+                showStatus("Access denied. Management or Support only.", "error");
+                return;
+            }
+            pageTitle.textContent = "Suggestions";
+            contentEl.innerHTML = `
+                <div class="codes-list-section">
+                    <h2>User Suggestions</h2>
+                    <p>Suggestions submitted through the /suggestionmake page.</p>
+                    <div class="codes-search-row">
+                        <select class="codes-search-input" id="sugFilterSelect">
+                            <option value="">All statuses</option>
+                            <option value="open">Open</option>
+                            <option value="reviewed">Reviewed</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="codes-count" id="sugCount"></div>
+                    <table class="codes-list-table">
+                        <tr><th>Title</th><th>Category</th><th>From</th><th>Submitted</th><th>Status</th><th>Actions</th></tr>
+                        <tbody id="sugListBody"><tr><td colspan="6"><div class="empty">Loading...</div></td></tr></tbody>
+                    </table>
+                </div>
+            `;
+
+            const filterSelect = document.getElementById("sugFilterSelect");
+            const sugListBody = document.getElementById("sugListBody");
+            const sugCount = document.getElementById("sugCount");
+
+            async function renderSuggestions(filter = "") {
+                if (!sugListBody || !localSupabase) return;
+                try {
+                    let query = localSupabase
+                        .from("suggestions")
+                        .select("*")
+                        .order("created_at", { ascending: false });
+                    if (filter) {
+                        query = query.eq("status", filter);
+                    }
+                    const { data, error } = await query;
+                    if (error) {
+                        sugListBody.innerHTML = `<tr><td colspan="6"><div class="empty">Failed to load suggestions: ${error.message}</div></td></tr>`;
+                        return;
+                    }
+                    const rows = Array.isArray(data) ? data : [];
+                    if (sugCount) sugCount.textContent = `${rows.length} suggestion${rows.length === 1 ? '' : 's'}`;
+                    if (rows.length === 0) {
+                        sugListBody.innerHTML = `<tr><td colspan="6"><div class="empty">No suggestions found.</div></td></tr>`;
+                        return;
+                    }
+                    sugListBody.innerHTML = rows.map((row) => {
+                        const title = (row.title || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        const category = (row.category || "—").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        const from = ((row.author_name || row.email) || "Anonymous").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        const created = row.created_at ? new Date(row.created_at).toLocaleString() : "";
+                        const status = row.status || "open";
+                        const statusClass = status === "open" ? "codes-used-no" : "codes-used-yes";
+                        return `<tr>
+                            <td>
+                                <strong>${title}</strong><br/>
+                                <span style="font-size:12px;color:#64748b;">${(row.message || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>
+                            </td>
+                            <td>${category}</td>
+                            <td>${from}</td>
+                            <td>${created}</td>
+                            <td class="${statusClass}">${status}</td>
+                            <td>
+                                <button type="button" class="delete-code-btn" data-id="${row.id}" data-status="${status}" data-action="reviewed" style="background:#2563eb;">Mark Reviewed</button>
+                                <button type="button" class="delete-code-btn" data-id="${row.id}" data-status="${status}" data-action="closed">Close</button>
+                                <button type="button" class="delete-code-btn" data-id="${row.id}" data-status="${status}" data-action="open">Reopen</button>
+                            </td>
+                        </tr>`;
+                    }).join("");
+
+                    sugListBody.querySelectorAll(".delete-code-btn").forEach((btn) => {
+                        btn.addEventListener("click", async () => {
+                            const id = btn.getAttribute("data-id");
+                            const action = btn.getAttribute("data-action");
+                            const { error } = await localSupabase
+                                .from("suggestions")
+                                .update({ status: action, updated_at: new Date().toISOString() })
+                                .eq("id", id);
+                            if (error) {
+                                alert("Failed to update suggestion: " + error.message);
+                                return;
+                            }
+                            renderSuggestions(filterSelect.value);
+                        });
+                    });
+                } catch (err) {
+                    sugListBody.innerHTML = `<tr><td colspan="6"><div class="empty">An unexpected error occurred.</div></td></tr>`;
+                    console.error(err);
+                }
+            }
+
+            renderSuggestions();
+
+            if (filterSelect) {
+                filterSelect.addEventListener("change", () => {
+                    renderSuggestions(filterSelect.value);
+                });
+            }
+        }
+
+        async function loadBannedIds() {
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
+            if (staff.department !== "Management") {
+                showStatus("Access denied. Management only.", "error");
+                return;
+            }
+            pageTitle.textContent = "Banned IDs";
+            contentEl.innerHTML = `
+                <div class="codes-section">
+                    <h2>Banned Email Addresses</h2>
+                    <p>Ban an email address to prevent them from logging into PulseCAD.</p>
+                    <div class="premium-key-display">
+                        <input type="email" class="premium-key-input" id="banEmailInput" placeholder="Enter email to ban..." />
+                        <button type="button" class="verified-btn" id="banEmailBtn" style="background:#dc2626;">Ban Email</button>
+                    </div>
+                </div>
+                <div class="codes-list-section">
+                    <h3>Banned Emails</h3>
+                    <div class="codes-count" id="bannedCount"></div>
+                    <table class="codes-list-table">
+                        <tr><th>Email</th><th>Banned At</th><th>Actions</th></tr>
+                        <tbody id="bannedListBody"><tr><td colspan="3"><div class="empty">Loading...</div></td></tr></tbody>
+                    </table>
+                </div>
+            `;
+
+            const banEmailInput = document.getElementById("banEmailInput");
+            const banEmailBtn = document.getElementById("banEmailBtn");
+            const bannedListBody = document.getElementById("bannedListBody");
+            const bannedCount = document.getElementById("bannedCount");
+
+            async function renderBanned() {
+                if (!bannedListBody || !localSupabase) return;
+                try {
+                    const { data, error } = await localSupabase
+                        .from("site_settings")
+                        .select("value")
+                        .eq("key", "banned_emails")
+                        .maybeSingle();
+                    let banned = [];
+                    if (data && Array.isArray(data.value)) {
+                        banned = data.value;
+                    }
+                    if (bannedCount) bannedCount.textContent = `${banned.length} banned email${banned.length === 1 ? '' : 's'}`;
+                    if (banned.length === 0) {
+                        bannedListBody.innerHTML = `<tr><td colspan="3"><div class="empty">No banned emails.</div></td></tr>`;
+                        return;
+                    }
+                    bannedListBody.innerHTML = banned.map((item, index) => {
+                        const email = (item.email || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        const bannedAt = item.banned_at ? new Date(item.banned_at).toLocaleString() : "";
+                        return `<tr><td>${email}</td><td>${bannedAt}</td><td><button type="button" class="delete-code-btn" data-index="${index}">Unban</button></td></tr>`;
+                    }).join("");
+
+                    bannedListBody.querySelectorAll(".delete-code-btn").forEach((btn) => {
+                        btn.addEventListener("click", async () => {
+                            const idx = parseInt(btn.getAttribute("data-index"), 10);
+                            const newBanned = banned.filter((_, i) => i !== idx);
+                            const { error } = await localSupabase
+                                .from("site_settings")
+                                .upsert({ key: "banned_emails", value: newBanned }, { onConflict: "key" });
+                            if (error) {
+                                alert("Failed to unban: " + error.message);
+                                return;
+                            }
+                            renderBanned();
+                        });
+                    });
+                } catch (err) {
+                    bannedListBody.innerHTML = `<tr><td colspan="3"><div class="empty">An unexpected error occurred.</div></td></tr>`;
+                    console.error(err);
+                }
+            }
+
+            renderBanned();
+
+            if (banEmailBtn && banEmailInput && localSupabase) {
+                banEmailBtn.addEventListener("click", async () => {
+                    const email = banEmailInput.value.trim();
+                    if (!email) {
+                        alert("Please enter an email to ban.");
+                        return;
+                    }
+                    try {
+                        const { data, error } = await localSupabase
+                            .from("site_settings")
+                            .select("value")
+                            .eq("key", "banned_emails")
+                            .maybeSingle();
+                        let banned = [];
+                        if (data && Array.isArray(data.value)) {
+                            banned = data.value;
+                        }
+                        if (banned.some((item) => (item.email || "").toLowerCase() === email.toLowerCase())) {
+                            alert("This email is already banned.");
+                            return;
+                        }
+                        banned.push({ email: email, banned_at: new Date().toISOString() });
+                        const { error: updateError } = await localSupabase
+                            .from("site_settings")
+                            .upsert({ key: "banned_emails", value: banned }, { onConflict: "key" });
+                        if (updateError) {
+                            alert("Failed to ban email: " + updateError.message);
+                            return;
+                        }
+                        banEmailInput.value = "";
+                        renderBanned();
+                    } catch (err) {
+                        alert("An unexpected error occurred.");
                         console.error(err);
                     }
                 });
@@ -725,11 +1457,77 @@
             }
         }
 
-        if (applicationsBtn) {
-            applicationsBtn.addEventListener("click", loadApplications);
+        async function fetchJson(url, ms) {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), ms || 6000);
+            try {
+                const res = await fetch(url, { cache: "no-store", signal: ctrl.signal });
+                clearTimeout(t);
+                if (!res.ok) return null;
+                return await res.json();
+            } catch (e) {
+                clearTimeout(t);
+                return null;
+            }
         }
 
-        loadServers();
+        async function getClientIp() {
+            const providers = [
+                () => fetchJson("https://api.ipify.org?format=json").then((j) => j && j.ip),
+                () => fetchJson("https://ipwho.is/").then((j) => j && j.success && j.ip),
+                () => fetchJson("https://api.my-ip.io/ip").then((t) => (typeof t === "string" && t.trim()) ? t.trim() : null)
+            ];
+            for (const p of providers) {
+                try {
+                    const ip = await p();
+                    if (ip) return ip;
+                } catch (e) { /* try next */ }
+            }
+            return null;
+        }
+
+        async function captureMyIp() {
+            if (!localSupabase) return;
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user) return;
+                const ip = await getClientIp();
+                if (ip) {
+                    await localSupabase.from("users").update({ ip: ip }).eq("id", user.id);
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        captureMyIp();
+
+        function showAccessDenied() {
+            document.body.innerHTML = `
+                <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;font-family:inherit;">
+                    <div style="font-size:24px;font-weight:700;color:#0f172a;">Access Denied</div>
+                    <div style="font-size:14px;color:#64748b;max-width:420px;">You do not have access to the staff dashboard. If you believe this is a mistake, please contact a manager.</div>
+                    <a href="index.html" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Return Home</a>
+                </div>
+            `;
+        }
+
+        async function init() {
+            const staff = await ensureStaff();
+            if (!staff.allowed) {
+                showAccessDenied();
+                return;
+            }
+            initSidebar();
+            loadServers();
+        }
+
+        init();
+
+        async function triggerRestart() {
+            if (!confirm("Are you sure you want to restart all servers? This will temporarily make the site unavailable.")) {
+                return;
+            }
+            location.reload();
+        }
     </script>
 </body>
 </html>

@@ -87,6 +87,21 @@
         .back-btn:hover {
             background: #f1f5f9;
         }
+
+        .delete-btn {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
     </style>
 </head>
 <body>
@@ -96,15 +111,98 @@
         <div id="content"><div class="empty">Loading submissions...</div></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.getElementById("backBtn").addEventListener("click", () => window.close());
         const SUPABASE_URL = "https://zwdogalwbczdtvxvhrfd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZG9nYWx3YmN6ZHR2eHZocmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NTA2MjQsImV4cCI6MjA5OTIyNjYyNH0.baPVVTtW0d3FDC2pTd1P3d5aoIc2FZkaD-6bBvDPFWw";
 
-        const localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let localSupabase = null;
+        
+        async function initSupabase() {
+            console.log("initSupabase called, window.supabase:", typeof window.supabase);
+            if (localSupabase) return true;
+            if (typeof window.supabase !== "undefined") {
+                console.log("Creating Supabase client...");
+                localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client created:", !!localSupabase);
+                return !!localSupabase;
+            }
+            console.log("window.supabase not defined, trying to load script dynamically...");
+            
+            try {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+                
+                if (typeof window.supabase !== "undefined") {
+                    console.log("Dynamic script loaded, creating client...");
+                    localSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log("Supabase client created from dynamic load:", !!localSupabase);
+                    return !!localSupabase;
+                }
+            } catch (err) {
+                console.error("Failed to dynamically load Supabase:", err);
+            }
+            
+            console.error("Supabase SDK not available");
+            return false;
+        }
+
         const contentEl = document.getElementById("content");
 
+        async function ensureStaff() {
+            if (!localSupabase) {
+                contentEl.innerHTML = `<div class="empty">Authentication service unavailable.</div>`;
+                return { allowed: false };
+            }
+            try {
+                const { data: { user } } = await localSupabase.auth.getUser();
+                if (!user) {
+                    contentEl.innerHTML = `<div class="empty">Access denied. Staff only.</div>`;
+                    return { allowed: false };
+                }
+                if (user.email === "oceanviewrp1@gmail.com") {
+                    return { allowed: true, department: "Management" };
+                }
+                const { data, error } = await localSupabase
+                    .from("users")
+                    .select("department")
+                    .eq("email", user.email)
+                    .maybeSingle();
+                if (error) {
+                    contentEl.innerHTML = `<div class="empty">Access denied. Staff only.</div>`;
+                    return { allowed: false };
+                }
+                const department = data?.department || "";
+                if (department === "Management" || department === "Support Team" || department === "Support Team Lead") {
+                    return { allowed: true, department };
+                }
+                contentEl.innerHTML = `<div class="empty">Access denied. Staff only.</div>`;
+                return { allowed: false };
+            } catch (err) {
+                contentEl.innerHTML = `<div class="empty">An unexpected error occurred.</div>`;
+                console.error(err);
+                return { allowed: false };
+            }
+        }
+
         async function loadSubmissions() {
+            if (!localSupabase) {
+                await initSupabase();
+            }
+            if (!localSupabase) {
+                contentEl.innerHTML = `<div class="empty">Authentication service unavailable. Please refresh the page.</div>`;
+                return;
+            }
+
+            const staff = await ensureStaff();
+            if (!staff.allowed) return;
+
             try {
                 const { data, error } = await localSupabase
                     .from("application_submissions")
@@ -113,6 +211,7 @@
 
                 if (error) {
                     contentEl.innerHTML = `<div class="empty">Failed to load submissions: ${error.message}</div>`;
+                    console.error("Submissions query error:", error);
                     return;
                 }
 
@@ -152,7 +251,12 @@
             }
         }
 
-        loadSubmissions();
+        (async () => {
+            await initSupabase();
+            if (localSupabase) {
+                loadSubmissions();
+            }
+        })();
     </script>
 </body>
 </html>
