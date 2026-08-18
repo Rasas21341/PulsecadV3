@@ -1333,6 +1333,53 @@
                             contentEl.innerHTML = `<div class="empty">Access denied. Community creator only.</div>`;
                             return;
                         }
+                        
+                        const supervisorPassword = communityData.supervisor_password;
+                        const supervisorSessionKey = "supervisor_auth_" + id;
+                        const supervisorSession = sessionStorage.getItem(supervisorSessionKey);
+                        if (supervisorPassword && supervisorSession !== supervisorPassword) {
+                            contentEl.innerHTML = "";
+                            const supervisorModal = document.getElementById("supervisorModal");
+                            const supervisorPasscodeInput = document.getElementById("supervisorPasscodeInput");
+                            const supervisorPasscodeSubmitBtn = document.getElementById("supervisorPasscodeSubmitBtn");
+                            const supervisorPasscodeError = document.getElementById("supervisorPasscodeError");
+                            const supervisorModalClose = document.getElementById("supervisorModalClose");
+                            if (supervisorModal) supervisorModal.classList.add("open");
+                            
+                            function verifySupervisor() {
+                                const entered = supervisorPasscodeInput ? supervisorPasscodeInput.value.trim() : "";
+                                if (entered === supervisorPassword) {
+                                    sessionStorage.setItem(supervisorSessionKey, entered);
+                                    if (supervisorModal) supervisorModal.classList.remove("open");
+                                    loadCommunity();
+                                } else {
+                                    if (supervisorPasscodeError) { supervisorPasscodeError.textContent = "Incorrect password."; supervisorPasscodeError.style.display = "block"; }
+                                }
+                            }
+                            
+                            if (supervisorPasscodeSubmitBtn) {
+                                supervisorPasscodeSubmitBtn.addEventListener("click", verifySupervisor);
+                            }
+                            if (supervisorPasscodeInput) {
+                                supervisorPasscodeInput.addEventListener("keydown", (e) => {
+                                    if (e.key === "Enter") verifySupervisor();
+                                });
+                            }
+                            if (supervisorModalClose && supervisorModal) {
+                                supervisorModalClose.addEventListener("click", () => {
+                                    supervisorModal.classList.remove("open");
+                                });
+                            }
+                            if (supervisorModal) {
+                                supervisorModal.addEventListener("click", (e) => {
+                                    if (e.target === supervisorModal) {
+                                        supervisorModal.classList.remove("open");
+                                    }
+                                });
+                            }
+                            return;
+                        }
+                        
                         const serverName = (communityData.name || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                         const approvalMode = communityData.join_approval === "manual" ? "manual" : "automatic";
                         let initialErkKey = communityData.erlc_api_key || "";
