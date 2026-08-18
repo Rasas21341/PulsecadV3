@@ -1455,13 +1455,13 @@
                                             <input type="text" id="communityPasscodeInput" placeholder="Leave blank for no passcode" value="${(communityData.passcode || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
                                         </div>
                                         <div class="field">
+                                            <label>ERLC API Key</label>
+                                            <input type="text" id="erlcApiKeyInput" placeholder="ERLC API key" value="${initialErkKey.replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
+                                        </div>
+                                        <div class="field">
                                             <label>Supervisor Panel Password</label>
                                             <input type="password" id="supervisorPasswordInput" placeholder="Leave blank for default" value="${(communityData.supervisor_password || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
                                             <button type="button" class="submit-btn" id="saveSupervisorPasswordBtn" style="margin-top:8px; padding:8px 12px; font-size:13px;">Save Password</button>
-                                        </div>
-                                        <div class="field">
-                                            <label>ERLC API Key</label>
-                                            <input type="text" id="erlcApiKeyInput" placeholder="ERLC API key" value="${initialErkKey.replace(/</g, '&lt;').replace(/>/g, '&gt;')}" />
                                         </div>
                                         <div class="dashboard-dropdown">
                                             <button type="button" class="dropdown-toggle" id="requestsDropdownToggle">Requests</button>
